@@ -1,0 +1,3 @@
+# Keep imported source bytes stable for the SHA-256 migration manifest.
+archive/** -text
+references/** -text
