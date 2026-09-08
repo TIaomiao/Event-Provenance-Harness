@@ -4,7 +4,7 @@
 
 所有 Codex 对话和 Windows DSH 先读本文件。完成工作单元后更新自己负责的行和“最新事件”；详细证据放对应文件。本项目共 4 个逻辑 session，A 同时就是 Proposal 对话，不再另设第五个总控。
 
-可视化入口：[dashboard.html](dashboard.html)。GitHub 仓库边界与后续发布节奏见 [GITHUB_REPO_PLAN.md](GITHUB_REPO_PLAN.md)。
+可视化入口：[dashboard.html](dashboard.html)；在线入口（启用 GitHub Pages 后）：`https://tiaomiao.github.io/Event-Provenance-Harness/`。GitHub 仓库边界与后续发布节奏见 [GITHUB_REPO_PLAN.md](GITHUB_REPO_PLAN.md)。
 
 ## 当前一句话
 

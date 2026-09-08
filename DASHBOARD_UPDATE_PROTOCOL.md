@@ -2,6 +2,8 @@
 
 `dashboard.html` 是论文仓库的研究总览入口，不承载患者正文或真实参考答案。它的内容必须能从仓库内的匿名 Markdown 状态和结果文件追溯。
 
+仓库已配置 `.github/workflows/pages.yml`：推送到 `main` 后自动部署 GitHub Pages。在线面板地址为 `https://tiaomiao.github.io/Event-Provenance-Harness/`（首次使用需在仓库 Settings → Pages 中将 Source 设为 GitHub Actions）。
+
 ## 子 session 完成一个工作单元时
 
 1. 更新自己的 `status/`、`discussion_notes.md` 或 `results/` 文件，写清日期、协议版本、完成事项、验证证据、阻塞和下一步。

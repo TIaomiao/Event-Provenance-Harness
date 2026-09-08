@@ -6,8 +6,9 @@
 
 1. **先看总状态**：[CONTROL_PANEL](CONTROL_PANEL.md)。
 2. **可视化总控**：[dashboard.html](dashboard.html)，浏览器直接打开即可。
-3. **做什么**：[论文 Proposal](paper/PROPOSAL.md) 和 [研究卡](RESEARCH_CARD.md)。
-4. **做到哪里**：[实现进度](status/implementation.md)、[评测进度](status/evaluation.md)。
+3. **在线总控**：启用 GitHub Pages 后访问 `https://tiaomiao.github.io/Event-Provenance-Harness/`；每次推送到 `main` 会自动更新。
+4. **做什么**：[论文 Proposal](paper/PROPOSAL.md) 和 [研究卡](RESEARCH_CARD.md)。
+5. **做到哪里**：[实现进度](status/implementation.md)、[评测进度](status/evaluation.md)。
 
 新开任务使用 [开场说明](SESSION_PROMPTS.md)。
 
