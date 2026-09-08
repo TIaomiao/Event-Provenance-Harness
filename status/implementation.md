@@ -1,6 +1,6 @@
 # 原型实现状态
 
-- 协议：local-workspace-v1 / research-card-v0.1。
+- 协议：local-workspace-v2 / research-card-v0.2；论文 Proposal 见 `paper/PROPOSAL.md`。
 - 状态：2026-09-08 时间恢复第一阶段完成，仍为私有候选产物。
 - 已完成：temporal_rebase.py v0.3.1，旧相对日重放平移、同框L1完整日期候选、固定原点与哈希、来源保护。
 - 验证证据：Windows/Linux各23项通过；2例26文档187页，952个日期候选；源L1/L2哈希不变，OCR/API/L4写入均0。

@@ -1,31 +1,25 @@
 # EHR Harness 论文工作区
 
-用户于 2026-09-05 确认：本地 PC 为论文唯一主工作区，Larry 保留数据与实验运行，zian 保留会议归档。
+研究方向：面向真实 EHR 的 Data Agent Harness，目标是计算机方向会议论文。当前首轮实验是重复检验的值—时间—来源匹配；整篇方法与贡献待进一步对齐。
 
-## 从这里开始
+## 日常入口
 
-1. [当前上下文](CONTEXT.md)：目标、分工、现状。
-2. [第一张研究卡](RESEARCH_CARD.md)：已选择重复检验与时间匹配。
-3. [DataSpace 首轮阅读卡](READING_DATASPACE.md)：约 50 分钟，带着任务问题读。
-4. [session 开场说明](SESSION_PROMPTS.md)：本地 A/B/C 和 DSH 的启动入口。
-5. [归集与文件盘点](MIGRATION_REPORT.md)：复制范围、验证结果与远端文件数。
-6. [工程补救计划](ENGINEERING_PLAN.md)：本对话的当前实现、验证与下一步。
-7. [论文阅读与idea交接](RESEARCH_IDEA_HANDOFF.md)：给另一对话的研究问题与输入输出规格。
+1. **先看总状态**：[CONTROL_PANEL](CONTROL_PANEL.md)。
+2. **可视化总控**：[dashboard.html](dashboard.html)，浏览器直接打开即可。
+3. **做什么**：[论文 Proposal](paper/PROPOSAL.md) 和 [研究卡](RESEARCH_CARD.md)。
+4. **做到哪里**：[实现进度](status/implementation.md)、[评测进度](status/evaluation.md)。
 
-## 目录
+新开任务使用 [开场说明](SESSION_PROMPTS.md)。
 
-| 位置 | 用途 |
-| --- | --- |
-| 根目录研究文件 | 当前有效的研究卡、上下文、讨论与分工 |
-| src/prototype/ | 原型代码与对应测试，由 B 维护 |
-| src/evaluation/ | 评分代码与对应测试，由 C 维护 |
-| status/ | B/C 的本地匿名进度 |
-| references/ | 历史文献笔记，具体事实使用前按版本核对 |
-| paper/ | 后续论文正文、汇报与允许使用的图表 |
-| results/ | 允许回传的匿名指标、版本清单与图表 |
-| archive/ | 归集前文件快照，保留历史出处 |
-| migration_manifest.json | 原始资料的 SHA-256 复制清单 |
+每个子 session 完成后，先更新自己负责的状态文件，再同步 [CONTROL_PANEL](CONTROL_PANEL.md) 和 [可视化面板](dashboard.html)；新的反例、决策和可复现证据挂到对应文档并从面板链接进入。
 
-本地 session 通过 SSH 调用 Larry 的脚本；模型菜单是否在远端正常工作不影响该组织方式。服务器使用确定版本的代码运行，匿名结果回到本地用于分析与写作。
+## 按需查阅
 
-2026-09-08 已实现独立时间候选适配器，并完成23项跨平台测试与2例真实开发样本验证。事件评分器和真实模型A/B实验仍待推进；阅读与idea由另一对话衔接。
+- 研究设计：[文献与 idea 交接](RESEARCH_IDEA_HANDOFF.md)。
+- 工程细节：[工程计划](ENGINEERING_PLAN.md)，代码在 `src/`，验证证据在 `results/`。
+- 对外沟通：[微信消息草稿](paper/2026-09-08_wechat_draft.md)。
+- 当前 KDD idea：[三轮打磨后的候选版本](paper/KDD_IDEA_REVIEWED_2026-09-08.md)；日常以 [Proposal](paper/PROPOSAL.md) 为准。
+- 论文与阅读卡：[论文阅读包](D:/UESTC/科研/论文/26.7-/EHR_Harness_论文阅读包)；项目内 [DataSpace 初读卡](references/READING_DATASPACE.md)供复习。
+- 历史资料：[归档索引](archive/README.md)。
+
+本地维护代码、协议和允许回传的匿名结果；Larry 保存受控数据与实验运行，zian 保存会议归档。进度以 `status/` 的更新日期和关联证据为准。

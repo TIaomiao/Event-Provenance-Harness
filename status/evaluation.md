@@ -1,6 +1,6 @@
 # 评测状态
 
-- 协议：local-workspace-v1 / research-card-v0.1。
+- 协议：local-workspace-v2 / research-card-v0.2；论文 Proposal 见 `paper/PROPOSAL.md`。
 - 状态：尚未启动评测任务。
 - 已完成：本地工作区与研究卡已就绪。
 - 验证证据：本轮只完成文件复制校验，尚无评分器或模型结果。
