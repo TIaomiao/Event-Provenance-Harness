@@ -10,6 +10,14 @@
 
 目标是 KDD 风格计算机会议论文；候选主轴是“事件身份与来源作为纵向 EHR Agent 的数据基座”；首轮实验 E1 是重复检验的值—时间—来源匹配。整篇论文主轴仍待师兄确认。
 
+## 论文定位（与 `paper/PROPOSAL.md` 对齐）
+
+- **当前题目**：Event-Provenance Harness: Query-Conditioned Structuring for Verifiable Analytics over Real-World Longitudinal EHRs。
+- **中心命题**：真实纵向 EHR 的难点不是把 PDF 转成 JSON，而是把分散、重复、冲突且时间含义不同的证据组织成带事件身份和来源的可验证记录。
+- **Motivation**：值抽取正确并不代表事件关系正确；重复引用、真实复测、采样/报告/记录/文档时间和来源支持必须被单独表达与评估。
+- **三项候选创新**：事件身份与时间—来源层、查询驱动且不确定性感知的事件物化、执行锚定的 EHR Harness 与 evaluator。
+- **强度边界**：这些仍是候选研究设计；真实模型 A/B、独立评价集、效果和跨任务泛化尚未建立。
+
 ## Session 状态
 
 | Session | 入口 | 当前职责 | 状态 | 下一步 |
