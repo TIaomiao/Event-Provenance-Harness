@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-08",
+  "version": "temporal-rebase-v0.3.1",
+  "sample_source": "two previously authorized governance development cases; not random test set",
+  "cases": [
+    {
+      "document_count": 8,
+      "page_count": 29,
+      "candidate_date_count": 248,
+      "replayed_relative_token_candidates": 166,
+      "recovered_masked_date_candidates": 82,
+      "relative_token_count": 270,
+      "distinct_legacy_anchors": 3,
+      "documents_with_nonzero_offset": 7,
+      "excluded_relative_token_counts": {
+        "legacy_replay_mismatch": 15,
+        "ambiguous_year": 89
+      },
+      "source_only_issue_counts": {},
+      "source_date_lines_without_relative_token": 83,
+      "issue_counts": {
+        "source_date_not_retained_as_relative_token": 83,
+        "legacy_replay_mismatch": 15,
+        "ambiguous_year": 89
+      },
+      "input_hashes_unchanged": true,
+      "api_ready": false,
+      "applied_to_l4": false,
+      "sidecar_sha256": "9c67a2fa0341728f80acd11a1d6f8ac691f5f90080d2cf28bcd089abfc13a0d1",
+      "case_alias": "CASE-02",
+      "file_permissions": "0o600"
+    },
+    {
+      "document_count": 18,
+      "page_count": 158,
+      "candidate_date_count": 704,
+      "replayed_relative_token_candidates": 392,
+      "recovered_masked_date_candidates": 312,
+      "relative_token_count": 528,
+      "distinct_legacy_anchors": 5,
+      "documents_with_nonzero_offset": 7,
+      "excluded_relative_token_counts": {
+        "ambiguous_year": 133,
+        "legacy_replay_mismatch": 3
+      },
+      "source_only_issue_counts": {
+        "source_only_outside_legacy_window": 24
+      },
+      "source_date_lines_without_relative_token": 379,
+      "issue_counts": {
+        "source_date_not_retained_as_relative_token": 379,
+        "ambiguous_year": 133,
+        "legacy_replay_mismatch": 3,
+        "source_only_outside_legacy_window": 24
+      },
+      "input_hashes_unchanged": true,
+      "api_ready": false,
+      "applied_to_l4": false,
+      "sidecar_sha256": "121766c6a9703be2eef1a71252c64f4648a8d3f0d7f1a4fde2fb84d2eb293e74",
+      "case_alias": "CASE-05",
+      "file_permissions": "0o600"
+    }
+  ],
+  "lab_summary": {
+    "documents": 3,
+    "pages": 74,
+    "candidate_dates": 161,
+    "documents_with_candidates": 2
+  },
+  "windows_synthetic_tests_passed": 23,
+  "linux_synthetic_tests_passed": 23,
+  "original_pdf_read_count": 0,
+  "ocr_rerun_count": 0,
+  "external_model_calls": 0,
+  "l4_applied": false
+}
