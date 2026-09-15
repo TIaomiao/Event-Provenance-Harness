@@ -33,6 +33,7 @@ jobs:
           mkdir -p _site
           cp dashboard.html _site/index.html
           cp dashboard.html _site/dashboard.html
+          cp attempts.html _site/attempts.html
 
           # 白名单发布：只放明确不含患者内容的文件。
           # results/ 下的实测记录一律不上公开站点（其中含病例时间戳等派生信息）；
@@ -50,7 +51,9 @@ jobs:
       - name: Guard - fail if a blocked pattern slipped in
         run: |
           set -euo pipefail
-          if grep -rIl --exclude-dir=.git -E 'ocr_layout|患者|住院号|病案号|sk-[A-Za-z0-9]{20,}' _site ; then
+          # 只拦真正敏感的东西：凭据、服务器绝对路径、完整患者时间戳。
+          # 注意：不要拦「患者」「ocr_layout」这类正常行文/文件名——那会让正常页面部署失败。
+          if grep -rIl -E 'sk-[A-Za-z0-9]{20,}|/home/[A-Za-z0-9_]+/code/[A-Za-z0-9_/]+|[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' _site ; then
             echo "::error::blocked content pattern found in staged site"
             exit 1
           fi

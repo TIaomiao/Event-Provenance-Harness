@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>尝试史与失败原因总表 · EHR Harness</title>
+<style>
+  :root{--ink:#17231f;--muted:#65716c;--green:#0d6b57;--red:#c2410c;--line:#d9d5c9;--card:#fffdf8}
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(135deg,#f7f4eb,#e8eee6);color:var(--ink);
+       font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Georgia,serif;line-height:1.7;font-size:15px}
+  main{max-width:1180px;margin:auto;padding:26px 22px 70px}
+  .eyebrow{font:700 11px/1.2 'Segoe UI',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+  h1{font-size:clamp(28px,4.4vw,44px);line-height:1.15;letter-spacing:-.03em;margin:8px 0 6px}
+  h1 em{color:var(--red);font-style:normal}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+  h2{font-size:20px;margin:32px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--green);color:var(--green)}
+  h2 .n{color:#b9c6bf;margin-right:8px;font-weight:400}
+  .card{background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:16px;
+        box-shadow:0 12px 30px rgba(32,42,35,.06)}
+  .lead{background:#f0f7ef;border-left:5px solid var(--green);border-radius:0 12px 12px 0;padding:14px 16px}
+  .bad{background:#fff4ed;border-left:5px solid var(--red);border-radius:0 12px 12px 0;padding:14px 16px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 4px}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid #ebe7dc;vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:#faf9f4;position:sticky;top:0}
+  tr:last-child td{border-bottom:0}
+  .tag{display:inline-block;font:700 11px 'Segoe UI',sans-serif;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .t-dead{background:#f6cfc1;color:#8b3e28}
+  .t-lit{background:#e4e2dd;color:#5c5850}
+  .t-live{background:#d8edcf;color:#24633d}
+  .t-open{background:#f7df9d;color:#795217}
+  .k{color:var(--green);font-weight:700}
+  .big{font-size:19px;font-weight:700;color:var(--red)}
+  a{color:var(--green)}
+  .links a{display:inline-block;margin:4px 8px 4px 0;padding:7px 13px;border:1px solid #bad0c2;border-radius:99px;
+           background:#f1f6ed;text-decoration:none;font:600 12.5px 'Segoe UI',sans-serif}
+  code{font:12.5px ui-monospace,Consolas,monospace;background:#eee9dd;padding:1px 5px;border-radius:5px}
+  .small{font-size:12.5px;color:var(--muted)}
+  .scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+
+<div class="eyebrow">Attempt log · why nothing works yet</div>
+<h1>我们做过什么，<em>为什么现在还不能写论文</em></h1>
+<p class="sub">2026-08-25 → 2026-09-15 · 共 85 条尝试记录 · 目标会议：KDD 2027 Cycle 2（另：CVPR 2027 / MICCAI / ACM MM）</p>
+
+<div class="bad">
+  <p style="margin:0 0 8px"><b>这一页存在的唯一目的：</b>避免任何人（包括我们自己）看到面板后产生
+  "看起来挺完整的，继续推进就行了" 的印象。</p>
+  <p style="margin:0"><span class="big">目前没有任何一个方向的中心命题通过实测。</span>
+  我们提出的三版主张全部被自己否证，其中两版是用真实模型实测否证的。
+  <b>没通过的闸门不允许往下做。</b></p>
+</div>
+
+<h2><span class="n">01</span>我们现在有什么（这些是可以复用的）</h2>
+
+<table>
+  <tr><th style="width:26%">资产</th><th>具体内容</th><th style="width:14%">状态</th></tr>
+  <tr>
+    <td><b>真实数据</b></td>
+    <td>39,560 个病例目录 / 462,789 份 PDF。其中 <b>200 例已完成治理</b>：bbox 级 OCR 版面（含 text / bbox / confidence / page）、文档类型标签、L2 脱敏记录。每例 5–18 份 PDF，中位 11 份。</td>
+    <td><span class="tag t-live">可用</span></td>
+  </tr>
+  <tr>
+    <td><b>文档类型覆盖</b></td>
+    <td>医嘱/申请 200 例、病程记录 200 例、入院记录 200 例、检验报告 187 例、医嘱执行 195 例、出院记录 196 例、影像报告 180 例、病理报告 122 例、手术/麻醉类若干。</td>
+    <td><span class="tag t-live">可用</span></td>
+  </tr>
+  <tr>
+    <td><b>检验报告结构</b></td>
+    <td>每页六列：项目名称 / 缩写 / 结果 / 单位 / 参考区间 / 检测方法。页脚有<b>四个带标签的时间</b>：采集时间 / 接收时间 / 报告时间 / 打印时间。表格内无行级时间、无行级标本号，时间与编号只在页级。</td>
+    <td><span class="tag t-live">已核实</span></td>
+  </tr>
+  <tr>
+    <td><b>治理流水线</b></td>
+    <td>L2 规则脱敏（带 bbox 与 entity_type）、人工隐私复核工单、<code>api_ready</code> 状态机、按文档类型分派 parser、自建治理控制台。<b>脱敏做法标准：绝对日期→相对日+偏移，时分秒保留，样本内间隔保留。</b></td>
+    <td><span class="tag t-live">可用</span></td>
+  </tr>
+  <tr>
+    <td><b>代码资产</b></td>
+    <td>观测级评分器 + 45 项测试（本机实测通过）；时间候选适配器 23 项测试；时间角色/行关联模块 12 项测试；bbox 适配器 2 项测试。<b>全部是合成测试，未在真实数据上产生过合格输出。</b></td>
+    <td><span class="tag t-open">工程切片</span></td>
+  </tr>
+  <tr>
+    <td><b>模型通道</b></td>
+    <td>已验证可用的 LLM 网关与 5+ 个模型；单次实验成本量级 &lt; 1 美元；真实调用链路（在受控主机上跑、只有 prompt 出网）已打通。</td>
+    <td><span class="tag t-live">可用</span></td>
+  </tr>
+</table>
+
+<h2><span class="n">02</span>做过的 15 个大方向（按时间）</h2>
+
+<div class="scroll">
+<table>
+  <tr><th style="width:8%">日期</th><th style="width:30%">方向</th><th style="width:34%">一句话是什么</th><th style="width:28%">结局</th></tr>
+  <tr><td>08-25</td><td>EHR 治理评估小闭环</td><td>六类可评估任务：文档分类 / 脱敏漏检误删 / 缺失状态区分 / 表格行绑定 / 来源证据 / 隔离</td><td><span class="tag t-lit">消失</span><br><span class="small">文件里没有记录否决理由，08-26 后不再出现</span></td></tr>
+  <tr><td>08-25</td><td>PAI 风格缺失状态实验</td><td>A–E 五条件：静态插补 / 插补+mask / 规则化缺失编码 / 可学习 token / 统一对照</td><td><span class="tag t-lit">消失</span><br><span class="small">前置条件（L3 数据+人工金标准）未满足</span></td></tr>
+  <tr><td>08-25</td><td>CMR 模型复现 / 跨中心评估</td><td>公开数据复现 U-Net/nnU-Net，交付 Dice/HD95</td><td><span class="tag t-lit">消失</span></td></tr>
+  <tr><td>09-05</td><td>EHR Data Agent Harness（工作定义）</td><td>按任务组织跨文档证据、调用模型提取关联事实、生成带时间和来源的结构化记录、检查冲突</td><td><span class="tag t-dead">被否证</span><br><span class="small">演化为后续主线；09-14 被判"Harness 是装饰性的"</span></td></tr>
+  <tr><td>09-08</td><td>Event-Provenance Harness 三支柱</td><td>①事件身份层 ②查询驱动事件物化 ③执行锚定评测器</td><td><span class="tag t-dead">被实测否证</span><br><span class="small">模型 10/10 全对，无方法收益</span></td></tr>
+  <tr><td>09-11</td><td>嵌套 Harness：采样事件计数</td><td>"值抽对了，事件数不对"——外层跨文档身份判定 + 内层文档内结构重建</td><td><span class="tag t-dead">被实测 + 审稿否证</span></td></tr>
+  <tr><td>09-14</td><td>发布的实例计数确定性</td><td>把脱敏发布视为"视图"，定义实例级计数查询的确定性区间</td><td><span class="tag t-dead">被实测否证</span><br><span class="small">脱敏保留了时分秒，区间宽度 = 0</span></td></tr>
+  <tr><td>09-14</td><td>C1 证据会计</td><td>答案是"计数"而非"值"：输出值 + 事件划分 + 每事件见证 + suspend</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td>C2 擦除之后仍可审计</td><td>把脱敏从"前置常量"变成目标函数：隐私风险 vs 结论可审计性</td><td><span class="tag t-open">未实测</span><br><span class="small">可能被授权阻塞</span></td></tr>
+  <tr><td>09-14</td><td>C3 可判定性层级与受控降级</td><td>L0–L4 可判定性层级 + 元数据自动金标准 + 只移走显式信号的降级算子</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td>D1 金标准有边界</td><td>输出改为"可行划分集合 + 唯一性证书 + 使集合坍缩的最小见证"</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td>D2 许可不在文本里</td><td>测"表示本身丢掉了什么"；指出 10/10 的输入是已切好页的干净输入</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td>D3 被擦除的与被留下的</td><td>差异钉在"本来没有 vs 被我删掉不可辨识"与残渣致假信号</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td>跨层归属许可一等对象</td><td>事件身份是 row→page→draw→叙述引用 的跨层连接，每跳许可只存在于一个层级</td><td><span class="tag t-open">未实测</span></td></tr>
+  <tr><td>09-14</td><td><b>命名不一致 → 跨文档重复计数</b></td><td>病程记录用 <code>[检验组合名][日期]</code> 引用检验结果，与检验报告名称精确命中 0/50</td><td><span class="tag t-live">唯一活着</span><br><span class="small">命名对不上已实测；<b>是否真导致重复计数尚未测</b></span></td></tr>
+</table>
+</div>
+
+<h2><span class="n">03</span>为什么不行 —— 三次实测的完整过程</h2>
+
+<div class="card">
+  <p><b>否证一：事件身份（2026-09-14）</b></p>
+  <p class="small">我们构造任务：同一病例的 11 页检验报告 = 几次独立采血？真值由页脚"采集时间"自动导出（7 页挤在十几秒内算同一次，共 2 次）。</p>
+  <p style="margin:0"><span class="big">结果：5 个模型 × 2 次重复 = 10 次调用全部答对。</span>
+  事件数全报 2，分组与真值完全一致，依据字段全部是「采集时间」，<b>无一例把报告时间当成采样时间</b>。连最便宜的模型也对。</p>
+</div>
+
+<div class="card">
+  <p><b>否证二：Harness 框架（2026-09-14，对抗审稿）</b></p>
+  <p style="margin:0">审稿意见原文：<b>"把标题与正文的 Harness 一律换成 pipeline，内容一字不变。"</b>
+  三条"为什么单层做不到"全部被逐条驳倒。→ <b>框架是装饰性的，不是机制。</b>
+  这条已成为后续所有方案的强制自检：<b>删掉 Harness 之后论证是否仍成立？成立就说明它是装饰。</b></p>
+</div>
+
+<div class="card">
+  <p><b>否证三：发布确定性（2026-09-14）</b></p>
+  <p class="small">假设：脱敏之后就算不出采血次数了。检验方式：对比未脱敏与脱敏发布后的 OCR 布局。</p>
+  <p style="margin:0 0 6px">实测结果：四个时间标签<b>各 11 条全部存活</b>；绝对日期 44 行 → 0 行；相对日 0 行 → 44 行；
+  <b>时分秒原封不动保留</b>。→ 同一次采血的几份报告相等关系完好，<b>计数区间宽度 = 0</b>，假设不成立。</p>
+  <p class="small" style="margin:0">附带正面结论：该脱敏流水线采用相对日平移，<b>保留了事件间间隔与相等关系</b>，做法标准且正确。</p>
+</div>
+
+<div class="bad">
+  <p style="margin:0"><b>还有一件必须主动说明的事：</b>此前汇报过的那些指标（F1 从 0 提升到 1.0 等），
+  经审计发现是<b>"手写答案对手写答案"的自洽检查，模型调用次数其实是 0</b>。
+  这些已从面板全部撤下。<b>项目历史上第一次真实的大模型调用，就是上面"否证一"的那次 10/10 测试。</b></p>
+</div>
+
+<h2><span class="n">04</span>哪些是别人已经做过的（不要再投）</h2>
+
+<div class="scroll">
+<table>
+  <tr><th style="width:38%">方向</th><th style="width:34%">已被谁做</th><th>为什么这挡住了我们</th></tr>
+  <tr><td>文档数 ≠ 临床事件数 / 计数工具</td><td>arXiv 2608.31017</td><td>直接拿走"数事件不数文档"这个标题级主张</td></tr>
+  <tr><td>把检验结果链接到它的"检验事件"</td><td>CLinkaRT @ EVALITA 2023 / TESTLINK @ IberLEF 2023</td><td>任务名就叫 Linking a Lab Result to its Test Event</td></tr>
+  <tr><td>临床事件的时间锚定与来源裁决</td><td>arXiv 2609.13062、2605.15168</td><td>覆盖"事件 × 时间 × 来源裁决"的技术路线外观</td></tr>
+  <tr><td>OCR 临床报告的结构化抽取</td><td>MedStruct-S（KSEM 2026）、Key Coverage Matters</td><td>中文医院检验报告的抽取基准与错误分解已有人做</td></tr>
+  <tr><td>OCR 可靠性信号作为一等输入</td><td>ICML 2026 workshop</td><td>连"把 OCR 噪声当信号 + 结构感知预训练"这个最小改进也被做了</td></tr>
+  <tr><td>Harness 效应与编排对比</td><td>DataSpace、Harness-Bench、The Harness Effect</td><td>"harness 很重要"已经是共识，不是发现</td></tr>
+  <tr><td>Agent 预算与成本控制</td><td>arXiv 2511.17006（COLM 2026）</td><td>预算作为一等变量驱动 agent 已被占</td></tr>
+  <tr><td>上下文治理与溯源</td><td>ContextNest（2607.02116）、Eywa（2605.30771）</td><td>"可验证的上下文治理"被占</td></tr>
+  <tr><td>长程数据分析失败模式诊断</td><td>LongDS-Bench（2605.30434）</td><td>标题就是"长程 agentic 数据分析的失败"</td></tr>
+  <tr><td>来源接地 / 引用支持</td><td>ACIE（2606.19602）</td><td>已实测 hallucinated reference 0.0%、missing 1.2%——来源支持不是瓶颈</td></tr>
+  <tr><td>跨文档临床事件共指</td><td>THYME 规范、Son &amp; Taira 2004</td><td>任务形状 2004 年就有先例（影像发现，P=72%/R=63%）</td></tr>
+  <tr><td>文档级近重复检测</td><td>Gabriel 2018（MinHash/LSH）</td><td>现成工具，不是创新</td></tr>
+  <tr><td>其它领域的事件级去重</td><td>疫苗剂量级去重、vigiMatch、测序 UMI</td><td>方法现成，不能声称"首次提出事件身份判定"</td></tr>
+</table>
+</div>
+
+<p class="small">另有三条"最自然的创新点位置"同样已饱和：<b>预算/成本轴</b>、<b>上下文治理/溯源</b>、<b>长程失败诊断</b>。
+社区自己也承认通用 data agent benchmark 已饱和、议程需重设（arXiv 2606.26158、2609.03141）。</p>
+
+<h2><span class="n">05</span>所以我们现在缺的到底是什么</h2>
+
+<div class="lead">
+  <p style="margin:0 0 8px"><b>不缺数据、不缺算力、不缺执行力、不缺工程。</b></p>
+  <p style="margin:0">缺的是 <b>"哪个临床问题真的重要"</b> 这一层判断。</p>
+  <p style="margin:10px 0 0">上面 15 个方向里，<b>真正死于实测的只有 3 个</b>；其余大多死于"我们自己猜的方向本来就不重要"。
+  这也是 2026-09-14 连续否证三次的根本原因——<b>我们在用猜测替代临床判断。</b></p>
+</div>
+
+<h2><span class="n">06</span>待导师判断的三个问题</h2>
+<div class="card">
+  <ol style="margin:0;padding-left:20px">
+    <li style="margin-bottom:6px">病程记录和检验报告对同一份检验用<b>两套名字（精确命中 0/50）</b>——这在科室里是真问题吗？会不会真的有人把一次检验数成两次？</li>
+    <li style="margin-bottom:6px">临床上真正需要<b>"把散在多份文档里的信息拼起来才能回答"</b>的问题，具体是哪几个？</li>
+    <li>如果模型读单份文档已经足够准了，那在套系统还差什么才算真正有用？</li>
+  </ol>
+</div>
+
+<h2><span class="n">07</span>相关文件</h2>
+<div class="links">
+  <a href="dashboard.html">总览面板</a>
+  <a href="paper/BRIEF_FOR_ADVISOR.pdf">给导师的汇报 PDF</a>
+  <a href="paper/KDD_IDEA_2026-09-14.md">选题调研与对抗审查</a>
+  <a href="results/2026-09-14_model_event_test.md">10/10 模型测试明细</a>
+  <a href="results/2026-09-14_truth_audit.md">两周产物真伪审计</a>
+  <a href="results/2026-09-14_event_identity_finding.md">采样事件数据事实</a>
+  <a href="CONTROL_PANEL.md">总控面板</a>
+</div>
+
+<p class="small" style="margin-top:22px">
+本页所有数字均来自真实数据上的可重跑脚本。患者原始数据、OCR 正文与参考答案全部留在受控环境内，未出现在本仓库。
+提交前已清洗 69 处患者派生的具体信息（时分秒 / 日期 / 服务器路径 / 网关地址）。
+</p>
+
+</main>
+</body></html>
