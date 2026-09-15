@@ -1,0 +1,22 @@
+[
+ {"case_token":"CASE-02","document_token":"DOC-001","page_count":3,"line_count":97,"ocr_quality":"high","strata":["laboratory_candidate","short_document","single_page_layout_review"]},
+ {"case_token":"CASE-02","document_token":"DOC-002","page_count":2,"line_count":57,"ocr_quality":"high","strata":["laboratory_candidate","short_document"]},
+ {"case_token":"CASE-02","document_token":"DOC-003","page_count":5,"line_count":713,"ocr_quality":"high","strata":["laboratory_candidate","medium_document","dense_layout"]},
+ {"case_token":"CASE-02","document_token":"DOC-004","page_count":5,"line_count":676,"ocr_quality":"high","strata":["laboratory_candidate","medium_document","dense_layout"]},
+ {"case_token":"CASE-02","document_token":"DOC-005","page_count":3,"line_count":87,"ocr_quality":"high","strata":["laboratory_candidate","short_document"]},
+ {"case_token":"CASE-02","document_token":"DOC-006","page_count":2,"line_count":303,"ocr_quality":"high","strata":["laboratory_candidate","short_document","dense_layout"]},
+ {"case_token":"CASE-02","document_token":"DOC-007","page_count":4,"line_count":104,"ocr_quality":"high","strata":["laboratory_candidate","medium_document"]},
+ {"case_token":"CASE-02","document_token":"DOC-008","page_count":5,"line_count":658,"ocr_quality":"high","strata":["laboratory_candidate","medium_document","dense_layout"]},
+ {"case_token":"CASE-05","document_token":"DOC-001","page_count":2,"line_count":48,"ocr_quality":"high","strata":["laboratory_candidate","short_document"]},
+ {"case_token":"CASE-05","document_token":"DOC-002","page_count":4,"line_count":105,"ocr_quality":"high","strata":["laboratory_candidate","medium_document"]},
+ {"case_token":"CASE-05","document_token":"DOC-003","page_count":2,"line_count":68,"ocr_quality":"high","strata":["laboratory_candidate","short_document"]},
+ {"case_token":"CASE-05","document_token":"DOC-004","page_count":12,"line_count":1905,"ocr_quality":"high","strata":["laboratory_candidate","long_document","dense_layout","cross_page_candidate"]},
+ {"case_token":"CASE-05","document_token":"DOC-005","page_count":12,"line_count":443,"ocr_quality":"medium","strata":["laboratory_candidate","long_document","low_confidence_candidate","cross_page_candidate"]},
+ {"case_token":"CASE-05","document_token":"DOC-006","page_count":11,"line_count":332,"ocr_quality":"high","strata":["laboratory_candidate","long_document","cross_page_candidate"]},
+ {"case_token":"CASE-05","document_token":"DOC-007","page_count":2,"line_count":68,"ocr_quality":"high","strata":["laboratory_candidate","short_document"]},
+ {"case_token":"CASE-05","document_token":"DOC-008","page_count":6,"line_count":678,"ocr_quality":"high","strata":["laboratory_candidate","medium_document","dense_layout"]},
+ {"case_token":"CASE-05","document_token":"DOC-009","page_count":1,"line_count":32,"ocr_quality":"high","strata":["laboratory_candidate","single_page_layout_review"]},
+ {"case_token":"CASE-05","document_token":"DOC-010","page_count":2,"line_count":297,"ocr_quality":"high","strata":["laboratory_candidate","short_document","dense_layout"]},
+ {"case_token":"CASE-05","document_token":"DOC-011","page_count":11,"line_count":243,"ocr_quality":"high","strata":["laboratory_candidate","long_document","cross_page_candidate"]},
+ {"case_token":"CASE-05","document_token":"DOC-012","page_count":15,"line_count":495,"ocr_quality":"high","strata":["laboratory_candidate","long_document","cross_page_candidate"]}
+]

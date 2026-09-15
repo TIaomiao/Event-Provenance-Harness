@@ -1,0 +1,73 @@
+{
+  "aligned_count": 12,
+  "ambiguous_source_predictions": 0,
+  "comparison_to_previous": {
+    "all_time_assertions": {
+      "current": 12,
+      "delta": 6,
+      "previous": 6
+    },
+    "joint_f1": {
+      "current": 0.6666666666666666,
+      "delta": 0.5,
+      "previous": 0.16666666666666666
+    },
+    "sampling_time": {
+      "current": 12,
+      "delta": 4,
+      "previous": 8
+    },
+    "source_support": {
+      "current": 8,
+      "delta": 6,
+      "previous": 2
+    }
+  },
+  "cost": {
+    "amount": 0,
+    "calls": 0,
+    "currency": "USD",
+    "failed_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "status": "recorded",
+    "wall_seconds": 0
+  },
+  "extra_observations": 0,
+  "field_correct": {
+    "all_time_assertions": 12,
+    "full_record": 8,
+    "joint": 8,
+    "sampling_time": 12,
+    "source_support": 8,
+    "unit": 12,
+    "value": 12
+  },
+  "full_record_f1": 0.6666666666666666,
+  "full_record_fn": 4,
+  "full_record_fp": 4,
+  "full_record_precision": 0.6666666666666666,
+  "full_record_recall": 0.6666666666666666,
+  "full_record_tp": 8,
+  "gold_count": 12,
+  "identity": {
+    "correct": 3,
+    "different_pairs": 2,
+    "false_merge": 0,
+    "false_split": 0,
+    "missing_decision": 1,
+    "same_pairs": 1,
+    "status": "reported",
+    "unresolved_pairs": 1,
+    "unsupported_resolution": 0
+  },
+  "joint_f1": 0.6666666666666666,
+  "joint_fn": 4,
+  "joint_fp": 4,
+  "joint_precision": 0.6666666666666666,
+  "joint_recall": 0.6666666666666666,
+  "joint_tp": 8,
+  "missing_observations": 0,
+  "prediction_count": 12,
+  "status": "scored"
+}

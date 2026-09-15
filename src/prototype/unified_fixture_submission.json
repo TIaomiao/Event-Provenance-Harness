@@ -1,0 +1,346 @@
+{
+  "protocol": "research-card-v0.3/shared-synthetic-v0.1",
+  "observations": [
+    {
+      "observation_id": "expected-1",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "source_refs": [
+        "r1"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "role_ref": "ls-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d1r",
+          "role_ref": "lr-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-2",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "Y",
+      "value": "7",
+      "unit": "U",
+      "source_refs": [
+        "r2"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "role_ref": "ls-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d1r",
+          "role_ref": "lr-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-3",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "source_refs": [
+        "r3"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 3,
+          "coordinate_id": "C1",
+          "date_ref": "d2s",
+          "role_ref": "ls-t2",
+          "scope_ref": "t2",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 4,
+          "coordinate_id": "C1",
+          "date_ref": "d2r",
+          "role_ref": "lr-t2",
+          "scope_ref": "t2",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-4",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "source_refs": [
+        "r4"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d3s",
+          "role_ref": "ls-t3",
+          "scope_ref": "t3",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d3r",
+          "role_ref": "lr-t3",
+          "scope_ref": "t3",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-5",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "5.1",
+      "unit": "U",
+      "source_refs": [
+        "r5"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unknown"
+        },
+        {
+          "role": "report",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d4r",
+          "role_ref": "lr-t4",
+          "scope_ref": "t4",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-6",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "6",
+      "unit": "U",
+      "source_refs": [
+        "r6"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unknown"
+        },
+        {
+          "role": "document",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d5",
+          "role_ref": "ld-t5",
+          "scope_ref": "t5",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-7",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "8",
+      "unit": "U",
+      "source_refs": [
+        "r7"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C2",
+          "date_ref": "d6",
+          "role_ref": "ls-t6",
+          "scope_ref": "t6",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-8",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "9",
+      "unit": "U",
+      "source_refs": [
+        "r8"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d7",
+          "role_ref": "ls-t7",
+          "scope_ref": "t7",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-9",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "1",
+      "unit": "U",
+      "source_refs": [
+        "r9"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d8a",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8",
+          "binding_status": "conflicting"
+        },
+        {
+          "role": "sampling",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d8b",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8",
+          "binding_status": "conflicting"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-10",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "2",
+      "unit": "U",
+      "source_refs": [
+        "r10"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        },
+        {
+          "role": "unknown",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d9",
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-11",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "source_refs": [
+        "r11"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d10",
+          "role_ref": "ls-t10",
+          "scope_ref": "t10",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "expected-12",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "3",
+      "unit": "U",
+      "source_refs": [
+        "r12"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        }
+      ]
+    }
+  ],
+  "event_groups": [
+    [
+      "r1",
+      "r4"
+    ],
+    [
+      "r3"
+    ],
+    [
+      "r11"
+    ]
+  ],
+  "cost": {
+    "attempts": [],
+    "wall_seconds": 0,
+    "currency": "USD"
+  }
+}

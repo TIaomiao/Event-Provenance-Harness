@@ -1,0 +1,82 @@
+{
+  "protocol": "research-card-v0.3/shared-synthetic-v0.1",
+  "observations": [
+    {
+      "observation_id": "obs-1",
+      "case_token": "CASE-SYNTHETIC",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "source_refs": [
+        "E-R-GLU"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "E-H-SAMPLE",
+          "role_ref": "E-H-SAMPLE",
+          "scope_ref": "synthetic-table",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "obs-2",
+      "case_token": "CASE-SYNTHETIC",
+      "item": "Y",
+      "value": "18",
+      "unit": "U/L",
+      "source_refs": [
+        "E-R-ALT"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "E-H-SAMPLE",
+          "role_ref": "E-H-SAMPLE",
+          "scope_ref": "synthetic-table",
+          "binding_status": "explicit"
+        }
+      ]
+    },
+    {
+      "observation_id": "obs-3",
+      "case_token": "CASE-SYNTHETIC",
+      "item": "Z",
+      "value": "132",
+      "unit": "g/L",
+      "source_refs": [
+        "E-R-HGB"
+      ],
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unknown"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "E-H-REPORT",
+          "role_ref": "E-H-REPORT",
+          "scope_ref": "synthetic-table",
+          "binding_status": "explicit"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "event_count": 3,
+    "resolved_count": 3,
+    "source": "synthetic_only"
+  }
+}

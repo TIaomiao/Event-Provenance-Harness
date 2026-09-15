@@ -1,10 +1,10 @@
 # 文献与研究设计交接
 
-更新：2026-09-08。日常先看 [总控面板](CONTROL_PANEL.md)；论文 Proposal 见 [paper/PROPOSAL.md](paper/PROPOSAL.md)，首轮任务与假设见 [研究卡](RESEARCH_CARD.md)，工程与评测进度见 [status](status/implementation.md)。
+更新：2026-09-11。日常先看 [总控面板](CONTROL_PANEL.md)；论文 Proposal 见 [paper/PROPOSAL.md](paper/PROPOSAL.md)，首轮任务与共享合成开发口径见 [研究卡 v0.3](RESEARCH_CARD.md)，工程与评测进度见 [status](status/implementation.md)。
 
 ## 当前研究工作
 
-1. 与师兄对齐面向真实 EHR 的 Data Agent Harness 论文定位、主要贡献与预期范围；首轮从重复检验的值—时间—来源匹配开始。
+1. 用户转述师兄已确认事件表示与查询 Harness 主轴；围绕这个方向补具体机制和范围。首轮从重复检验的值—时间—来源匹配开始，B/C 已有共同合成开发口径，可并行推进。
 2. 继承 [已有阅读讨论](discussion_notes.md)，核查最相关 2–3 篇方法的任务、机制和评分。每项差异记录原文位置；尚未确认的内容保留为问题。
 3. 用一组纯合成例子讲清直接抽取与候选流程各自看到什么、输出什么，再明确比较预算和评分规则。
 

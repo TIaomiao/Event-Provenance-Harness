@@ -23,12 +23,45 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Allowlist publish: ONLY the files listed below reach the public site.
+      # Nothing else in the repository is uploaded, so a stray committed file
+      # cannot leak by accident. Add a path here only after an anonymisation check.
+      - name: Stage site (allowlist)
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp dashboard.html _site/index.html
+          cp dashboard.html _site/dashboard.html
+
+          # 白名单发布：只放明确不含患者内容的文件。
+          # results/ 下的实测记录一律不上公开站点（其中含病例时间戳等派生信息）；
+          # 它们留在仓库里供导师侧 AI 读取，仓库可见性由人工确认。
+          mkdir -p _site/paper
+          cp CONTROL_PANEL.md _site/
+          cp WEEKLY_REPORT_PROTOCOL.md _site/
+          cp RESEARCH_CARD.md _site/
+          cp paper/PROPOSAL.md _site/paper/
+          cp paper/BRIEF_FOR_ADVISOR.pdf _site/paper/
+
+          echo "--- staged files ---"
+          find _site -type f | sort
+
+      - name: Guard - fail if a blocked pattern slipped in
+        run: |
+          set -euo pipefail
+          if grep -rIl --exclude-dir=.git -E 'ocr_layout|患者|住院号|病案号|sk-[A-Za-z0-9]{20,}' _site ; then
+            echo "::error::blocked content pattern found in staged site"
+            exit 1
+          fi
+          echo "guard passed"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

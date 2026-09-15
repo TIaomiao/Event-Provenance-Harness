@@ -1,0 +1,358 @@
+{
+  "protocol": "research-card-v0.3/shared-synthetic-v0.1",
+  "observations": [
+    {
+      "observation_id": "obs-r1",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "role_ref": "ls-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d1r",
+          "role_ref": "lr-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r1"
+      ],
+      "evidence_note": "Synthetic row r1: value 4.2 U; explicit sampling day 0 from date evidence d1s within scope t1."
+    },
+    {
+      "observation_id": "obs-r2",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "Y",
+      "value": "7",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "role_ref": "ls-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d1r",
+          "role_ref": "lr-t1",
+          "scope_ref": "t1",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r2"
+      ],
+      "evidence_note": "Synthetic row r2: value 7 U; explicit sampling day 0 from date evidence d1s within scope t1."
+    },
+    {
+      "observation_id": "obs-r3",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 3,
+          "coordinate_id": "C1",
+          "date_ref": "d2s",
+          "role_ref": "ls-t2",
+          "scope_ref": "t2",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 4,
+          "coordinate_id": "C1",
+          "date_ref": "d2r",
+          "role_ref": "lr-t2",
+          "scope_ref": "t2",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r3"
+      ],
+      "evidence_note": "Synthetic row r3: value 4.2 U; explicit sampling day 3 from date evidence d2s within scope t2."
+    },
+    {
+      "observation_id": "obs-r4",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d3s",
+          "role_ref": "ls-t3",
+          "scope_ref": "t3",
+          "binding_status": "explicit"
+        },
+        {
+          "role": "report",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d3r",
+          "role_ref": "lr-t3",
+          "scope_ref": "t3",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r4"
+      ],
+      "evidence_note": "Synthetic row r4: value 4.2 U; explicit sampling day 0 from date evidence d3s within scope t3."
+    },
+    {
+      "observation_id": "obs-r5",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "5.1",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unknown"
+        },
+        {
+          "role": "report",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d4r",
+          "role_ref": "lr-t4",
+          "scope_ref": "t4",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r5"
+      ],
+      "evidence_note": "Synthetic row r5: value 5.1 U; explicit sampling day 2 from date evidence d4r within scope t4."
+    },
+    {
+      "observation_id": "obs-r6",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "6",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unknown"
+        },
+        {
+          "role": "document",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d5",
+          "role_ref": "ld-t5",
+          "scope_ref": "t5",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r6"
+      ],
+      "evidence_note": "Synthetic row r6: value 6 U; explicit sampling day 2 from date evidence d5 within scope t5."
+    },
+    {
+      "observation_id": "obs-r7",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "8",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C2",
+          "date_ref": "d6",
+          "role_ref": "ls-t6",
+          "scope_ref": "t6",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r7"
+      ],
+      "evidence_note": "Synthetic row r7: value 8 U; explicit sampling day 0 from date evidence d6 within scope t6."
+    },
+    {
+      "observation_id": "obs-r8",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "9",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 2,
+          "coordinate_id": "C1",
+          "date_ref": "d7",
+          "role_ref": "ls-t7",
+          "scope_ref": "t7",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r8"
+      ],
+      "evidence_note": "Synthetic row r8: value 9 U; explicit sampling day 2 from date evidence d7 within scope t7."
+    },
+    {
+      "observation_id": "obs-r9",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "1",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d8a",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8",
+          "binding_status": "conflicting"
+        },
+        {
+          "role": "sampling",
+          "relative_day": 1,
+          "coordinate_id": "C1",
+          "date_ref": "d8b",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8",
+          "binding_status": "conflicting"
+        }
+      ],
+      "source_refs": [
+        "r9"
+      ],
+      "evidence_note": "Synthetic row r9: value 1 U; sampling date is not stated or is unresolved in source scope t8."
+    },
+    {
+      "observation_id": "obs-r10",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "2",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        },
+        {
+          "role": "unknown",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d9",
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        }
+      ],
+      "source_refs": [
+        "r10"
+      ],
+      "evidence_note": "Synthetic row r10: value 2 U; sampling date is not stated or is unresolved in source scope t9."
+    },
+    {
+      "observation_id": "obs-r11",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "4.2",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": 0,
+          "coordinate_id": "C1",
+          "date_ref": "d10",
+          "role_ref": "ls-t10",
+          "scope_ref": "t10",
+          "binding_status": "explicit"
+        }
+      ],
+      "source_refs": [
+        "r11"
+      ],
+      "evidence_note": "Synthetic row r11: value 4.2 U; explicit sampling day 0 from date evidence d10 within scope t10."
+    },
+    {
+      "observation_id": "obs-r12",
+      "case_token": "SYNTHETIC-ONLY",
+      "item": "X",
+      "value": "3",
+      "unit": "U",
+      "time_assertions": [
+        {
+          "role": "sampling",
+          "relative_day": null,
+          "coordinate_id": null,
+          "date_ref": null,
+          "role_ref": null,
+          "scope_ref": null,
+          "binding_status": "unresolved"
+        }
+      ],
+      "source_refs": [
+        "r12"
+      ],
+      "evidence_note": "Synthetic row r12: value 3 U; sampling date is not stated or is unresolved in source scope t12."
+    }
+  ],
+  "event_groups": [
+    [
+      "r1",
+      "r4"
+    ],
+    [
+      "r3"
+    ],
+    [
+      "r11"
+    ]
+  ],
+  "cost": {
+    "attempts": [],
+    "wall_seconds": 0,
+    "currency": "USD"
+  }
+}

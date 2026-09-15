@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>阶段汇报 · EHR 事件表示与查询 Harness</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 16mm 14mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0; color: #1a2420; background: #fff;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    font-size: 12.5pt; line-height: 1.75;
+  }
+  h1 { font-size: 21pt; line-height: 1.3; margin: 0 0 4pt; letter-spacing: -0.3pt; }
+  .sub { color: #6b7772; font-size: 10pt; margin: 0 0 16pt; }
+  h2 {
+    font-size: 14pt; margin: 20pt 0 8pt; padding-bottom: 5pt;
+    border-bottom: 1.5pt solid #0d6b57; color: #0d6b57;
+  }
+  h2 .n { color: #b9c6bf; margin-right: 6pt; font-weight: 400; }
+  p { margin: 0 0 8pt; }
+  ul { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin-bottom: 5pt; }
+  .lead {
+    background: #f0f7ef; border-left: 5pt solid #0d6b57;
+    padding: 11pt 13pt; border-radius: 0 7pt 7pt 0; margin: 0 0 4pt;
+  }
+  .lead b { color: #0d6b57; }
+  .bad {
+    background: #fff4ed; border-left: 5pt solid #c2410c;
+    padding: 11pt 13pt; border-radius: 0 7pt 7pt 0;
+  }
+  .big { font-size: 15pt; font-weight: 700; color: #c2410c; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 6pt 0 10pt; }
+  th, td { text-align: left; padding: 5pt 6pt; border-bottom: 0.75pt solid #e3e0d6; vertical-align: top; }
+  th { color: #6b7772; font-weight: 600; background: #faf9f4; }
+  .k { color: #0d6b57; font-weight: 700; }
+  .foot { margin-top: 18pt; padding-top: 9pt; border-top: 0.75pt solid #ddd; color: #6b7772; font-size: 9.5pt; }
+  .pagebreak { page-break-before: always; }
+  .tag {
+    display: inline-block; font-size: 9pt; padding: 1.5pt 6pt; border-radius: 20pt;
+    background: #e4e2dd; color: #5c5850; margin-right: 4pt;
+  }
+  .tag.red { background: #f6cfc1; color: #8b3e28; }
+  .tag.green { background: #d8edcf; color: #24633d; }
+</style>
+</head>
+<body>
+
+<h1>EHR 事件表示与查询 Harness<br>阶段汇报</h1>
+<p class="sub">2026-09-15 · 真实三甲医院 PDF 数据 · 目标：KDD 2027 Cycle 2</p>
+
+<div class="lead">
+  <p><b>一句话：</b>我们把"事件表示 + 查询 Harness"落到真实数据上做了一轮实测，
+  <b>结果是负面的——我们自己提出的方法没有用，前沿模型本身已经做对了。</b>
+  现在把实测结论和缺口摆出来，请您指一个方向。</p>
+</div>
+
+<h2><span class="n">01</span>最重要的一个实测结果（必须放最前面）</h2>
+
+<div class="bad">
+  <p class="big">模型 10 次调用，10 次全对。</p>
+  <p style="margin-bottom:0">我们用真实数据构造了一个任务：同一份病例的 <b>11 页检验报告只对应 2 次采血</b>
+  （两次采血分别产生了 7 份和 4 份报告，分属 8 种不同报告类型——每页页脚都印着"采集时间"，精确到秒，
+  同一次采血的几份报告全挤在十几秒以内）。<br><br>
+  问 5 个前沿模型"这位患者有几次独立采血、哪些页属于同一次"：<br>
+  <b>10 次调用（5 个模型 × 2 次重复）全部答对</b>，事件数都报 2，分组与真值完全一致，
+  而且都正确引用了"采集时间"，<b>没有一例把报告时间当成采样时间</b>。连最便宜的模型也对。总成本不到 1 美元。</p>
+</div>
+
+<p style="margin-top:10pt"><b>结论：</b>当正确答案在数据里显式存在时（页脚就印着采集时间），
+模型不需要任何"方法"就能读对。<b>我们原计划的那套机制在这个任务上收益为零。</b></p>
+
+<h2><span class="n">02</span>已经确认的事实（这些是可以复用的资产）</h2>
+
+<table>
+  <tr><th style="width:34%">项</th><th>内容</th></tr>
+  <tr><td><b>数据规模</b></td><td>39,560 个病例目录 / 462,789 份 PDF。其中 <b>200 例已完成治理</b>，带 OCR 版面坐标、文档类型标签、脱敏记录。每例 5–18 份 PDF，中位 11 份。</td></tr>
+  <tr><td><b>文档类型覆盖</b></td><td>医嘱/申请 200 例、检验报告 187 例、医嘱执行 195 例、病程记录 200 例、影像报告 180 例、病理报告 122 例。</td></tr>
+  <tr><td><b>检验报告结构</b></td><td>每页六列：项目名称 / 缩写 / 结果 / 单位 / 参考区间 / 检测方法。页脚有<b>四个带标签的时间</b>：采集时间 / 接收时间 / 报告时间 / 打印时间。表格内<b>没有行级时间、没有行级标本号</b>，时间与编号只在页级。</td></tr>
+  <tr><td><b>实例数 ≠ 文档数</b></td><td>11 页报告 = 2 次采血，差 <b>5.5 倍</b>。这个数不是文档数的函数。</td></tr>
+  <tr><td><b>脱敏是合格的</b></td><td>脱敏把绝对日期换成"相对日 + 偏移"，<b>时分秒原样保留</b>，同一患者内的时间间隔也保留——做法标准且正确。</td></tr>
+  <tr><td><b>唯一还没被否证的</b></td><td>病程记录引用检验结果时写的是 <code>[检验组合名][日期]</code>，而检验报告里写的是具体项目名与缩写，<b>两种写法精确命中 0/50</b>。同一份检验有两套命名。是否因此导致重复计数，<b>还没测</b>。</td></tr>
+</table>
+
+<div class="pagebreak"></div>
+
+<h2><span class="n">03</span>我们这两天否证了自己三次</h2>
+
+<table>
+  <tr><th style="width:30%">提过的方向</th><th>怎么被否决的</th></tr>
+  <tr>
+    <td><b>①事件身份</b><br><span class="tag red">已否决</span></td>
+    <td>副本 vs 真实复测的判定。<b>实测 10/10 全对</b>，无方法收益。</td>
+  </tr>
+  <tr>
+    <td><b>②嵌套 Harness</b><br><span class="tag red">已否决</span></td>
+    <td>对抗审稿的判决："把标题和正文里的 Harness 全部换成 pipeline，内容一字不变"——<b>框架是装饰性的</b>，不是机制。</td>
+  </tr>
+  <tr>
+    <td><b>③发布确定性</b><br><span class="tag red">已否决</span></td>
+    <td>假设"脱敏之后就算不出采血次数了"。<b>实测：脱敏保留了时分秒，计数依然完全确定</b>，假设不成立。</td>
+  </tr>
+</table>
+
+<p><b>还有一件事要主动汇报：</b>此前汇报过的那些指标（F1 从 0 提升到 1.0 等），
+经审计发现是<b>"手写答案对手写答案"的自洽检查，模型调用次数其实是 0</b>。
+这些已经从面板上全部撤下来了。<b>项目历史上第一次真实的大模型调用，就是上面那次 10/10 的测试。</b></p>
+
+<h2><span class="n">04</span>同时确认：几条常见路线已经被别人做了</h2>
+
+<table>
+  <tr><th style="width:42%">方向</th><th>已被谁占</th></tr>
+  <tr><td>文档数 ≠ 临床事件数 / 计数工具</td><td>arXiv 2608.31017</td></tr>
+  <tr><td>把检验结果链接到它的"检验事件"</td><td>CLinkaRT / TESTLINK（2023 年就有共享任务）</td></tr>
+  <tr><td>临床事件的时间锚定与来源裁决</td><td>arXiv 2609.13062、2605.15168</td></tr>
+  <tr><td>OCR 临床报告的结构化抽取</td><td>MedStruct-S（KSEM 2026）、Key Coverage Matters</td></tr>
+  <tr><td>Harness 效应 / 编排对比</td><td>DataSpace、Harness-Bench</td></tr>
+  <tr><td>Agent 预算与成本控制</td><td>arXiv 2511.17006（COLM 2026）</td></tr>
+  <tr><td>上下文治理与溯源</td><td>ContextNest、Eywa</td></tr>
+</table>
+
+<h2><span class="n">05</span>所以我们现在真正缺的是什么</h2>
+
+<div class="lead">
+  <p style="margin-bottom:0"><b>不缺数据、不缺算力、不缺执行力。缺的是"哪个临床问题真的重要"这一层判断。</b><br><br>
+  我们手里已经有一批"数据实际上是什么样"的硬事实（上面第 02 节），
+  但<b>我们不知道这些事实里哪一条对科室是真痛点</b>。这两天连续否证三次的根本原因就在这里——
+  我们在用自己的猜测去替代临床判断。</p>
+</div>
+
+<h2><span class="n">06</span>想请您判断的三个问题</h2>
+
+<ul>
+  <li><b>①</b> 病程记录和检验报告对同一份检验用<b>两套名字（精确命中 0/50）</b>——这在科室里是真问题吗？
+  会不会真的有人把一次检验数成两次？</li>
+  <li><b>②</b> 临床上真正需要<b>"把散在多份文档里的信息拼起来才能回答"</b>的问题，具体是哪几个？
+  您或同事日常真会遇到的，举两三个就够。</li>
+  <li><b>③</b> 如果模型读单份文档已经足够准了，那在您看来，<b>这套系统还差什么才算真正有用？</b></li>
+</ul>
+
+<h2><span class="n">07</span>投稿计划（请您确认）</h2>
+
+<table>
+  <tr><th style="width:24%">会议</th><th style="width:22%">大致截稿</th><th>说明</th></tr>
+  <tr><td><b>CVPR 2027</b></td><td><b>2026 年 11 月</b></td><td>您说时间特别适合。但 CVPR 偏视觉，我们的临床文档任务需要重述定位，<b>需要您判断能不能落进去</b>。</td></tr>
+  <tr><td><b>KDD 2027 Cycle 2</b></td><td>约 2027 年 2 月<br>（官方未公布）</td><td>主线目标，你已确认要投。</td></tr>
+  <tr><td><b>IJCAI 2027</b></td><td>约 2027 年 1 月</td><td>您提到的"yijieka"，我猜是 IJCAI（口语常读"艾杰卡"）——但 IJCAI 是 CCF-A，您说是 B 会，<b>可能是另一个会，请确认名字</b>。</td></tr>
+  <tr><td><b>MICCAI 2027</b></td><td>约 2027 年 2–3 月</td><td>您说之前记的 MICAD 有问题，应为 MICCAI。</td></tr>
+  <tr><td><b>ACM MM 2027</b></td><td>约 2027 年 3–4 月</td><td>您说希望比较大。</td></tr>
+</table>
+
+<p style="font-size:10.5pt;color:#6b7772">以上除 KDD 外，具体日期我还没逐条核官方 CFP，会在您确认赛道后补齐。</p>
+
+<h2><span class="n">08</span>最近一周打算怎么走（小步快跑）</h2>
+
+<ul>
+  <li><b>每天一次极短同步</b>：一句进展 + 一个数字 + 一个卡点，不再攒成大汇报。</li>
+  <li><b>动手前先花半天测</b>：任何一个"系统会犯错"的判断，先在一个模型上实测再报，不再靠推理下结论。</li>
+  <li><b>立刻可做的一件事</b>（不需要新授权、成本不到 1 美元）：在整份病历上问模型"某项目测了几次"，
+  看它会不会把病程记录的引用和检验报告的行<b>重复计数</b>。这验证第 02 节最后那条唯一未被否证的线索。</li>
+</ul>
+
+<div class="foot">
+  <b>仓库与面板</b>（您可以让 AI 直接读仓库回答追问）：<br>
+  · 总览面板：<code>dashboard.html</code>　· 总控面板：<code>CONTROL_PANEL.md</code>　· 论文 Proposal：<code>paper/PROPOSAL.md</code><br>
+  · 三份关键实测记录：<code>results/2026-09-14_model_event_test.md</code>（10/10 那次）、
+    <code>results/2026-09-14_truth_audit.md</code>（真伪审计）、<code>results/2026-09-14_event_identity_finding.md</code><br>
+  · 选题调研与对抗审查：<code>paper/KDD_IDEA_2026-09-14.md</code><br>
+  <br>
+  本页所有数字都来自真实数据上的可重跑脚本，未取任何患者正文。患者原始数据、OCR 正文与参考答案全部留在受控环境内。
+</div>
+
+</body>
+</html>

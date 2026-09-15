@@ -9,44 +9,144 @@
     *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 12% 5%,#e2edcd 0,transparent 29%),linear-gradient(135deg,#f7f4eb,#e8eee6);color:var(--ink);font-family:Georgia,'Noto Serif SC',serif;line-height:1.55}
     .shell{max-width:1440px;margin:auto;padding:28px 34px 56px}.eyebrow{font:700 12px/1.2 'Segoe UI',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
     header{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:24px}.title{font-size:clamp(38px,5vw,76px);line-height:.95;letter-spacing:-.055em;margin:10px 0 0;max-width:820px}.title em{color:var(--green);font-style:normal}.stamp{font:600 12px 'Segoe UI',sans-serif;color:var(--muted);text-align:right}
-    .hero{display:grid;grid-template-columns:1.55fr .85fr;gap:18px;margin-bottom:18px}.panel{background:rgba(255,253,248,.86);border:1px solid rgba(217,213,201,.9);box-shadow:var(--shadow);border-radius:20px;padding:24px}.hero .panel:first-child{background:var(--green);color:#f6f4e9;border-color:var(--green)}.hero h2{font-size:17px;margin:0 0 14px;font-weight:normal}.claim{font-size:25px;line-height:1.25;max-width:760px;margin:0}.meter{display:flex;gap:5px;margin-top:26px}.meter i{height:8px;flex:1;background:#5da990;border-radius:10px}.meter i:nth-child(4),.meter i:nth-child(5){background:#e8d89a}.legend{font:12px 'Segoe UI',sans-serif;color:#d8eee4;margin-top:10px}.mini-stat{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{padding:14px;border:1px solid var(--line);border-radius:14px;background:#faf8f0}.stat b{display:block;font:700 30px 'Segoe UI',sans-serif;color:var(--green)}.stat span{font:12px 'Segoe UI',sans-serif;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.span-8{grid-column:span 8}.span-4{grid-column:span 4}.span-6{grid-column:span 6}.section-title{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 16px}.section-title h2{font-size:21px;margin:0}.section-title span{font:12px 'Segoe UI',sans-serif;color:var(--muted)}
-    .status-list,.queue,.decision{display:grid;gap:10px}.row{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #ebe7dc}.row:last-child{border:0}.tag{font:700 11px 'Segoe UI',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.row strong{font-size:15px}.row small{display:block;color:var(--muted);font:12px 'Segoe UI',sans-serif}.pill{font:700 11px 'Segoe UI',sans-serif;padding:5px 9px;border-radius:99px;white-space:nowrap}.done{background:#d8edcf;color:#24633d}.doing{background:#f7df9d;color:#795217}.wait{background:#e9e6df;color:#6d6a62}.risk{background:#f6cfc1;color:#8b3e28}
-    .timeline{position:relative;padding-left:24px}.timeline:before{content:'';position:absolute;left:6px;top:7px;bottom:7px;width:2px;background:#d6ddcf}.event{position:relative;margin-bottom:22px}.event:before{content:'';position:absolute;left:-22px;top:5px;width:10px;height:10px;background:var(--green);border:3px solid #dce9d8;border-radius:50%}.event b{font-size:14px}.event p{margin:3px 0 0;font:13px 'Segoe UI',sans-serif;color:var(--muted)}.callout{border-left:4px solid var(--orange);padding:12px 14px;background:#fff4ed;border-radius:0 12px 12px 0;font-size:14px}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.links a{color:var(--green);border:1px solid #bad0c2;border-radius:99px;padding:7px 11px;text-decoration:none;font:600 12px 'Segoe UI',sans-serif;background:#f1f6ed}.footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font:12px 'Segoe UI',sans-serif;color:var(--muted)}
-    @media(max-width:900px){.shell{padding:20px}.hero{grid-template-columns:1fr}.span-8,.span-4,.span-6{grid-column:1/-1}header{display:block}.stamp{text-align:left;margin-top:16px}.title{font-size:52px}}
+    .hero{display:grid;grid-template-columns:1.55fr .85fr;gap:18px;margin-bottom:18px}.panel{background:rgba(255,253,248,.86);border:1px solid rgba(217,213,201,.9);box-shadow:var(--shadow);border-radius:20px;padding:24px}.hero .panel:first-child{background:var(--green);color:#f6f4e9;border-color:var(--green)}.hero h2{font-size:17px;margin:0 0 14px;font-weight:normal}.claim{font-size:25px;line-height:1.25;max-width:760px;margin:0}.meter{display:flex;gap:5px;margin-top:26px}.meter i{height:8px;flex:1;background:#5da990;border-radius:10px}.meter i:nth-child(4),.meter i:nth-child(5){background:#e8d89a}.legend{font:12px 'Segoe UI',sans-serif;color:#d8eee4;margin-top:10px}.mini-stat{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{padding:14px;border:1px solid var(--line);border-radius:14px;background:#faf8f0}.stat b{display:block;font:700 30px 'Segoe UI',sans-serif;color:var(--green)}.stat span{font:12px 'Segoe UI',sans-serif;color:var(--muted)}.stat.alert b{color:var(--orange)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.span-8{grid-column:span 8}.span-4{grid-column:span 4}.span-6{grid-column:span 6}.span-12{grid-column:span 12}.section-title{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 16px}.section-title h2{font-size:21px;margin:0}.section-title span{font:12px 'Segoe UI',sans-serif;color:var(--muted)}
+    .status-list,.queue,.decision{display:grid;gap:10px}.row{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #ebe7dc}.row:last-child{border:0}.tag{font:700 11px 'Segoe UI',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.row strong{font-size:15px}.row small{display:block;color:var(--muted);font:12px 'Segoe UI',sans-serif}.pill{font:700 11px 'Segoe UI',sans-serif;padding:5px 9px;border-radius:99px;white-space:nowrap}.done{background:#d8edcf;color:#24633d}.doing{background:#f7df9d;color:#795217}.wait{background:#e9e6df;color:#6d6a62}.risk{background:#f6cfc1;color:#8b3e28}.void{background:#e4e2dd;color:#8a857c;text-decoration:line-through}
+    .timeline{position:relative;padding-left:24px}.timeline:before{content:'';position:absolute;left:6px;top:7px;bottom:7px;width:2px;background:#d6ddcf}.event{position:relative;margin-bottom:22px}.event:before{content:'';position:absolute;left:-22px;top:5px;width:10px;height:10px;background:var(--green);border:3px solid #dce9d8;border-radius:50%}.event.warn:before{background:var(--orange);border-color:#f6dccf}.event b{font-size:14px}.event p{margin:3px 0 0;font:13px 'Segoe UI',sans-serif;color:var(--muted)}.callout{border-left:4px solid var(--orange);padding:12px 14px;background:#fff4ed;border-radius:0 12px 12px 0;font-size:14px}.callout.ok{border-color:var(--green);background:#f0f7ef}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.links a{color:var(--green);border:1px solid #bad0c2;border-radius:99px;padding:7px 11px;text-decoration:none;font:600 12px 'Segoe UI',sans-serif;background:#f1f6ed}
+    table{width:100%;border-collapse:collapse;font:12px 'Segoe UI',sans-serif}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #ebe7dc}th{color:var(--muted);font-weight:600}td.num{text-align:right;font-variant-numeric:tabular-nums}
+    .footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font:12px 'Segoe UI',sans-serif;color:var(--muted)}
+    @media(max-width:900px){.shell{padding:20px}.hero{grid-template-columns:1fr}.span-8,.span-4,.span-6,.span-12{grid-column:1/-1}header{display:block}.stamp{text-align:left;margin-top:16px}.title{font-size:52px}}
   </style>
 </head>
 <body>
 <main class="shell">
-  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">把真实 EHR 的<br><em>事件关系</em>变成可验证研究。</h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-08 · Asia/Shanghai</div></header>
-  <section class="hero"><div class="panel"><h2>当前一句话</h2><p class="claim">候选主轴是“事件身份与来源作为纵向 EHR Agent 的数据基座”；E1 先验证重复检验的值—时间—来源匹配。</p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">证据成熟度：工程验证已有 · 研究效果未建立</div></div><div class="panel"><h2>研究脉搏</h2><div class="mini-stat"><div class="stat"><b>E1</b><span>首轮实验切入口</span></div><div class="stat"><b>0</b><span>真实 A/B 结果</span></div><div class="stat"><b>23×2</b><span>跨平台合成测试</span></div><div class="stat"><b>952</b><span>日期候选（开发样本）</span></div></div></div></section>
+  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">三版命题<br><em>全被否证</em>。</h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-14 · Asia/Shanghai<br>状态：<b>停止自行生成方向</b>，向科室索取临床问题</div></header>
+
+  <section class="hero">
+    <div class="panel"><h2>当前一句话</h2><p class="claim">一天内连续否证三版中心命题：<strong>①事件身份</strong>（模型 10/10 全对，无收益）<strong>②嵌套 Harness</strong>（审稿判定为装饰性："换成 pipeline 一字不变"）<strong>③发布确定性</strong>（脱敏保留时分秒，计数区间宽度 = 0，K1 触发）。<strong>唯一未否证的只剩：病程记录与检验报告命名精确命中 0/50。</strong></p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">证据成熟度：数据事实成立（可复用） · 三版方法主张全部被实测/审稿否证 · 新切入点未定</div></div>
+    <div class="panel"><h2>研究脉搏</h2><div class="mini-stat">
+      <div class="stat alert"><b>10/10</b><span>模型答对（应为 0）</span></div>
+      <div class="stat alert"><b>0/50</b><span>跨文档命名命中</span></div>
+      <div class="stat"><b>2</b><span>真实采血事件（真值）</span></div>
+      <div class="stat"><b>3</b><span>今日被否证的命题数</span></div>
+    </div></div>
+  </section>
+
   <div class="grid">
-    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 paper/PROPOSAL.md 对齐 · v0.1</span></div><p style="font-size:21px;line-height:1.3;margin:0 0 14px"><b>Event-Provenance Harness: Query-Conditioned Structuring for Verifiable Analytics over Real-World Longitudinal EHRs</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：事件来源感知 Harness：面向真实纵向 EHR 可验证分析的查询驱动结构化。</p></section>
-    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>待实验检验</span></div><p style="margin:0;font-size:17px;line-height:1.4">真实纵向 EHR 的难点不是把 PDF 转成 JSON，而是把分散、重复、冲突且时间含义不同的证据组织成带事件身份和来源的可验证记录。</p></section>
-    <section class="panel span-6"><div class="section-title"><h2>Motivation</h2><span>为什么值得研究</span></div><div class="status-list"><div class="row"><span class="tag">关系层</span><div><strong>错误不只在值抽取</strong><small>同一指标可能是重复引用，也可能是真实复测；时间和来源错配会破坏纵向分析。</small></div></div><div class="row"><span class="tag">研究缺口</span><div><strong>现有工作仍需落到真实 PDF EHR</strong><small>DataSpace、ClinLens、HealthFlow 等推动了异构证据与执行评测，但事件身份、时间角色和来源关系仍需独立接口。</small></div></div><div class="row"><span class="tag">可验证性</span><div><strong>需要固定模型、证据与预算</strong><small>不能把更多调用、更多 Agent 或更强模型误当成 Harness 的收益。</small></div></div></div></section>
-    <section class="panel span-6"><div class="section-title"><h2>三项候选创新</h2><span>一条证据链</span></div><div class="status-list"><div class="row"><span class="tag">01</span><div><strong>Temporal-Provenance Event Identity Layer</strong><small>判定重复描述与真实复测，显式表达时间角色、来源、冲突与不确定性。</small></div></div><div class="row"><span class="tag">02</span><div><strong>Query-Conditioned Event Materialization</strong><small>按分析任务选择证据和事件；无法消除歧义时保留 unknown / conflict。</small></div></div><div class="row"><span class="tag">03</span><div><strong>Execution-Grounded Evaluator</strong><small>分开评估值/单位、时间、来源、重复保留、错误合并/拆分、成本和失败类型。</small></div></div></div></section>
-    <section class="panel span-8"><div class="section-title"><h2>四条工作线</h2><span>每条线都必须留下可核验证据</span></div><div class="status-list">
-      <div class="row"><span class="tag">A / 总控</span><div><strong>Proposal、协议与师兄对齐</strong><small>当前维护面板与 Proposal，收敛主轴和版本</small></div><span class="pill doing">进行中</span></div>
-      <div class="row"><span class="tag">B / 原型</span><div><strong>时间角色、事件身份与检验行关联</strong><small>temporal_rebase.py v0.3.1 已完成第一阶段</small></div><span class="pill doing">适配中</span></div>
-      <div class="row"><span class="tag">C / 评测</span><div><strong>合成评分器、参考集与质量—成本曲线</strong><small>先定义值、时间、来源、重复与冲突口径</small></div><span class="pill wait">尚未启动</span></div>
-      <div class="row"><span class="tag">DSH</span><div><strong>文献邻近性与机制讨论</strong><small>DataSpace / HealthFlow 等已有一轮调研</small></div><span class="pill doing">补全文</span></div>
+
+    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 paper/PROPOSAL.md 对齐 · 2026-09-14</span></div><p style="font-size:21px;line-height:1.3;margin:0 0 14px"><b>Event-Provenance Harness: Nested Evidence Organization for Reliable Test-Event Identity in Real-World OCR'd Hospital PDFs</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：事件来源感知 Harness：面向真实 OCR 医院 PDF 的嵌套证据组织与检验事件身份判定。<br>主轴（师兄确认）：事件表示 + 查询 Harness。本版只更换嵌套结构所解决的问题——从“把表抽对”改为“把事件数算对”。</p></section>
+
+    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>可证伪 · 待实验</span></div><p style="margin:0;font-size:17px;line-height:1.4"><b>值抽对了，事件数不对。</b>同一患者同一项目的多次出现，必须判为「同一次事件的文档副本 / 同一次采样的多份报告 / 真实独立复测」三者之一。这个错误不体现在任何值级指标上，却直接污染复测间隔、趋势斜率与跨机构计数。</p></section>
+
+    <section class="panel span-6"><div class="section-title"><h2>贡献（按证据分级）</h2><span>一条证据链</span></div><div class="status-list">
+      <div class="row"><span class="tag">主</span><div><strong>事件身份的联合判定</strong><small>联合文档级近重复信号与文档内标本/报告号证据，产出可计数、带 provenance 的检验事件，报告误合并率与误拆分率。</small></div></div>
+      <div class="row"><span class="tag">机制</span><div><strong>嵌套 Harness</strong><small>外层（跨文档身份 + 预算路由）与内层（结构重建、值—项目绑定、四类时间角色归一）互为输入。</small></div></div>
+      <div class="row"><span class="tag">评测</span><div><strong>解耦报告</strong><small>值级准确率与事件级准确率分开报告，并测身份错误对下游趋势的代价。</small></div></div>
     </div></section>
-    <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div><div class="callout">时间候选还没有完成采样、报告、记录角色与检验行绑定；评测器和独立参考集尚未建立。</div><div class="decision" style="margin-top:14px"><div class="row"><span class="tag">问师兄</span><div><strong>主贡献落在哪一层？</strong><small>事件表示 / 查询 Harness / 执行评测</small></div></div><div class="row"><span class="tag">边界</span><div><strong>KDD 目标届次待核对</strong><small>当前不把方案写成赶 KDD 2026</small></div></div></div></section>
-    <section class="panel span-6"><div class="section-title"><h2>实验队列</h2><span>从可判定的小问题开始</span></div><div class="queue">
-      <div class="row"><span class="tag">E0</span><div><strong>合成事件与评分器</strong><small>固定值 / 时间 / 来源 / 副本 / 冲突口径</small></div><span class="pill wait">待开始</span></div>
-      <div class="row"><span class="tag">E1</span><div><strong>重复检验值—时间—来源匹配</strong><small>比较直接抽取与事件身份组织后的结果</small></div><span class="pill doing">输入适配中</span></div>
-      <div class="row"><span class="tag">E2</span><div><strong>查询驱动事件物化</strong><small>质量—成本与跨任务复用</small></div><span class="pill wait">待定</span></div>
-      <div class="row"><span class="tag">E3/E4</span><div><strong>主实验、消融与分层稳健性</strong><small>独立参考集、固定预算、OCR/歧义分层</small></div><span class="pill wait">待定</span></div>
+
+    <section class="panel span-6"><div class="section-title"><h2>新颖性边界</h2><span>不得声称“首次提出事件身份判定”</span></div><div class="status-list">
+      <div class="row"><span class="tag">先例</span><div><strong>Son &amp; Taira 2004</strong><small>跨文档判定多次 CT 报告的肺肿块是否同一发现；P=72% / R=63%。任务形状相同的先例，对象是影像发现。</small></div></div>
+      <div class="row"><span class="tag">现成</span><div><strong>Gabriel 2018</strong><small>MinHash/LSH 文档级近重复检测，1,528,940 条笔记。文档级信号直接复用，不重新发明。</small></div></div>
+      <div class="row"><span class="tag">互补</span><div><strong>CCLM 2025（PMID 40991454）</strong><small>多实验室检验报告的可比性分组与来源保留——解“测量可比性”，不解“事件计数”。</small></div></div>
+      <div class="row"><span class="tag">不可进</span><div><strong>表格结构抽取（已被占满）</strong><small>MedStruct-S（KSEM 2026）、Key Coverage Matters、ICML 2026 workshop、JBI 2024、ClinOCR-Bench。不得作为主贡献。</small></div></div>
     </div></section>
+
+    <section class="panel span-12"><div class="section-title"><h2>接下来的 session 推进</h2><span>每个工作单元必须留下可核验证据</span></div>
+      <table>
+        <tr><th>线</th><th>下一个工作单元</th><th>依赖</th><th>可立即开始</th><th>状态</th></tr>
+        <tr><td><b>B / 原型</b></td><td>跨文档事件分组<span class="pill done">已实测</span>：DOC-013 无行级日期/编号，按页切出 <b>50 事件 / 473 行</b>；日期层面跨文档命中 <b>8–9 / 10</b>，名称层面 <b>0</b>。→ <code>results/2026-09-14_event_grouping.md</code></td><td>无</td><td>是</td><td><span class="pill done">本单元完成</span></td></tr>
+        <tr><td><b>B / 下一步</b></td><td>在 PDF 上肉眼核对 1 页，判定「组合名 = 项目名的上位分组」是否成立；行级事件身份需换取证源（DOC-013 之外）</td><td>B 轨本单元</td><td>是</td><td><span class="pill doing">最高优先</span></td></tr>
+        <tr><td><b>C / 评测</b></td><td>scorer v0.2：新增事件级指标（误合并率 / 误拆分率）；当 <code>cost.calls = 0</code> 时拒绝把结果标记为“模型结果”</td><td>无</td><td>是</td><td><span class="pill doing">可并行</span></td></tr>
+        <tr><td><b>B / 复用</b></td><td>评估既有 <code>bbox_table_parser.py</code>（45 KB，8 月 14 日）与 <code>build_gold_standard_sample.py</code> 对新方案的适用性，给出复用或弃用结论</td><td>无</td><td>是</td><td><span class="pill doing">可并行</span></td></tr>
+        <tr><td><b>A / 总控</b></td><td>把 RESEARCH_CARD 的 E1 章节改到事件身份版；与师兄谈三件事（模型预算 / 20–50 例分层授权 / 赛道确认）</td><td>无</td><td>是</td><td><span class="pill doing">进行中</span></td></tr>
+        <tr><td><b>DSH</b></td><td>Son &amp; Taira / Gabriel / CCLM / THYME 的引用定位定稿；监控 KDD 2027 Cycle 2 官方日期（官网与 OpenReview 双通道）</td><td>无</td><td>是</td><td><span class="pill doing">进行中</span></td></tr>
+        <tr><td><b>闸门</b></td><td>Phase 1：第一次真实模型调用（Flat 基线，一份检验文档），记录真实 token / 费用 / 延迟</td><td>模型授权 + B 轨完成</td><td>否</td><td><span class="pill wait">等授权</span></td></tr>
+        <tr><td><b>交付</b></td><td>E1 三行对照（Flat / 单层 / 嵌套），报告值级准确率 + 误合并率 + 误拆分率</td><td>金标准冻结</td><td>否</td><td><span class="pill wait">2026-11 中旬</span></td></tr>
+      </table>
+    </section>
+
+    <section class="panel span-8"><div class="section-title"><h2>2026-09-14 真伪审计（必须先读）</h2><span>results/2026-09-14_truth_audit.md</span></div><div class="status-list">
+      <div class="row"><span class="tag">实测</span><div><strong>两周内没有任何模型参与</strong><small><code>src/</code> 全量检索模型/网络调用关键词命中 0 条。所有 F1 都是手写答案对手写答案，<code>cost.calls = 0</code>。</small></div><span class="pill risk">已作废</span></div>
+      <div class="row"><span class="tag">复核</span><div><strong>服务器侧产物真实存在</strong><small><code>research_dev_events_v0_1…v0_9</code>、<code>replay_metrics</code>、<code>review_v0_1/</code> 全部在；26 文档 / 187 页 / 13,372 行与声明逐字一致。没有伪造。</small></div><span class="pill done">已确认</span></div>
+      <div class="row"><span class="tag">但</span><div><strong>抽出的内容不可用</strong><small>v0_1 的 20 条“检验项目”实为 KPS评分 / 年龄 / 心率 / QRS时限 / R间期；v0_8 的“项目名”是文本碎片，值 20/20 未知。</small></div><span class="pill void">作废</span></div>
+      <div class="row"><span class="tag">根因</span><div><strong>两周都在解析错的文档</strong><small>CASE-02/DOC-007 是病程记录（叙述文本，104 行，无表格）；真正的检验主体是 CASE-05/DOC-013（62 页 / 4,372 行）与 CASE-02/DOC-008。</small></div><span class="pill risk">已修正</span></div>
+      <div class="row"><span class="tag">版本</span><div><strong>git 最后提交停在 2026-09-08</strong><small>09-11 至 09-13 共 52 项改动未提交，上周工作没有版本历史。</small></div><span class="pill risk">待补提交</span></div>
+    </div></section>
+
+    <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div>
+      <div class="callout"><b>模型授权未定。</b>论文方法是固定模型、变化证据组织的对照实验，但第一次真实 LLM 调用尚未发生；供应商、单价、预算上限全部未定。</div>
+      <div class="decision" style="margin-top:14px">
+        <div class="row"><span class="tag">其次</span><div><strong>跨文档重复：日期层面强、名称层面未证实</strong><small>DOC-012 的 22 个（组合名, 日期）对 DOC-013 页级 <code>采集时间</code>/<code>报告时间</code> 命中 8–9/10，但组合名与项目名精确命中 0；需先在 PDF 上核对二者是否为上下位命名关系</small></div></div>
+        <div class="row"><span class="tag">再其次</span><div><strong>金标准为 0 行</strong><small>没有人工核对过的真实参考答案</small></div></div>
+        <div class="row"><span class="tag">发布</span><div><strong>Pages 发布整个仓库</strong><small>工作流 <code>path: .</code>，任何进仓库的文件都会公开；需收窄为仅发布面板</small></div></div>
+      </div>
+    </section>
+
+    <section class="panel span-6"><div class="section-title"><h2>E1 实验设计</h2><span>三行对照 · 固定模型与预算</span></div>
+      <table>
+        <tr><th>条件</th><th>外层（跨文档身份）</th><th>内层（文档内绑定）</th></tr>
+        <tr><td>Flat</td><td>无</td><td>无（一次性全量输入）</td></tr>
+        <tr><td>单层 Harness</td><td>无</td><td>有</td></tr>
+        <tr><td><b>嵌套 Harness</b></td><td>有</td><td>有</td></tr>
+      </table>
+      <p style="margin:14px 0 0;color:var(--muted);font:13px 'Segoe UI',sans-serif">指标：值级准确率 / 误合并率 / 误拆分率。<b>若三行值级准确率接近，而事件级指标只有第三行正确，该表即为论文主证据。</b></p>
+      <div class="callout" style="margin-top:14px">闸门：若真实数据中不存在“同一次检验被多次记录”的现象，或误合并率低到不足以支撑论证，则改任务定义或数据切片，不硬撑。</div>
+    </section>
+
+    <section class="panel span-6"><div class="section-title"><h2>G0 数据可行性（已验证）</h2><span>results/2026-09-14_G0_data_feasibility.md</span></div>
+      <table>
+        <tr><th>文档</th><th class="num">页</th><th class="num">行</th><th class="num">组合+日期对</th><th class="num">6位数字(不重复)</th><th class="num">检验表头</th></tr>
+        <tr><td><b>CASE-05/DOC-013</b></td><td class="num">62</td><td class="num">4,372</td><td class="num">0</td><td class="num">227 (115)</td><td class="num">273</td></tr>
+        <tr><td>CASE-05/DOC-012</td><td class="num">15</td><td class="num">495</td><td class="num">22</td><td class="num">16 (2)</td><td class="num">5</td></tr>
+        <tr><td>CASE-02/DOC-008</td><td class="num">5</td><td class="num">658</td><td class="num">0</td><td class="num">15 (11)</td><td class="num">23</td></tr>
+        <tr><td>CASE-02/DOC-007</td><td class="num">4</td><td class="num">104</td><td class="num">1</td><td class="num">4 (1)</td><td class="num">2</td></tr>
+      </table>
+      <div class="status-list" style="margin-top:14px">
+        <div class="row"><span class="tag">❌ Q1</span><div><strong>“行级标识”判断已被推翻</strong><small>G0 曾据“107 个数字串只出现一次”判其为行级标识。独立核验（坐标级）显示：227 处数字串 <b>0 处落在表格数据行</b>；165 处在页眉带单列 x≈493，62 处在页脚块。</small></div><span class="pill risk">已纠正</span></div>
+        <div class="row"><span class="tag">无行级日期</span><div><strong>成立（强）</strong><small>每页恰好 4 条日期、全部在表格之后的页脚块；每页仅 2–3 个不同日期；1357 行中没有任何一行带自己的日期。</small></div><span class="pill done">已核实</span></div>
+        <div class="row"><span class="tag">无行级编号</span><div><strong>成立（强）</strong><small>表内唯一“每行都不同”的编号字段是最左序号 1..n，每页重置；全局唯一编号只有页级（每页 1 个互不相同的 10 位码）。</small></div><span class="pill done">已核实</span></div>
+        <div class="row"><span class="tag">⚠️ 关键</span><div><strong>页内“事件数”取决于身份假设</strong><small>每行＝1 次得 ~355；每页（10位码）＝1 次得 62；(8位码,日期1,日期2) 得 <b>恰好 50</b>；每个 8 位码得 11。平铺 agent 会默认其中一种而不声明。</small></div><span class="pill risk">待师兄定</span></div>
+        <div class="row"><span class="tag">未复现</span><div><strong>B 的 473 行与日期命中口径</strong><small>100 种行口径扫描下 473 不可达（最接近 448，核验方口径 355）；日期命中核验方为 15/20=75%，B 记 8–9/10。需 B 给出定义。</small></div><span class="pill wait">待对齐</span></div>
+      </div>
+      <p style="margin:14px 0 0;color:var(--muted);font:13px 'Segoe UI',sans-serif">两例合计 26 份 / 13,372 行，与 B 的 <code>replay_metrics_v0_1.json</code> 逐字一致；含检验表头词的文档 13 份。<b>只输出计数与坐标，未取任何正文。</b></p>
+    </section>
+
     <section class="panel span-6"><div class="section-title"><h2>论文强度护栏</h2><span>先证据，后主张</span></div><div class="timeline">
-      <div class="event"><b>已实现 · 工程切片</b><p>时间候选适配器 v0.3.1；Windows/Linux 各 23 项合成测试通过。</p></div>
-      <div class="event"><b>Demo only · 研究原型</b><p>事件身份、查询物化与 evaluator 仍是候选设计，尚未形成效果证据。</p></div>
-      <div class="event"><b>推测 · KDD 方向</b><p>真实 PDF EHR + 事件级协议 + 执行评测可能形成差异化，但需最近邻全文与实验验证。</p></div>
-      <div class="event"><b>必须补齐 · 投稿门槛</b><p>独立病例评价集、固定模型/预算、基线/消融、质量—成本曲线。</p></div>
+      <div class="event"><b>已实现 · 可复用资产</b><p>观测级评分器 + 45 项测试（本机实测通过）；时间角色/相对日坐标两个模块 + 37 项测试；研究卡 v0.4 的任务定义与 Q1–Q6 查询清单。</p></div>
+      <div class="event warn"><b>已作废 · 合成自洽分数</b><p>F1 = 0.6667 / 1.0、12/12 对齐等，全部为手写 JSON 对手写 JSON，模型调用 0 次，不再作为证据。</p></div>
+      <div class="event"><b>已验证 · 数据结构</b><p>26 份文档 / 13,372 行；检验主文档 62 页 / 4,372 行 / 227 个 6 位以上数字串；叙述文档含 32 处 [组合名][日期] 引用。</p></div>
+      <div class="event"><b>待补 · 投稿门槛</b><p>真实模型 A/B、事件级金标准、扁平/单层/嵌套三行对照、质量—成本曲线、独立病例评价集。</p></div>
     </div></section>
-    <section class="panel span-8"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline"><div class="event"><b>2026-09-08 · Proposal 收敛</b><p>候选主轴聚焦事件身份层、查询驱动物化与执行评测三点。</p></div><div class="event"><b>2026-09-08 · 时间恢复第一阶段</b><p>26 份文档 / 187 页产生 952 个日期候选；源文件、OCR、API、L4 写入均保持不变。</p></div><div class="event"><b>下一步 · E0 + B 接口建议</b><p>C 先写合成评分器；B 明确采样/报告/记录时间和表格行绑定接口。</p></div></div></section>
-    <section class="panel span-4"><div class="section-title"><h2>工作区入口</h2></div><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">面板只展示匿名摘要；患者正文、真实参考答案、凭据和原始模型响应留在受控环境。</p><div class="links"><a href="CONTROL_PANEL.md">总控 Markdown</a><a href="paper/PROPOSAL.md">Proposal</a><a href="RESEARCH_CARD.md">研究卡</a><a href="GITHUB_REPO_PLAN.md">GitHub 规划</a><a href="status/implementation.md">原型状态</a><a href="status/evaluation.md">评测状态</a></div></section>
+
+    <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
+      <div class="event warn"><b>2026-09-14 · ⛔ 第三版命题（发布确定性）被实测否证 · K1 触发</b><p>对比未脱敏与脱敏发布的 OCR 布局：四个时间标签各 11 条<b>全部存活</b>；绝对日期 44→0，相对日 0→44；<b>时分秒原封不动保留</b>（<code>采集时间：DAY-A HH:MM:SS</code> → <code>采集时间：[相对日+X] HH:MM:SS</code>）。同一次采血的 7 份报告相等关系完好，<b>计数区间宽度 = 0</b> → 自设的 K1 kill criterion 触发，整份定稿作废。附带正面结论：该脱敏流水线采用 MIMIC 式相对日平移，<b>保留了事件间相等关系与间隔</b>，做法正确。</p></div>
+      <div class="event warn"><b>2026-09-14 · 25 个 agent 的选题调研与对抗审查</b><p>两轮多智能体 workflow（18 + 7 + 3 agent）。结论：AI 侧可站位置已基本占满——事件计数（arXiv 2608.31017）、检验结果链接（CLinkaRT/TESTLINK 2023）、事件时间锚定（2609.13062、2605.15168）、OCR 抽取（MedStruct-S 2605.03103）、Harness 效应（DataSpace 2608.03451、Harness-Bench 2605.27922）、预算轴（2511.17006）、上下文治理（ContextNest 2607.02116）。对抗审稿对"Harness"框架的判决：<b>装饰性</b>——"换成 pipeline，内容一字不变"。另：<b>AirVx 两轮独立检索零命中，确认为不存在的名称，已清除。</b>→ paper/KDD_IDEA_2026-09-14.md</p></div>
+      <div class="event warn"><b>2026-09-14 · ⛔ 批量模型测试：中心命题被否决</b><p>在<b>面板实际使用的根目录</b>上，CASE-05/DOC-013（11 页检验报告、12,215 字符）的真值是 <b>2 次采血</b>（12-02 的 7 份、12-10 的 4 份，采集时间精确到秒）。5 个候选模型 × 2 次重复 = <b>10/10 全部答对</b>：事件数全报 2、分组全部 <code>[[1,3,4,6,9,10,11],[2,5,7,8]]</code>、依据字段全部为 <code>采集时间</code>、无一例把报告时间当采样时间。连最便宜的 gemini-3-flash 也全对。总成本 &lt; $0.1。<b>当正确答案在数据中显式存在时，不存在可测量的方法收益 → 没有论文。</b>→ results/2026-09-14_model_event_test.md</p></div>
+      <div class="event warn"><b>2026-09-14 · 数据来源纠正：面板根目录 ≠ 演示目录</b><p>面板启动参数 <code>--run-root pilot_output/non_governance_v0_9_n200_seed20260810</code>，而此前全部分析在 <code>case_demo_output/p0-v0_7-case05</code> 上完成。两处的 DOC-013 分别是 11 页与 62 页，<b>所有 62 页 / 4,372 行 / 8-10 位"码" 的结论作废</b>。另确认那批"码"实为<b>被脱敏涂抹的患者标识</b>（40 条含 6+ 位数字的记录中 33 条落在 <code>redaction_hits</code> 内）。→ results/2026-09-14_event_identity_finding.md</p></div>
+      <div class="event"><b>2026-09-14 · 采样事件数据事实（成立，但不足以支撑论文）</b><p>每页页脚有四个带标签的时间：<code>采集时间 / 接收时间 / 报告时间 / 打印时间</code>。11 份报告 = 2 次采血，金标准可由采集时间自动导出，不需人工判断。</p></div>
+      <div class="event warn"><b>2026-09-14 · 跨文档事件分组实测（B 轨本单元）</b><p>在<b>演示目录</b>上完成，随数据来源纠正一并作废。</p></div>
+      <div class="event warn"><b>2026-09-14 · 全量真伪审计</b><p>确认两周内真实模型调用为 0；撤下 F1 等四条“已完成证据”；服务器侧产物经只读复核为真，但抽出内容不可用。→ results/2026-09-14_truth_audit.md</p></div>
+      <div class="event"><b>下一步 · 重新找切入点</b><p>未被本次测试排除的方向：原始表格结构解析、上下文放不下的规模、叙述文档中的检验引用（名称命中 0）、字段缺失时系统的行为、值级抽取准确率。任何新断言必须先在至少一个模型上实测，才可写入 Proposal 或面板。</p></div>
+    </div></section>
+
+    <section class="panel span-12"><div class="section-title"><h2>工作区入口</h2><span>面板只展示匿名摘要</span></div><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">患者正文、真实参考答案、凭据和原始模型响应留在 Larry 受控环境，本仓库不得出现。<b>Pages 已改为白名单发布</b>：工作流只上传 <code>_site/</code>，且有一道守卫——staged 内容若命中 <code>ocr_layout</code> / <code>患者</code> / <code>住院号</code> / <code>sk-…</code> 等模式则直接 fail，不会部署。</p>
+      <div class="links">
+        <a href="paper/BRIEF_FOR_ADVISOR.pdf"><b>给导师的汇报 PDF（手机可读）</b></a>
+        <a href="paper/KDD_IDEA_2026-09-14.md">选题调研与对抗审查</a>
+        <a href="results/2026-09-14_model_event_test.md">10/10 模型测试</a>
+        <a href="results/2026-09-14_DOC013_verification.md">DOC-013 独立核验</a>
+        <a href="CONTROL_PANEL.md">总控 Markdown</a>
+        <a href="paper/PROPOSAL.md">Proposal</a>
+        <a href="RESEARCH_CARD.md">研究卡</a>
+        <a href="WEEKLY_REPORT_PROTOCOL.md">周报协议</a>
+        <a href="results/2026-09-14_truth_audit.md">真伪审计</a>
+        <a href="discussion_notes.md">文献讨论</a>
+        <a href="status/implementation_current.md">B 快照</a>
+        <a href="status/evaluation_current.md">C 快照</a>
+      </div>
+      <p style="margin:14px 0 0;color:var(--muted);font:13px 'Segoe UI',sans-serif">Larry 侧结构探针（本地专用，不进仓库、不发布）：<code>.local/larry_viewer.html</code>，运行 <code>.local/larry_probe.ps1</code> 刷新。该探针只输出计数与坐标，不含任何记录正文。</p></section>
+
   </div>
-  <div class="footer">维护规则：A 更新论文定位与队列；B/C/DSH 只更新各自状态；新增结论必须带日期和来源。页面是研究导航，不替代证据文件。</div>
+  <div class="footer">维护规则：A 更新论文定位与队列；B/C/DSH 只更新各自状态；新增结论必须带日期和来源。页面是研究导航，不替代证据文件。数字只来自当前状态或结果文件；若数字变化，先改证据文件再改页面。</div>
 </main>
 </body></html>

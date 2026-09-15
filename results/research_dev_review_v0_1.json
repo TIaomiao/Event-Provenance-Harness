@@ -1,0 +1,488 @@
+{
+  "schema_version": "research-dev-review-v0.1",
+  "split": "development",
+  "image_exported": false,
+  "ocr_exported": false,
+  "cards": [
+    {
+      "observation_id": "obs-6db9c8b9a63ededd",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p2",
+      "line_id": "case-02-doc-007:l45",
+      "bbox_id": "6db9c8b9a63ededd:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "6db9c8b9a63ededd"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-6cb16d51660f7ae1",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p2",
+      "line_id": "case-02-doc-007:l47",
+      "bbox_id": "6cb16d51660f7ae1:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "6cb16d51660f7ae1"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-063767915fb14e44",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p2",
+      "line_id": "case-02-doc-007:l48",
+      "bbox_id": "063767915fb14e44:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "063767915fb14e44"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-15c1d235ef230f4b",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p2",
+      "line_id": "case-02-doc-007:l51",
+      "bbox_id": "15c1d235ef230f4b:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "15c1d235ef230f4b"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-71f733cd33d217e7",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p2",
+      "line_id": "case-02-doc-007:l61",
+      "bbox_id": "71f733cd33d217e7:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "71f733cd33d217e7"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-bbf0e0b652abbdbf",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-007",
+      "page_id": "case-02-doc-007:p3",
+      "line_id": "case-02-doc-007:l91",
+      "bbox_id": "bbf0e0b652abbdbf:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "bbf0e0b652abbdbf"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-6ffe218da5b04193",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-008",
+      "page_id": "case-02-doc-008:p1",
+      "line_id": "case-02-doc-008:l92",
+      "bbox_id": "6ffe218da5b04193:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "6ffe218da5b04193"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-771d40ff08cdd2a9",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-008",
+      "page_id": "case-02-doc-008:p1",
+      "line_id": "case-02-doc-008:l104",
+      "bbox_id": "771d40ff08cdd2a9:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "771d40ff08cdd2a9"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-d3d28dc5f00c1133",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-008",
+      "page_id": "case-02-doc-008:p3",
+      "line_id": "case-02-doc-008:l380",
+      "bbox_id": "d3d28dc5f00c1133:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "d3d28dc5f00c1133"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-91b9e371592970e5",
+      "case_token": "CASE-02",
+      "document_token": "case-02-doc-008",
+      "page_id": "case-02-doc-008:p4",
+      "line_id": "case-02-doc-008:l562",
+      "bbox_id": "91b9e371592970e5:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "91b9e371592970e5"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-568dcd77d4868db6",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-006",
+      "page_id": "case-05-doc-006:p9",
+      "line_id": "case-05-doc-006:l268",
+      "bbox_id": "568dcd77d4868db6:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "568dcd77d4868db6"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-c1d8dd6492e8b79b",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p1",
+      "line_id": "case-05-doc-012:l28",
+      "bbox_id": "c1d8dd6492e8b79b:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "c1d8dd6492e8b79b"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-858a5ceaeaf5028d",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p2",
+      "line_id": "case-05-doc-012:l44",
+      "bbox_id": "858a5ceaeaf5028d:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "858a5ceaeaf5028d"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-3687e6bd11ef0031",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p3",
+      "line_id": "case-05-doc-012:l88",
+      "bbox_id": "3687e6bd11ef0031:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "3687e6bd11ef0031"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-ddc1cbbf09ea3c20",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p4",
+      "line_id": "case-05-doc-012:l128",
+      "bbox_id": "ddc1cbbf09ea3c20:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "ddc1cbbf09ea3c20"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-b4d61c2af27d1c8d",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p5",
+      "line_id": "case-05-doc-012:l149",
+      "bbox_id": "b4d61c2af27d1c8d:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "b4d61c2af27d1c8d"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-cf61f7dc8a370d29",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p5",
+      "line_id": "case-05-doc-012:l160",
+      "bbox_id": "cf61f7dc8a370d29:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "cf61f7dc8a370d29"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-24054dc59527e526",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p6",
+      "line_id": "case-05-doc-012:l175",
+      "bbox_id": "24054dc59527e526:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "present_in_line",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "24054dc59527e526"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-c30e2466733c2cca",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p6",
+      "line_id": "case-05-doc-012:l191",
+      "bbox_id": "c30e2466733c2cca:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "c30e2466733c2cca"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    },
+    {
+      "observation_id": "obs-634c3e8d4cb76f10",
+      "case_token": "CASE-05",
+      "document_token": "case-05-doc-012",
+      "page_id": "case-05-doc-012:p6",
+      "line_id": "case-05-doc-012:l192",
+      "bbox_id": "634c3e8d4cb76f10:bbox",
+      "project_category": "laboratory_candidate",
+      "value_present": true,
+      "unit_present": true,
+      "date_evidence_status": "missing_or_unparsed",
+      "temporal_role_status": "unknown",
+      "header_scope_status": "unknown",
+      "source_refs": [
+        "634c3e8d4cb76f10"
+      ],
+      "binding_status": "unresolved",
+      "unknown_unresolved": true,
+      "review": {
+        "decision": null,
+        "needs_clinical_judgment": null,
+        "notes": null
+      }
+    }
+  ]
+}

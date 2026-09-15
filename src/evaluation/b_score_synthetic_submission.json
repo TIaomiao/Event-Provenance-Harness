@@ -1,0 +1,49 @@
+{
+  "aligned_count": 0,
+  "ambiguous_source_predictions": 0,
+  "cost": {
+    "amount": null,
+    "calls": null,
+    "currency": null,
+    "failed_calls": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "status": "not_recorded",
+    "wall_seconds": null
+  },
+  "evaluator_version": "c-eval-dev-v0.1",
+  "extra_observations": 3,
+  "field_correct": {
+    "all_time_assertions": 0,
+    "full_record": 0,
+    "joint": 0,
+    "sampling_time": 0,
+    "source_support": 0,
+    "unit": 0,
+    "value": 0
+  },
+  "full_record_tp": 0,
+  "gold_count": 12,
+  "identity": {
+    "correct": 0,
+    "different_pairs": 2,
+    "false_merge": 0,
+    "false_split": 0,
+    "missing_decision": 4,
+    "same_pairs": 1,
+    "status": "not_reported",
+    "unresolved_pairs": 1,
+    "unsupported_resolution": 0
+  },
+  "joint_f1": 0.0,
+  "joint_fn": 12,
+  "joint_fp": 3,
+  "joint_precision": 0.0,
+  "joint_recall": 0.0,
+  "joint_tp": 0,
+  "missing_observations": 12,
+  "prediction_count": 3,
+  "protocol": "research-card-v0.3/shared-synthetic-v0.1",
+  "scope": "synthetic_development",
+  "status": "scored"
+}

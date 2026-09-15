@@ -2,9 +2,13 @@
 
 本目录是用户确认的论文唯一主工作区，适用于本地 Codex 与 Windows DSH。父级 G:/Intern/AGENTS.md 的跨任务规则继续生效。
 
+## 称呼约定
+
+- 在本研究项目中称呼用户为“w”。该称呼用于确认本项目规则已被读取；其他项目不自动沿用此约定。
+
 ## 工作目标
 
-帮助大二、首次写论文的用户推进计算机方向会议论文。当前研究方向为面向真实 EHR 的 Data Agent Harness；重复检验与时间匹配是已选首轮实验，整篇论文方法与贡献另行对齐。先读 README.md，再按角色读取 CONTEXT.md、RESEARCH_CARD.md 与状态文件。
+帮助大二、首次写论文的用户推进计算机方向会议论文。研究主轴为事件表示与查询 Harness；重复检验与时间匹配是首轮实验入口，方法效果和创新性依据后续证据判断。先读总控面板，再按角色读取 RESEARCH_CARD.md 与状态文件。
 
 ## 分工与文件归属
 
@@ -27,10 +31,12 @@
 
 - 参考答案需独立核对；开发样例与独立测试病例分开。报告失败、额外生成、时间关联错误和实际成本。
 - 每个工作单元更新本角色状态：协议版本、完成事项、验证证据、阻塞、下一步。只写匿名摘要。
+- 状态文件采用“当前快照 + 历史归档”结构：B 只更新 `status/implementation_current.md`，C 只更新 `status/evaluation_current.md`；每个快照控制在约 30–50 行，保留当前协议、最新结果、阻塞和下一步。完整工作单元记录追加到对应的 `*_history.md`，不要继续把长日志追加到旧的 `implementation.md` 或 `evaluation.md`。A 需要追溯历史时再读取归档。
 - 本地 Git 管理研究代码与资料，禁止自动 push。提交前检查敏感内容与非本任务修改。
 - archive/ 保存归集前快照，仅供历史追溯；当前安排以根目录文档为准。
 - README.md 只维护入口，CONTEXT.md 维护研究决策，RESEARCH_CARD.md 维护首轮协议，status/ 维护角色进度，results/ 保存证据。其他文档通过链接引用状态，避免重复维护数值与阶段。
 - CONTROL_PANEL.md 是日常总控面板：列出论文方向、当前实验、阅读队列、session 状态、阻塞点和下一步。所有 session 开始先读它，并在完成工作单元后更新自己负责的面板行；详细证据仍放对应状态/结果文件。
+- 总控面板优先读取 `status/implementation_current.md` 和 `status/evaluation_current.md`；状态快照更新后，B/C 必须同步更新自己负责的面板行和 dashboard.html 最近事件，避免面板沿用旧状态。
 - dashboard.html 是 CONTROL_PANEL.md 的本地可视化入口；面板中的数字和状态只允许来自当前 Markdown 状态/结果文件。更新研究状态时同步检查页面是否仍与总控一致。
 - 子 session 的推进必须回写到可视化面板：完成工作单元后，先更新自己的 `status/` 或 `discussion_notes.md`，再同步 `CONTROL_PANEL.md` 的对应行和 `dashboard.html` 的“最近事件/状态”内容；有价值的新机制、反例或决策也要补入面板入口或关联文档，不能只留在聊天记录里。
 - GITHUB_REPO_PLAN.md 记录论文仓库边界、脱敏规则和发布节奏。建议建立独立私有 GitHub 仓库，但远端未创建前不得假定已发布；任何 push、开源或邀请协作者都要先做敏感内容检查并遵守单位/医院政策。

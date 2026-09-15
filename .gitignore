@@ -10,6 +10,8 @@ __pycache__/
 .venv*/
 node_modules/
 .local/
+.tmp_audit/
+_lit_tmp/
 private/
 private_manifests/
 raw_data/
@@ -17,5 +19,7 @@ patient_data/
 runtime/
 *.pdf
 !references/papers/*.pdf
+# 给导师看的一页/多页汇报 PDF（只含匿名聚合内容，不含患者正文）
+!paper/*.pdf
 *.docx
 *.xlsx

@@ -1,0 +1,14 @@
+{
+  "data_class": "synthetic_development_only",
+  "files": {
+    "DESIGN.md": "389e9572d633795ed3bae4aadb365cfb29efe5bd66115a13b3e4ac8c2f4ae5a5",
+    "README.md": "cc70ec9c20f5ab0b0880deef4858ce89ff0592d5afe219b25fc109c27d7255a9",
+    "REVIEW_TEMPLATE.md": "9975b956de49ea51a69773be11c7b39919ea9cee17ff41164a713143e984b40d",
+    "demo.py": "b08bae10cd1bc5ddac77b84a4c552116ebf0d940167243531da9651e045abeb7",
+    "fixtures.py": "c19dfa816eff840d18baa6d4ed41cea77251c3ff664762652bd123704cb97326",
+    "scorer.py": "3dad82cfeab943b959840c17ae5d58b5d44b95834b0eab9a6a1d8ddb330c98ba",
+    "tests/test_scorer.py": "450fbda59a9139388b5e89d98e144c3abc318b2d4809021c2845cf58e095cbdd"
+  },
+  "protocol": "research-card-v0.3/shared-synthetic-v0.1",
+  "release": "c-eval-dev-v0.1"
+}

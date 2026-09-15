@@ -1,0 +1,352 @@
+{
+  "error_classes": {
+    "extra": {
+      "count": 0,
+      "rows": []
+    },
+    "missing": {
+      "count": 0,
+      "rows": []
+    },
+    "other_time_assertion": {
+      "count": 6,
+      "rows": [
+        "r5",
+        "r6",
+        "r7",
+        "r9",
+        "r10",
+        "r12"
+      ]
+    },
+    "sampling_time": {
+      "count": 4,
+      "rows": [
+        "r7",
+        "r9",
+        "r10",
+        "r12"
+      ]
+    },
+    "source_support": {
+      "count": 12,
+      "rows": [
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r8",
+        "r9",
+        "r10",
+        "r11",
+        "r12"
+      ]
+    },
+    "unit": {
+      "count": 0,
+      "rows": []
+    },
+    "value_or_item": {
+      "count": 0,
+      "rows": []
+    }
+  },
+  "kind": "synthetic_error_analysis",
+  "score": {
+    "aligned_count": 12,
+    "cost": {
+      "amount": 0,
+      "calls": 0,
+      "currency": "USD",
+      "failed_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "status": "recorded",
+      "wall_seconds": 0
+    },
+    "field_correct": {
+      "all_time_assertions": 6,
+      "full_record": 0,
+      "joint": 2,
+      "sampling_time": 8,
+      "source_support": 2,
+      "unit": 12,
+      "value": 12
+    },
+    "full_record_f1": 0.0,
+    "full_record_tp": 0,
+    "identity": {
+      "correct": 3,
+      "different_pairs": 2,
+      "false_merge": 0,
+      "false_split": 0,
+      "missing_decision": 1,
+      "same_pairs": 1,
+      "status": "reported",
+      "unresolved_pairs": 1,
+      "unsupported_resolution": 0
+    },
+    "joint_f1": 0.16666666666666666,
+    "joint_fn": 10,
+    "joint_fp": 10,
+    "joint_tp": 2
+  },
+  "typical_samples": [
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "explicit",
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "relative_day": 0,
+          "role": "sampling",
+          "role_ref": "ls-t1",
+          "scope_ref": "t1"
+        }
+      ],
+      "gold_time_roles": [
+        "sampling",
+        "report"
+      ],
+      "gold_value": "7",
+      "pred_sampling": [
+        {
+          "binding_status": "explicit",
+          "coordinate_id": "C1",
+          "date_ref": "d1s",
+          "relative_day": 0,
+          "role": "sampling",
+          "role_ref": "role-sampling",
+          "scope_ref": "t1"
+        }
+      ],
+      "pred_time_roles": [
+        "sampling",
+        "report"
+      ],
+      "pred_value": "7",
+      "row": "r2",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "gold_time_roles": [
+        "sampling",
+        "report"
+      ],
+      "gold_value": "5.1",
+      "pred_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "5.1",
+      "row": "r5",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "gold_time_roles": [
+        "sampling",
+        "document"
+      ],
+      "gold_value": "6",
+      "pred_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "6",
+      "row": "r6",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "explicit",
+          "coordinate_id": "C1",
+          "date_ref": "d7",
+          "relative_day": 2,
+          "role": "sampling",
+          "role_ref": "ls-t7",
+          "scope_ref": "t7"
+        }
+      ],
+      "gold_time_roles": [
+        "sampling"
+      ],
+      "gold_value": "9",
+      "pred_sampling": [
+        {
+          "binding_status": "explicit",
+          "coordinate_id": "C1",
+          "date_ref": "d7",
+          "relative_day": 2,
+          "role": "sampling",
+          "role_ref": "role-sampling",
+          "scope_ref": "t7"
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "9",
+      "row": "r8",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "conflicting",
+          "coordinate_id": "C1",
+          "date_ref": "d8a",
+          "relative_day": 0,
+          "role": "sampling",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8"
+        },
+        {
+          "binding_status": "conflicting",
+          "coordinate_id": "C1",
+          "date_ref": "d8b",
+          "relative_day": 1,
+          "role": "sampling",
+          "role_ref": "ls-t8",
+          "scope_ref": "t8"
+        }
+      ],
+      "gold_time_roles": [
+        "sampling",
+        "sampling"
+      ],
+      "gold_value": "1",
+      "pred_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "1",
+      "row": "r9",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "unresolved",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "gold_time_roles": [
+        "sampling",
+        "unknown"
+      ],
+      "gold_value": "2",
+      "pred_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "2",
+      "row": "r10",
+      "source_issue": true
+    },
+    {
+      "gold_sampling": [
+        {
+          "binding_status": "unresolved",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "gold_time_roles": [
+        "sampling"
+      ],
+      "gold_value": "3",
+      "pred_sampling": [
+        {
+          "binding_status": "unknown",
+          "coordinate_id": null,
+          "date_ref": null,
+          "relative_day": null,
+          "role": "sampling",
+          "role_ref": null,
+          "scope_ref": null
+        }
+      ],
+      "pred_time_roles": [
+        "sampling"
+      ],
+      "pred_value": "3",
+      "row": "r12",
+      "source_issue": true
+    }
+  ]
+}
