@@ -126,7 +126,21 @@
       <div class="event"><b>待补 · 投稿门槛</b><p>真实模型 A/B、事件级金标准、扁平/单层/嵌套三行对照、质量—成本曲线、独立病例评价集。</p></div>
     </div></section>
 
+  <div style="background:#eef4fb;border:2px solid #2b5d8a;border-radius:14px;padding:16px 18px;margin-bottom:18px">
+    <b style="color:#2b5d8a;font-size:17px">📊 benchmark 进展（2026-09-15，7 轮实测）</b>
+    <div style="font:14px 'Segoe UI',sans-serif;color:#4a5560;margin-top:8px;line-height:1.8">
+      按师兄的要求，先把<b>任务的输入输出定死</b>再比。实测发现流水线里<b>早就有一套病例级试卷</b>（<code>lung_cancer_ehr_standard_exam</code>：<b>49 个标量问题 + 16 张事件表 + 9 种答案状态</b>），我们之前一条都没接上。<br>
+      <b>7 轮跑出来的结果：</b>引用可解析率 <b>100%</b>（9 次运行）、输出行数<b>零偏差</b>、值接地 <b>82%</b>（三次一致）、<b>13% 的行数值在整份文档里找不到</b>、<b>9 种状态码只用了 3 种</b>（784 条答案）。<br>
+      <b>最有价值的一条：加 <code>time_refs</code> 字段。</b>OCR 后表格单元格里只有项目/值/单位，<b>时间在页脚</b>——值和时间的来源<b>物理上必然在不同行</b>。单个 <code>source_refs</code> 表达不了，导致时间维度<b>根本测不出来</b>；加上之后 <b>9 次运行全部 100%、零跨度</b>。<br>
+      成本 <b>约 $1.6</b>。详情：<a href="paper/BENCHMARK_DESIGN_2026-09-15.md" style="color:#2b5d8a;font-weight:700">板块与指标设计</a> ·
+      <a href="results/2026-09-15_contract_stability_9runs.md" style="color:#2b5d8a;font-weight:700">9 次稳定性验证</a> ·
+      <a href="results/2026-09-15_structural_and_contract_gap.md" style="color:#2b5d8a;font-weight:700">契约缺陷</a>
+    </div>
+  </div>
+
     <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
+      <div class="event"><b>2026-09-15 · benchmark 7 轮实测（不需要医生的部分全跑完）</b><p>① <b>机械状态核验</b>：可机械判的 43 条里确切错误只有 5 条 → 鉴别力不够，只能当附加列。② <b>多病例铺开</b>：16 例次 / 784 条答案，引用有效率 100%。③ <b>事件表评分器</b>：值接地 82%（三次一致），13% 的行数值整篇找不到。④ <b>结构真值</b>：序号列法 96 行、值形法 161 行、模型输出 141 行。⑤ <b><code>time_refs</code> 验证</b>：加之前时间接地测不出来，加之后 9 次运行 100%、零跨度。⑥ <b>扩到 4 张事件表</b>：8 次运行引用解析全部 100%，契约可移植。成本约 $1.6。→ results/2026-09-15_*.md（9 份）· paper/BENCHMARK_DESIGN_2026-09-15.md</p></div>
+      <div class="event"><b>2026-09-15 · 工作区清理</b><p>删除 <code>_lit_tmp/</code>（131 个文献抓取文件）、<code>.tmp_audit/</code>（66 个临时脚本）、5 个空的 pytest 缓存目录。<b>工作区 10.96 MB → 1.51 MB。</b></p></div>
       <div class="event warn"><b>2026-09-14 · ⛔ 第三版命题（发布确定性）被实测否证 · K1 触发</b><p>对比未脱敏与脱敏发布的 OCR 布局：四个时间标签各 11 条<b>全部存活</b>；绝对日期 44→0，相对日 0→44；<b>时分秒原封不动保留</b>（<code>采集时间：DAY-A HH:MM:SS</code> → <code>采集时间：[相对日+X] HH:MM:SS</code>）。同一次采血的 7 份报告相等关系完好，<b>计数区间宽度 = 0</b> → 自设的 K1 kill criterion 触发，整份定稿作废。附带正面结论：该脱敏流水线采用 MIMIC 式相对日平移，<b>保留了事件间相等关系与间隔</b>，做法正确。</p></div>
       <div class="event warn"><b>2026-09-14 · 25 个 agent 的选题调研与对抗审查</b><p>两轮多智能体 workflow（18 + 7 + 3 agent）。结论：AI 侧可站位置已基本占满——事件计数（arXiv 2608.31017）、检验结果链接（CLinkaRT/TESTLINK 2023）、事件时间锚定（2609.13062、2605.15168）、OCR 抽取（MedStruct-S 2605.03103）、Harness 效应（DataSpace 2608.03451、Harness-Bench 2605.27922）、预算轴（2511.17006）、上下文治理（ContextNest 2607.02116）。对抗审稿对"Harness"框架的判决：<b>装饰性</b>——"换成 pipeline，内容一字不变"。另：<b>AirVx 两轮独立检索零命中，确认为不存在的名称，已清除。</b>→ paper/KDD_IDEA_2026-09-14.md</p></div>
       <div class="event warn"><b>2026-09-14 · ⛔ 批量模型测试：中心命题被否决</b><p>在<b>面板实际使用的根目录</b>上，CASE-05/DOC-013（11 页检验报告、12,215 字符）的真值是 <b>2 次采血</b>（12-02 的 7 份、12-10 的 4 份，采集时间精确到秒）。5 个候选模型 × 2 次重复 = <b>10/10 全部答对</b>：事件数全报 2、分组全部 <code>[[1,3,4,6,9,10,11],[2,5,7,8]]</code>、依据字段全部为 <code>采集时间</code>、无一例把报告时间当采样时间。连最便宜的 gemini-3-flash 也全对。总成本 &lt; $0.1。<b>当正确答案在数据中显式存在时，不存在可测量的方法收益 → 没有论文。</b>→ results/2026-09-14_model_event_test.md</p></div>
