@@ -214,3 +214,42 @@
 
 **完整工作表（含出处与原文时间戳）留在服务器 `/tmp/qbank/worksheet.json`，不进仓库。**
 本地只有遮蔽版核对表。
+
+---
+
+## 十、核对界面（可视化，数据不落本地）
+
+看 JSON/Markdown 不叫核对——核对必须能**同时看到问题、答案、和引用的原文行**。
+所以页面在受控主机上生成、经 SSH 隧道直接送到浏览器：
+
+```
+# 1) 受控主机上生成页面（并把证据行解析成原文）
+python3 /tmp/qbank/viewer_gen.py          # 读 worksheet.json -> 写 viewer.html
+
+# 2) 受控主机上起一个只绑本机的静态服务
+cd /tmp/qbank && setsid nohup python3 -m http.server 8899 --bind 127.0.0.1 &
+
+# 3) 本地开隧道，然后浏览器打开
+ssh -N -L 8899:127.0.0.1:8899 <host>
+# 浏览器打开 http://127.0.0.1:8899/viewer.html
+```
+
+**这样数据只在 SSH 通道里流动，不落本地磁盘、不进仓库。**
+页面功能：60 张卡片（题 / 答案 / 依据 / 可展开的引用原文行），每题三个按钮（对得上 / 有问题 / 跳过），
+核对进度存在浏览器本地，点"导出核对结果"可复制一段 JSON 回传。
+
+### 踩到的坑（写给以后）
+
+**远程脚本里有中文时，不要用 `Get-Content -Raw` 读文件再 base64。**
+本机 PowerShell 会用本地代码页解码，把中文读成乱码，base64 传过去的自然也是乱码
+（实测：本地文件字节是对的 `e7 ae 97`＝"算"，但 `Get-Content` 读出来已经变成别的字）。
+
+**正确做法**：直接读字节再编码——
+
+```powershell
+$b64 = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+ssh <host> "printf '%s' '$b64' | base64 -d > /tmp/x.py && python3 /tmp/x.py"
+```
+
+用 `Get-Content` 时同样别写 `ssh ... "python3 -c \"...\""` 这种嵌套引号，会被 PowerShell 解析器吃掉。
+**纯 ASCII 的脚本仍然首选直接管道 stdin。**
