@@ -20,56 +20,71 @@
 </head>
 <body>
 <main class="shell">
-  <div style="background:#fff4ed;border:2px solid #c2410c;border-radius:14px;padding:14px 18px;margin-bottom:18px">
-    <b style="color:#c2410c;font-size:18px">⚠ 一句话：我们试了十几个方向，一个都没成。</b>
-    <div style="font:14.5px 'Segoe UI',sans-serif;color:#5c5850;margin-top:6px;line-height:1.75">
-      这是我们自己提出三个方案，用真实数据一测，全都不成立。所以这个页面看着东西不少，其实还不能写论文。<br>
-      做了什么、怎么发现不行、哪些别人早做过了，都写在
-      <a href="attempts.html" style="color:#c2410c;font-weight:700">《试过什么，为什么都不行》→</a>
+  <div style="background:#eef4fb;border:2px solid #2b5d8a;border-radius:14px;padding:14px 18px;margin-bottom:18px">
+    <b style="color:#2b5d8a;font-size:18px">现在做什么：把 4 万份病历做成「AI 洗好切好、贴好标签的菜」，然后证明它真的能被现成 AI 直接用。</b>
+    <div style="font:14.5px 'Segoe UI',sans-serif;color:#4c5866;margin-top:6px;line-height:1.75">
+      找<b>没参与建库</b>的 AI，不给说明书、不给例子、不许人帮忙，让它直接回答医生的问题，看答对多少、费多大劲。<br>
+      方法：把库做 <b>5 个版本</b>（生数据 → 格式统一 → 单位归一 → 加溯源和状态 → 加机器说明书），逐个拆零件看 AI 掉多少分。<br>
+      早期十四条被否证的方向收在 <a href="attempts.html" style="color:#2b5d8a;font-weight:700">《试过什么，为什么都不行》→</a>
     </div>
   </div>
-  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">三个方案，<br><em>一个都没成</em>。</h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-15<br>现在的做法：<b>不自己猜方向了，等师兄给临床问题</b></div></header>
+  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">AI-Ready 医疗数据库<br><em>现成 AI 能不能直接用</em></h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-17<br>方向：<b>师兄定的 AI-Ready</b></div></header>
 
   <section class="hero">
-    <div class="panel"><h2>现在是什么情况</h2><p class="claim">我们自己想的三个方案，一测全不行：<strong>①事件身份</strong>（模型 10 次全对，我们那套用不上）<strong>②嵌套 Harness</strong>（审稿人说换成 pipeline 一个字都不用改，等于是摆设）<strong>③脱敏之后算不出来</strong>（一测发现时分秒原样保留，照样算得出）。<strong>现在只剩一条还没被推翻：病程记录和检验报告的名字，一条都对不上。</strong></p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">数据是真的、能用的；我们自己的三个方案都没成；新方向要等临床那边给。</div></div>
+    <div class="panel"><h2>试跑已经跑完了（60 题 × 三个版本）</h2><p class="claim">结论是<strong>没差别</strong>：<strong>原文 67%</strong>、<strong>AI-Ready 超集 65%</strong>、<strong>只有结构化层（丢了原文）58%</strong>。<br>原因很清楚——<strong>题目全是日期和文档计数，而日期在原文里字面就有</strong>，结构化帮不上忙。这正是师兄预判的那一支：<em>没差别 → 说明问题设计错了。</em></p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">下一步：改成「只有结构才答得出来」的题（值超阈值次数、最大最小值、定性结果计数、跨文档同日对齐），答案键改由强模型出候选 + 人工核。</div></div>
     <div class="panel"><h2>几个关键数字</h2><div class="mini-stat">
-      <div class="stat alert"><b>10/10</b><span>模型全对（本该有错）</span></div>
-      <div class="stat alert"><b>0/50</b><span>两处名字对不上</span></div>
-      <div class="stat"><b>2</b><span>真实采血事件（真值）</span></div>
-      <div class="stat"><b>3</b><span>今日被否证的命题数</span></div>
+      <div class="stat"><b>67%</b><span>原文答对率</span></div>
+      <div class="stat"><b>65%</b><span>AI-Ready 超集答对率</span></div>
+      <div class="stat alert"><b>58%</b><span>有损结构化反而更差</span></div>
+      <div class="stat"><b>$8.51</b><span>本轮试跑花费</span></div>
     </div></div>
   </section>
 
   <div class="grid">
 
-    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 paper/PROPOSAL.md 对齐 · 2026-09-14</span></div><p style="font-size:21px;line-height:1.3;margin:0 0 14px"><b>Event-Provenance Harness: Nested Evidence Organization for Reliable Test-Event Identity in Real-World OCR'd Hospital PDFs</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：事件来源感知 Harness：面向真实 OCR 医院 PDF 的嵌套证据组织与检验事件身份判定。<br>主轴（师兄确认）：事件表示 + 查询 Harness。本版只更换嵌套结构所解决的问题——从“把表抽对”改为“把事件数算对”。</p></section>
+    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 CONTROL_PANEL.md 对齐 · 2026-09-17</span></div><p style="font-size:20px;line-height:1.3;margin:0 0 14px"><b>Building an AI-Ready EHR Database: Measuring Whether Off-the-Shelf Agents Can Use It</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：构建 AI-Ready 电子病历数据库——用「没参与建库的现成 AI 能不能直接用」来度量就绪度。<br>主轴（师兄定的）：<b>不是算有标签的准确率，而是看现有 AI 的直接可用性</b>。已有工作把 AI-Ready 当成人工打的等级量表（J Clin Med 2026 的 0–2 三级）或一次性对照（medRxiv 多智能体预问诊），<b>没有人把它做成一个可由外部 Agent 复现、可证伪的指标</b>——空隙在这里。</p></section>
 
-    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>可证伪 · 待实验</span></div><p style="margin:0;font-size:17px;line-height:1.4"><b>值抽对了，事件数不对。</b>同一患者同一项目的多次出现，必须判为「同一次事件的文档副本 / 同一次采样的多份报告 / 真实独立复测」三者之一。这个错误不体现在任何值级指标上，却直接污染复测间隔、趋势斜率与跨机构计数。</p></section>
+    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>可证伪 · 试跑第一阶段已完成</span></div><p style="margin:0;font-size:17px;line-height:1.4"><b>把库里每加一样东西，现成 AI 就应该更能用。</b><br>做法：同一批问题、同一批 AI，在 5 个版本上各跑一遍；<b>再从最好的版本开始一次只拿走一样，看掉多少分——掉得最多的那个零件就是论文的卖点。</b><br><span style="color:#b91c1c">当前状态：第一轮试跑<b>没测出差别</b>（题目太简单），题目要重设计。</span></p></section>
 
     <section class="panel span-6"><div class="section-title"><h2>贡献（按证据分级）</h2><span>一条证据链</span></div><div class="status-list">
-      <div class="row"><span class="tag">主</span><div><strong>事件身份的联合判定</strong><small>联合文档级近重复信号与文档内标本/报告号证据，产出可计数、带 provenance 的检验事件，报告误合并率与误拆分率。</small></div></div>
-      <div class="row"><span class="tag">机制</span><div><strong>嵌套 Harness</strong><small>外层（跨文档身份 + 预算路由）与内层（结构重建、值—项目绑定、四类时间角色归一）互为输入。</small></div></div>
-      <div class="row"><span class="tag">评测</span><div><strong>解耦报告</strong><small>值级准确率与事件级准确率分开报告，并测身份错误对下游趋势的代价。</small></div></div>
+      <div class="row"><span class="tag">主</span><div><strong>一个可复现的 AI-Ready 度量</strong><small>现有工作把它当人工打的等级量表或一次性对照；我们定义成「一个没参与建库的 AI，无说明书、无示例、无人工干预下能答对多少」——可证伪、可被第三方复现。</small></div></div>
+      <div class="row"><span class="tag">机制</span><div><strong>5 版本消融 + 逐个拆零件</strong><small>同一批问题、同一批 AI，在 5 个版本上各跑一遍画出一条线；再从最好版本一次拿走一样，看掉多少分——掉得最多的那个零件就是卖点。</small></div></div>
+      <div class="row"><span class="tag">评测</span><div><strong>不需要医生的可验证性指标</strong><small>引用可解析率、值/时间接地、真负例配额、一次性完成率。全部机械可算，不需要临床金标准。</small></div></div>
     </div></section>
 
-    <section class="panel span-6"><div class="section-title"><h2>新颖性边界</h2><span>不得声称“首次提出事件身份判定”</span></div><div class="status-list">
-      <div class="row"><span class="tag">先例</span><div><strong>Son &amp; Taira 2004</strong><small>跨文档判定多次 CT 报告的肺肿块是否同一发现；P=72% / R=63%。任务形状相同的先例，对象是影像发现。</small></div></div>
-      <div class="row"><span class="tag">现成</span><div><strong>Gabriel 2018</strong><small>MinHash/LSH 文档级近重复检测，1,528,940 条笔记。文档级信号直接复用，不重新发明。</small></div></div>
-      <div class="row"><span class="tag">互补</span><div><strong>CCLM 2025（PMID 40991454）</strong><small>多实验室检验报告的可比性分组与来源保留——解“测量可比性”，不解“事件计数”。</small></div></div>
-      <div class="row"><span class="tag">不可进</span><div><strong>表格结构抽取（已被占满）</strong><small>MedStruct-S（KSEM 2026）、Key Coverage Matters、ICML 2026 workshop、JBI 2024、ClinOCR-Bench。不得作为主贡献。</small></div></div>
+    <section class="panel span-6"><div class="section-title"><h2>新颖性边界</h2><span>AI-Ready 这个词已被用过，必须引用</span></div><div class="status-list">
+      <div class="row"><span class="tag">先例</span><div><strong>J Clin Med 2026《From Medical Records to AI-Ready Datasets》</strong><small>提出 <b>0–2 三级人工量表</b>测数据集就绪度。是<b>人工打分</b>，不是可执行指标——我们的差别在这里。</small></div></div>
+      <div class="row"><span class="tag">现成</span><div><strong>medRxiv 多智能体预问诊 → AI-ready data</strong><small>把患者自述结构化成 AI-ready data 并做下游对照。是<b>单一系统、一次性对照</b>；我们是同一条流水线 5 个版本做消融。</small></div></div>
+      <div class="row"><span class="tag">工业</span><div><strong>Snowflake / Data4Life 的 AI-Ready Data Framework</strong><small>工程口径，非学术；说明这个词在业界有共识、可引用，但不能当学术贡献。</small></div></div>
+      <div class="row"><span class="tag">不可进</span><div><strong>表格结构抽取</strong><small>MedStruct-S（KSEM 2026）、Key Coverage Matters、ClinOCR-Bench 等已占满。不得作为主贡献——<b>抽取只是我们建库的手段，不是贡献本身</b>。</small></div></div>
     </div></section>
 
-    <section class="panel span-12"><div class="section-title"><h2>接下来的 session 推进</h2><span>每个工作单元必须留下可核验证据</span></div>
+    <section class="panel span-12"><div class="section-title"><h2>师兄定的实验设计（原文照录）</h2><span>5 个版本 · 5 个指标 · 一个最大的坑</span></div>
       <table>
-        <tr><th>线</th><th>下一个工作单元</th><th>依赖</th><th>可立即开始</th><th>状态</th></tr>
-        <tr><td><b>B / 原型</b></td><td>跨文档事件分组<span class="pill done">已实测</span>：DOC-013 无行级日期/编号，按页切出 <b>50 事件 / 473 行</b>；日期层面跨文档命中 <b>8–9 / 10</b>，名称层面 <b>0</b>。→ <code>results/2026-09-14_event_grouping.md</code></td><td>无</td><td>是</td><td><span class="pill done">本单元完成</span></td></tr>
-        <tr><td><b>B / 下一步</b></td><td>在 PDF 上肉眼核对 1 页，判定「组合名 = 项目名的上位分组」是否成立；行级事件身份需换取证源（DOC-013 之外）</td><td>B 轨本单元</td><td>是</td><td><span class="pill doing">最高优先</span></td></tr>
-        <tr><td><b>C / 评测</b></td><td>scorer v0.2：新增事件级指标（误合并率 / 误拆分率）；当 <code>cost.calls = 0</code> 时拒绝把结果标记为“模型结果”</td><td>无</td><td>是</td><td><span class="pill doing">可并行</span></td></tr>
-        <tr><td><b>B / 复用</b></td><td>评估既有 <code>bbox_table_parser.py</code>（45 KB，8 月 14 日）与 <code>build_gold_standard_sample.py</code> 对新方案的适用性，给出复用或弃用结论</td><td>无</td><td>是</td><td><span class="pill doing">可并行</span></td></tr>
-        <tr><td><b>A / 总控</b></td><td>把 RESEARCH_CARD 的 E1 章节改到事件身份版；与师兄谈三件事（模型预算 / 20–50 例分层授权 / 赛道确认）</td><td>无</td><td>是</td><td><span class="pill doing">进行中</span></td></tr>
-        <tr><td><b>DSH</b></td><td>Son &amp; Taira / Gabriel / CCLM / THYME 的引用定位定稿；监控 KDD 2027 Cycle 2 官方日期（官网与 OpenReview 双通道）</td><td>无</td><td>是</td><td><span class="pill doing">进行中</span></td></tr>
-        <tr><td><b>闸门</b></td><td>Phase 1：第一次真实模型调用（Flat 基线，一份检验文档），记录真实 token / 费用 / 延迟</td><td>模型授权 + B 轨完成</td><td>否</td><td><span class="pill wait">等授权</span></td></tr>
-        <tr><td><b>交付</b></td><td>E1 三行对照（Flat / 单层 / 嵌套），报告值级准确率 + 误合并率 + 误拆分率</td><td>金标准冻结</td><td>否</td><td><span class="pill wait">2026-11 中旬</span></td></tr>
+        <tr><th style="width:12%">版本</th><th>比上一版多了什么</th></tr>
+        <tr><td><b>1 生数据</b></td><td>啥都没处理的原始 OCR 文本</td></tr>
+        <tr><td><b>2 格式统一</b></td><td>字段名、类型一致</td></tr>
+        <tr><td><b>3 归一化</b></td><td>单位、日期、诊断编码统一（"拜阿司匹灵" → "阿司匹林"）</td></tr>
+        <tr><td><b>4 溯源与状态</b></td><td>来源出处、置信度、重复病人合并、<b>"确实没有"和"没抽到"分开</b></td></tr>
+        <tr><td><b>5 机器说明书</b></td><td>一份机器能读的说明书，AI 自己看得懂每个字段</td></tr>
+      </table>
+      <p style="margin:10px 0 6px;font:14px 'Segoe UI',sans-serif;color:var(--muted)"><b>指标只要看 5 个数</b>：① 做对率 ② 费劲程度（试了几轮、烧了多少字）③ 错答率（尤其<b>错误的否定结论</b>）④ 该说"不知道"时说了没有 ⑤ 医生核对一条要几分钟（有出处 30 秒，没出处翻病历 5 分钟）</p>
+      <div style="background:#fff4ed;border-left:5px solid #c2410c;border-radius:0 8px 8px 0;padding:10px 14px;margin-top:8px">
+        <b style="color:#c2410c">最大的坑（师兄原话的意思）：</b>
+        <span style="font:14px 'Segoe UI',sans-serif;color:#5c5850">只问"张大爷的血糖是多少"，聪明的 AI 自己就能把乱七八糟的单位换算好 → <b>库做得烂它照样答对 → 实验看不出差别 → 前面全白做</b>。所以<b>一半以上的问题必须是"算一下"型</b>（"4 万个病人里血糖不达标的有多少人"），必须靠数据库算。</span><br>
+        <span style="font:13.5px 'Segoe UI',sans-serif;color:#8b3e28">↳ <b>我们第一轮试跑踩了正好这个坑</b>：60 题全是日期计数（"查一下"型），结果原文 67% vs AI-Ready 65%，没差别。</span>
+      </div>
+    </section>
+
+    <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-17 更新 · 按师兄的分支指令</span></div>
+      <table>
+        <tr><th>步</th><th>做什么</th><th>为什么</th><th>状态</th></tr>
+        <tr><td><b>1</b></td><td><b>加难题型</b>：值超阈值次数、最大/最小值、定性结果（阴性/阳性）计数、跨文档同日对齐</td><td>试跑证明日期题在原文里字面就有，结构化帮不上忙；<b>题必须依赖"只有结构才答得出"的信息</b></td><td><span class="pill doing">现在做</span></td></tr>
+        <tr><td><b>2</b></td><td><b>答案键改由强模型出候选 + 人工核</b></td><td>难题型的答案无法再靠格级几何机械导出；师兄明确说过"数据集的答案不一定特别准"，这条路是他原本建议的</td><td><span class="pill doing">现在做</span></td></tr>
+        <tr><td><b>3</b></td><td><b>补齐 5 个版本</b>（现在只有 v1 生数据 / v5 结构化 / v5b 超集三个）</td><td>师兄的曲线要 5 个点：生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书</td><td><span class="pill wait">待 1、2 完成</span></td></tr>
+        <tr><td><b>4</b></td><td><b>逐个拆零件</b>：从 v5 一次拿走一样，看掉多少分</td><td>掉得最多的那个零件就是论文卖点</td><td><span class="pill wait">待 3</span></td></tr>
+        <tr><td><b>5</b></td><td><b>换第二个消费者模型</b>再跑一遍</td><td>防止"增益其实来自某个模型的偏好"这个攻击</td><td><span class="pill wait">待 3</span></td></tr>
+        <tr><td><b>6</b></td><td>把 4 个 AI-Ready 缺口量成指标：盖章遮盖率、页码误入率、<b>定性结果漏抽率</b>、含图页占比</td><td>这四条是人工核对时发现的真实缺口；<b>benchmark 的活儿是暴露它们，不是修好它们</b></td><td><span class="pill doing">素材已有</span></td></tr>
       </table>
     </section>
 
@@ -82,23 +97,23 @@
     </div></section>
 
     <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div>
-      <div class="callout"><b>模型授权未定。</b>论文方法是固定模型、变化证据组织的对照实验，但第一次真实 LLM 调用尚未发生；供应商、单价、预算上限全部未定。</div>
+      <div class="callout"><b>题目不够难，测不出差别。</b>第一轮 60 题全是日期/文档计数（"查一下"型），而日期在原文里字面就有 → 原文 67% vs AI-Ready 65%，没差别。<b>这是师兄预判的分支，不是失败</b>；下一步改成"只有结构才答得出来"的题。</div>
       <div class="decision" style="margin-top:14px">
-        <div class="row"><span class="tag">其次</span><div><strong>跨文档重复：日期层面强、名称层面未证实</strong><small>DOC-012 的 22 个（组合名, 日期）对 DOC-013 页级 <code>采集时间</code>/<code>报告时间</code> 命中 8–9/10，但组合名与项目名精确命中 0；需先在 PDF 上核对二者是否为上下位命名关系</small></div></div>
-        <div class="row"><span class="tag">再其次</span><div><strong>金标准为 0 行</strong><small>没有人工核对过的真实参考答案</small></div></div>
-        <div class="row"><span class="tag">发布</span><div><strong>Pages 发布整个仓库</strong><small>工作流 <code>path: .</code>，任何进仓库的文件都会公开；需收窄为仅发布面板</small></div></div>
+        <div class="row"><span class="tag">其次</span><div><strong>难题型的答案键做不出来</strong><small>值超阈值次数、最大最小值这类题，答案依赖"行/列"结构，而那个结构会被<b>盖章、页码、定性结果</b>污染（人工核对时实测）。→ 答案键改由强模型出候选 + 人工核。</small></div></div>
+        <div class="row"><span class="tag">再其次</span><div><strong>五个版本只做了三个</strong><small>现在有 v1 生数据 / v5 结构化 / v5b 超集；师兄要的那条 5 点曲线还差两个点（格式统一、单位归一）。</small></div></div>
+        <div class="row"><span class="tag">已知风险</span><div><strong>号池网关的可用模型会漂</strong><small>同一天内 <code>gpt-5.6-sol</code> 从超时变可用、<code>luna/terra/gpt-5.5</code> 从可用变 503。<b>实验必须记录当时用的模型名，否则不可复现。</b></small></div></div>
       </div>
     </section>
 
-    <section class="panel span-6"><div class="section-title"><h2>E1 实验设计</h2><span>三行对照 · 固定模型与预算</span></div>
+    <section class="panel span-6"><div class="section-title"><h2>试跑的实验设计（已跑完）</h2><span>60 题 × 3 个版本 × 1 个独立消费者</span></div>
       <table>
-        <tr><th>条件</th><th>外层（跨文档身份）</th><th>内层（文档内绑定）</th></tr>
-        <tr><td>Flat</td><td>无</td><td>无（一次性全量输入）</td></tr>
-        <tr><td>单层 Harness</td><td>无</td><td>有</td></tr>
-        <tr><td><b>嵌套 Harness</b></td><td>有</td><td>有</td></tr>
+        <tr><th>条件</th><th>给消费者的东西</th><th class="num">做对率</th><th class="num">成本</th></tr>
+        <tr><td><b>v1 生数据</b></td><td>原始 OCR 文本</td><td class="num"><b>67%</b></td><td class="num">$1.92</td></tr>
+        <tr><td>v5 结构化</td><td>三张表 + 归一化 + 溯源 + 状态 + 说明书（<b>替换原文</b>）</td><td class="num" style="color:#b91c1c">58%</td><td class="num">$0.30</td></tr>
+        <tr><td><b>v5b 超集</b></td><td>= v5 的内容 <b>+ 原文</b>（附加而非替换）</td><td class="num"><b>65%</b></td><td class="num">$2.20</td></tr>
       </table>
-      <p style="margin:14px 0 0;color:var(--muted);font:13px 'Segoe UI',sans-serif">指标：值级准确率 / 误合并率 / 误拆分率。<b>若三行值级准确率接近，而事件级指标只有第三行正确，该表即为论文主证据。</b></p>
-      <div class="callout" style="margin-top:14px">闸门：若真实数据中不存在“同一次检验被多次记录”的现象，或误合并率低到不足以支撑论证，则改任务定义或数据切片，不硬撑。</div>
+      <p style="margin:14px 0 0;color:var(--muted);font:13px 'Segoe UI',sans-serif">消费者 = <code>gemini-3.1-flash-lite</code>，与建库模型（<code>gpt-5.6-sol</code>）不同家族、与主表被测模型也不同。一次调用、无示例、无人工干预。</p>
+      <div class="callout" style="margin-top:14px">两条可直接写进论文的教训：① <b>AI-Ready 层必须是附加的，不能替代原文</b>——替代就变成有损摘要（v5 抽出 127 条 / 实际 330 条），准确率反而掉 9 个点；② 目前唯一可测的收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。</div>
     </section>
 
     <section class="panel span-6"><div class="section-title"><h2>G0 数据可行性（已验证）</h2><span>results/2026-09-14_G0_data_feasibility.md</span></div>
@@ -177,6 +192,8 @@
   </div>
 
     <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
+      <div class="event warn"><b>2026-09-17 · AI-Ready 试跑跑完：没测出差别（师兄预判的分支）</b><p>60 题 × 3 个版本 × 1 个独立消费者。① <b>原文 67%</b>（$1.92）、<b>AI-Ready 超集 65%</b>（$2.20）、<b>有损结构化 58%</b>（$0.30）→ <b>结构化层没有带来准确率提升</b>。② 原因：<b>题目全是日期/文档计数，而日期在原文里字面就有</b>，结构化帮不上忙——正是师兄说的"没差别说明问题设计错了"。③ <b>有损的结构化明确更差</b>：抽取丢记录（CASE-06 抽出 127 / 实际 330，CASE-09 抽出 57 / 实际 293）→ <b>AI-Ready 层必须是附加的，不能替代原文</b>。④ 唯一可测收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。⑤ 判分脚本第一版误判了"否/未提及/未能找到"这类正确否定（每条件 4 条），已修正。→ results/2026-09-17_pilot_ai_ready.md</p></div>
+      <div class="event"><b>2026-09-17 · 60 题题库 + 可视化核对界面</b><p>① <b>设计原则</b>：题目的答案只能依赖<b>格级和文档级</b>操作，不能依赖行级/列级结构——因为盖章、页码、定性结果会污染后者。② 按此砍掉总行数、最大值、日期跨度（CASE-10 算出 815 天是坏数据）、全病例日期数（证据横跨所有文档核不过来）。③ 保留 6 个模板，12 病例 × 5 题 = <b>60 题，0 题不可判</b>。④ <b>核对界面</b>：页面在受控主机生成、经 SSH 隧道送达，左边是原始 PDF 页面 + 红框标出被算进去的格子，右边是完整清单——数据不落本地磁盘。⑤ 人工核对时发现 <b>4 个真实 AI-Ready 缺口</b>：盖章遮盖、页码被当成检验值、<b>阴性结果整列漏抽</b>、散点图没进库。→ paper/QUESTION_BANK_PILOT60.md</p></div>
       <div class="event warn"><b>2026-09-17 · 同一个问题连改三次（三次都是我自己的度量写错）</b><p>① <b>撤回</b>：旧"13% 数值找不到"是 <code>max_tokens=8000</code> 截断。② <b>撤回</b>：旧"464 行报了病例里不存在的时间"判定过严（用整行数字完全相等），按最小单位重验后是"整条时间戳对不出整体"，日期都在。③ <b>撤回</b>：旧"上下文一变时间接地掉到 58.6%"——修提示词后三种问法都是 <b>100%</b>，这个"发现"不成立。→ results/2026-09-17_main_table.md 第八节</p></div>
       <div class="event"><b>2026-09-17 · 主表修正版：三种问法分不出来，问题在系统级失败</b><p>① <b>规则/几何基线</b>（不用模型）：按值列几何聚类得到结构真值 2518 行。② <b>三种模型问法</b>：引用可解析全部 100%、时间接地全部 100%、值接地（数值归一化）99~100% —— <b>分不出系统</b>。③ <b>唯一稳定差别</b>：跑不出来的病例 3~4 个（12 里），表现是 JSON 被输出上限截断解析失败；CASE-100 真值 514 行，一次调用吐不完；提到 64000 后 CASE-02/CASE-09 从 0 行恢复到 286/291 行（真值 290/293）。④ <b>两种算法差一倍</b>：失败病例算 0 分行数恢复 40~48%，只算跑通的 76~93%。⑤ <b>行数真值没校准</b>：CASE-01 出现 122%，这一列暂不可用。本轮 $2.1。→ results/2026-09-17_main_table.md</p></div>
       <div class="event"><b>2026-09-15 · benchmark 7 轮实测（不需要医生的部分全跑完）</b><p>① <b>机械状态核验</b>：可机械判的 43 条里确切错误只有 5 条 → 鉴别力不够，只能当附加列。② <b>多病例铺开</b>：16 例次 / 784 条答案，引用有效率 100%。③ <b>事件表评分器</b>：值接地 82%（<span style="color:#b91c1c">2026-09-17 撤回，截断所致</span>）。④ <b>结构真值</b>：序号列法 96 行、值形法 161 行（<span style="color:#b91c1c">2026-09-17 改为几何聚类</span>）。⑤ <b><code>time_refs</code> 验证</b>：加之前时间接地测不出来，加之后 9 次运行 100%、零跨度。⑥ <b>扩到 4 张事件表</b>：8 次运行引用解析全部 100%，契约可移植。成本约 $1.6。→ results/2026-09-15_*.md（9 份）· paper/BENCHMARK_DESIGN_2026-09-15.md</p></div>
