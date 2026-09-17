@@ -186,7 +186,7 @@
       <b>③ 真正的问题是大病例跑不出来。</b>一次调用吐不完 JSON 直接解析失败（CASE-100 真值 514 行）。<b>把失败病例算成 0 分行数恢复只有 40~48%，只算跑通的则有 76~93%</b>——差一倍，必须单列。而且<b>每次跑失败的病例不一样</b>。<br>
       <b>④ "行数恢复"这一列还不能用。</b>几何真值没校准：CASE-01 出现 <b>122%</b>（模型抽出的行比真值还多）。<br>
       本轮成本 <b>$2.1</b>。详情：<a href="CONTROL_PANEL.md" style="color:#2b5d8a;font-weight:700">总控面板（含主表）</a> ·
-      <a href="paper/REPORT_FOR_SENIOR_2026-09-17.pdf" style="color:#2b5d8a;font-weight:700">给师兄的 4 页对齐汇报</a><br>
+      <a href="paper/benchmark-main-table-report.pdf" style="color:#2b5d8a;font-weight:700">给师兄的 4 页对齐汇报</a><br>
       <span style="color:#b91c1c">完整实测记录 <code>results/2026-09-17_main_table.md</code> 留在仓库内、不上公开站点。</span>
     </div>
   </div>
@@ -211,7 +211,7 @@
     <section class="panel span-12"><div class="section-title"><h2>工作区入口</h2><span>面板只展示匿名摘要</span></div><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">患者正文、真实参考答案、凭据和原始模型响应留在 Larry 受控环境，本仓库不得出现。<b>Pages 已改为白名单发布</b>：工作流只上传 <code>_site/</code>，且有一道守卫——staged 内容若命中 <code>ocr_layout</code> / <code>患者</code> / <code>住院号</code> / <code>sk-…</code> 等模式则直接 fail，不会部署。</p>
       <div class="links">
         <a href="paper/BRIEF_FOR_ADVISOR.pdf"><b>给导师的汇报 PDF（手机可读）</b></a>
-        <a href="paper/REPORT_FOR_SENIOR_2026-09-17.pdf"><b>给师兄的 4 页对齐汇报（手机可读）</b></a>
+        <a href="paper/benchmark-main-table-report.pdf"><b>给师兄的 4 页对齐汇报（手机可读）</b></a>
         <a href="paper/BRIEF_FOR_ADVISOR.pdf">给导师的阶段汇报 PDF</a>
         <a href="paper/KDD_IDEA_2026-09-14.md">选题调研与对抗审查</a>
         <a href="results/2026-09-14_model_event_test.md">10/10 模型测试</a>

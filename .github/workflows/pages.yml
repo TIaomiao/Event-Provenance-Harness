@@ -30,7 +30,29 @@ jobs:
       - name: Stage site (allowlist)
         run: |
           set -euo pipefail
-          mkdir -p _site
+          mkdir -p _site/paper
+
+          # Every allowlisted path MUST exist. Without this check a bare `cp` fails
+          # with an unhelpful message - a rename once slipped through and the site
+          # silently stopped updating for ten pushes.
+          missing=0
+          for f in \
+            dashboard.html \
+            attempts.html \
+            CONTROL_PANEL.md \
+            WEEKLY_REPORT_PROTOCOL.md \
+            RESEARCH_CARD.md \
+            paper/PROPOSAL.md \
+            paper/BRIEF_FOR_ADVISOR.pdf \
+            paper/benchmark-main-table-report.pdf
+          do
+            if [ ! -f "$f" ]; then
+              echo "::error::allowlisted file missing from the repository: $f"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
           cp dashboard.html _site/index.html
           cp dashboard.html _site/dashboard.html
           cp attempts.html _site/attempts.html
@@ -38,13 +60,12 @@ jobs:
           # 白名单发布：只放明确不含患者内容的文件。
           # results/ 下的实测记录一律不上公开站点（其中含病例时间戳等派生信息）；
           # 它们留在仓库里供导师侧 AI 读取，仓库可见性由人工确认。
-          mkdir -p _site/paper
           cp CONTROL_PANEL.md _site/
           cp WEEKLY_REPORT_PROTOCOL.md _site/
           cp RESEARCH_CARD.md _site/
           cp paper/PROPOSAL.md _site/paper/
           cp paper/BRIEF_FOR_ADVISOR.pdf _site/paper/
-          cp paper/REPORT_FOR_SENIOR_2026-09-17.pdf _site/paper/
+          cp paper/benchmark-main-table-report.pdf _site/paper/
 
           echo "--- staged files ---"
           find _site -type f | sort
