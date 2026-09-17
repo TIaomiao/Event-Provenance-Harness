@@ -32,7 +32,7 @@
 - 参考答案需独立核对；开发样例与独立测试病例分开。报告失败、额外生成、时间关联错误和实际成本。
 - 每个工作单元更新本角色状态：协议版本、完成事项、验证证据、阻塞、下一步。只写匿名摘要。
 - 状态文件采用“当前快照 + 历史归档”结构：B 只更新 `status/implementation_current.md`，C 只更新 `status/evaluation_current.md`；每个快照控制在约 30–50 行，保留当前协议、最新结果、阻塞和下一步。完整工作单元记录追加到对应的 `*_history.md`，不要继续把长日志追加到旧的 `implementation.md` 或 `evaluation.md`。A 需要追溯历史时再读取归档。
-- 本地 Git 管理研究代码与资料，禁止自动 push。提交前检查敏感内容与非本任务修改。
+- 本地 Git 管理研究代码与资料。**用户 2026-09-17 明确要求：自动提交并推送，不要每次询问。** 因此每个工作单元结束后直接 `git add` + `commit` + `push origin main`（推送若失败先试 `git -c http.proxy= -c https.proxy= push origin main`）。仍然必须**先做敏感内容检查**再提交（见 `.local/sanitize.py` 与 Pages 守卫规则），检查通过才推送；检查不通过则停下并报告，不要绕过。
 - archive/ 保存归集前快照，仅供历史追溯；当前安排以根目录文档为准。
 - README.md 只维护入口，RESEARCH_CARD.md 维护首轮协议，status/ 维护角色进度，results/ 保存证据。其他文档通过链接引用状态，避免重复维护数值与阶段。
 - 2026-09-15 归档：CONTEXT.md、ENGINEERING_PLAN.md、RESEARCH_IDEA_HANDOFF.md、SESSION_PROMPTS.md 描述的是"嵌套 harness"那一版方案，内容已过期，整体移入 `archive/legacy_20260915/`。当前安排以 CONTROL_PANEL.md + RESEARCH_CARD.md + paper/PROPOSAL.md 为准，不要从归档文档判断现状。
