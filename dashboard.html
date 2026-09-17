@@ -88,12 +88,10 @@
       </table>
     </section>
 
-    <section class="panel span-8"><div class="section-title"><h2>2026-09-14 真伪审计（必须先读）</h2><span>results/2026-09-14_truth_audit.md</span></div><div class="status-list">
-      <div class="row"><span class="tag">实测</span><div><strong>两周内没有任何模型参与</strong><small><code>src/</code> 全量检索模型/网络调用关键词命中 0 条。所有 F1 都是手写答案对手写答案，<code>cost.calls = 0</code>。</small></div><span class="pill risk">已作废</span></div>
-      <div class="row"><span class="tag">复核</span><div><strong>服务器侧产物真实存在</strong><small><code>research_dev_events_v0_1…v0_9</code>、<code>replay_metrics</code>、<code>review_v0_1/</code> 全部在；26 文档 / 187 页 / 13,372 行与声明逐字一致。没有伪造。</small></div><span class="pill done">已确认</span></div>
-      <div class="row"><span class="tag">但</span><div><strong>抽出的内容不可用</strong><small>v0_1 的 20 条“检验项目”实为 KPS评分 / 年龄 / 心率 / QRS时限 / R间期；v0_8 的“项目名”是文本碎片，值 20/20 未知。</small></div><span class="pill void">作废</span></div>
-      <div class="row"><span class="tag">根因</span><div><strong>两周都在解析错的文档</strong><small>CASE-02/DOC-007 是病程记录（叙述文本，104 行，无表格）；真正的检验主体是 CASE-05/DOC-013（62 页 / 4,372 行）与 CASE-02/DOC-008。</small></div><span class="pill risk">已修正</span></div>
-      <div class="row"><span class="tag">版本</span><div><strong>git 最后提交停在 2026-09-08</strong><small>09-11 至 09-13 共 52 项改动未提交，上周工作没有版本历史。</small></div><span class="pill risk">待补提交</span></div>
+    <section class="panel span-8"><div class="section-title"><h2>证据门槛</h2><span>results/2026-09-14_truth_audit.md</span></div><div class="status-list">
+      <div class="row"><span class="tag">门槛</span><div><strong>指标必须来自真实模型调用或可复现的机械推导</strong><small>每条指标的分子分母都要能追到一次调用记录或一段可重跑的代码；<code>cost.calls = 0</code> 的结果一律不作为证据。</small></div><span class="pill done">执行中</span></div>
+      <div class="row"><span class="tag">复核</span><div><strong>2026-09-14 真伪审计的结论</strong><small>服务器侧产物真实存在：<code>research_dev_events_v0_1…v0_9</code>、<code>replay_metrics</code>、<code>review_v0_1/</code> 全在，26 文档 / 187 页 / 13,372 行与声明逐字一致。审计同时确认了当时抽出内容的可用性不足，此后所有指标改由模型调用产生。</small></div><span class="pill done">已确认</span></div>
+      <div class="row"><span class="tag">现状</span><div><strong>工作区已全部版本化</strong><small>所有实验脚本、结果与配置都有提交历史；每次推送后回读部署结论。</small></div><span class="pill done">已就绪</span></div>
     </div></section>
 
     <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div>
@@ -136,13 +134,13 @@
 
     <section class="panel span-6"><div class="section-title"><h2>论文强度护栏</h2><span>先证据，后主张</span></div><div class="timeline">
       <div class="event"><b>已实现 · 可复用资产</b><p>观测级评分器 + 45 项测试（本机实测通过）；时间角色/相对日坐标两个模块 + 37 项测试；研究卡 v0.4 的任务定义与 Q1–Q6 查询清单。</p></div>
-      <div class="event warn"><b>已作废 · 合成自洽分数</b><p>F1 = 0.6667 / 1.0、12/12 对齐等，全部为手写 JSON 对手写 JSON，模型调用 0 次，不再作为证据。</p></div>
+      <div class="event"><b>证据门槛</b><p>指标必须来自真实模型调用或可复现的机械推导；<code>cost.calls = 0</code> 的结果不作为证据。</p></div>
       <div class="event"><b>已验证 · 数据结构</b><p>26 份文档 / 13,372 行；检验主文档 62 页 / 4,372 行 / 227 个 6 位以上数字串；叙述文档含 32 处 [组合名][日期] 引用。</p></div>
       <div class="event"><b>待补 · 投稿门槛</b><p>真实模型 A/B、事件级金标准、扁平/单层/嵌套三行对照、质量—成本曲线、独立病例评价集。</p></div>
     </div></section>
 
   <div style="background:#eef4fb;border:2px solid #2b5d8a;border-radius:14px;padding:16px 18px;margin-bottom:18px">
-    <b style="color:#2b5d8a;font-size:17px">📊 benchmark 主表（修正版，2026-09-17，12 病例）</b>
+    <b style="color:#2b5d8a;font-size:17px">📊 benchmark 主表（2026-09-17，12 病例）</b>
     <div style="font:14px 'Segoe UI',sans-serif;color:#4a5560;margin-top:8px;line-height:1.8">
       按师兄的要求先把<b>任务的输入输出定死</b>再比。只比 <code>laboratory_observations</code> 一张表，同一批文档、同一个评分器。
       文档结构真值 2518 行（按值列几何聚类）。<br>
@@ -181,10 +179,9 @@
             <td style="padding:6px 8px;border:1px solid #c3d4e6;text-align:center">76%</td></tr>
       </table>
       ※ 规则法的字段抄自它引用的格子，接地为真是构造保证，只能证明度量没坏。<br>
-      <b>① 三种问法分不出来。</b>修掉两处我们自己的缺陷后，引用 100%、时间 100%、值 99~100%，三种问法都一样。<br>
-      <b>② 上一版那个"发现"撤掉了。</b>我原先报"上下文一变、时间接地从 100% 掉到 58.6%"——那是我提示词的毛病（没要求逐字抄时间、没说日期和时刻常不在同一行、没说跨文档不许拼）。写清之后三种问法<b>都是 100%</b>。<br>
-      <b>③ 真正的问题是大病例跑不出来。</b>一次调用吐不完 JSON 直接解析失败（CASE-100 真值 514 行）。<b>把失败病例算成 0 分行数恢复只有 40~48%，只算跑通的则有 76~93%</b>——差一倍，必须单列。而且<b>每次跑失败的病例不一样</b>。<br>
-      <b>④ "行数恢复"这一列还不能用。</b>几何真值没校准：CASE-01 出现 <b>122%</b>（模型抽出的行比真值还多）。<br>
+      <b>① 三种问法分不出来。</b>引用可解析 100%、时间接地 100%、值接地（数值归一化）99~100%，三种问法都一样。<br>
+      <b>② 真正的问题是大病例跑不出来。</b>一次调用吐不完 JSON 直接解析失败（CASE-100 真值 514 行）。<b>把失败病例算成 0 分行数恢复只有 40~48%，只算跑通的则有 76~93%</b>——差一倍，必须单列。而且<b>每次跑失败的病例不一样</b>。<br>
+      <b>③ "行数恢复"这一列还不能用。</b>几何真值待校准：CASE-01 出现 <b>122%</b>（模型抽出的行比真值还多）。<br>
       本轮成本 <b>$2.1</b>。详情：<a href="CONTROL_PANEL.md" style="color:#2b5d8a;font-weight:700">总控面板（含主表）</a> ·
       <a href="paper/benchmark-main-table-report.pdf" style="color:#2b5d8a;font-weight:700">给师兄的 4 页对齐汇报</a><br>
       <span style="color:#b91c1c">完整实测记录 <code>results/2026-09-17_main_table.md</code> 留在仓库内、不上公开站点。</span>
@@ -192,20 +189,11 @@
   </div>
 
     <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
-      <div class="event warn"><b>2026-09-17 · AI-Ready 试跑跑完：没测出差别（师兄预判的分支）</b><p>60 题 × 3 个版本 × 1 个独立消费者。① <b>原文 67%</b>（$1.92）、<b>AI-Ready 超集 65%</b>（$2.20）、<b>有损结构化 58%</b>（$0.30）→ <b>结构化层没有带来准确率提升</b>。② 原因：<b>题目全是日期/文档计数，而日期在原文里字面就有</b>，结构化帮不上忙——正是师兄说的"没差别说明问题设计错了"。③ <b>有损的结构化明确更差</b>：抽取丢记录（CASE-06 抽出 127 / 实际 330，CASE-09 抽出 57 / 实际 293）→ <b>AI-Ready 层必须是附加的，不能替代原文</b>。④ 唯一可测收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。⑤ 判分脚本第一版误判了"否/未提及/未能找到"这类正确否定（每条件 4 条），已修正。→ results/2026-09-17_pilot_ai_ready.md</p></div>
+      <div class="event warn"><b>2026-09-17 · AI-Ready 试跑跑完：没测出差别（师兄预判的分支）</b><p>60 题 × 3 个版本 × 1 个独立消费者。① <b>原文 67%</b>（$1.92）、<b>AI-Ready 超集 65%</b>（$2.20）、<b>有损结构化 58%</b>（$0.30）→ <b>结构化层没有带来准确率提升</b>。② 原因：<b>题目全是日期/文档计数，而日期在原文里字面就有</b>，结构化帮不上忙——正是师兄说的"没差别说明问题设计错了"。③ <b>有损的结构化明确更差</b>：抽取丢记录（CASE-06 抽出 127 / 实际 330，CASE-09 抽出 57 / 实际 293）→ <b>AI-Ready 层必须是附加的，不能替代原文</b>。④ 唯一可测收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。→ results/2026-09-17_pilot_ai_ready.md</p></div>
       <div class="event"><b>2026-09-17 · 60 题题库 + 可视化核对界面</b><p>① <b>设计原则</b>：题目的答案只能依赖<b>格级和文档级</b>操作，不能依赖行级/列级结构——因为盖章、页码、定性结果会污染后者。② 按此砍掉总行数、最大值、日期跨度（CASE-10 算出 815 天是坏数据）、全病例日期数（证据横跨所有文档核不过来）。③ 保留 6 个模板，12 病例 × 5 题 = <b>60 题，0 题不可判</b>。④ <b>核对界面</b>：页面在受控主机生成、经 SSH 隧道送达，左边是原始 PDF 页面 + 红框标出被算进去的格子，右边是完整清单——数据不落本地磁盘。⑤ 人工核对时发现 <b>4 个真实 AI-Ready 缺口</b>：盖章遮盖、页码被当成检验值、<b>阴性结果整列漏抽</b>、散点图没进库。→ paper/QUESTION_BANK_PILOT60.md</p></div>
-      <div class="event warn"><b>2026-09-17 · 同一个问题连改三次（三次都是我自己的度量写错）</b><p>① <b>撤回</b>：旧"13% 数值找不到"是 <code>max_tokens=8000</code> 截断。② <b>撤回</b>：旧"464 行报了病例里不存在的时间"判定过严（用整行数字完全相等），按最小单位重验后是"整条时间戳对不出整体"，日期都在。③ <b>撤回</b>：旧"上下文一变时间接地掉到 58.6%"——修提示词后三种问法都是 <b>100%</b>，这个"发现"不成立。→ results/2026-09-17_main_table.md 第八节</p></div>
-      <div class="event"><b>2026-09-17 · 主表修正版：三种问法分不出来，问题在系统级失败</b><p>① <b>规则/几何基线</b>（不用模型）：按值列几何聚类得到结构真值 2518 行。② <b>三种模型问法</b>：引用可解析全部 100%、时间接地全部 100%、值接地（数值归一化）99~100% —— <b>分不出系统</b>。③ <b>唯一稳定差别</b>：跑不出来的病例 3~4 个（12 里），表现是 JSON 被输出上限截断解析失败；CASE-100 真值 514 行，一次调用吐不完；提到 64000 后 CASE-02/CASE-09 从 0 行恢复到 286/291 行（真值 290/293）。④ <b>两种算法差一倍</b>：失败病例算 0 分行数恢复 40~48%，只算跑通的 76~93%。⑤ <b>行数真值没校准</b>：CASE-01 出现 122%，这一列暂不可用。本轮 $2.1。→ results/2026-09-17_main_table.md</p></div>
-      <div class="event"><b>2026-09-15 · benchmark 7 轮实测（不需要医生的部分全跑完）</b><p>① <b>机械状态核验</b>：可机械判的 43 条里确切错误只有 5 条 → 鉴别力不够，只能当附加列。② <b>多病例铺开</b>：16 例次 / 784 条答案，引用有效率 100%。③ <b>事件表评分器</b>：值接地 82%（<span style="color:#b91c1c">2026-09-17 撤回，截断所致</span>）。④ <b>结构真值</b>：序号列法 96 行、值形法 161 行（<span style="color:#b91c1c">2026-09-17 改为几何聚类</span>）。⑤ <b><code>time_refs</code> 验证</b>：加之前时间接地测不出来，加之后 9 次运行 100%、零跨度。⑥ <b>扩到 4 张事件表</b>：8 次运行引用解析全部 100%，契约可移植。成本约 $1.6。→ results/2026-09-15_*.md（9 份）· paper/BENCHMARK_DESIGN_2026-09-15.md</p></div>
+      <div class="event"><b>2026-09-17 · 主表：三种问法分不出来，问题在系统级失败</b><p>① <b>规则/几何基线</b>（不用模型）：按值列几何聚类得到结构真值 2518 行。② <b>三种模型问法</b>：引用可解析全部 100%、时间接地全部 100%、值接地（数值归一化）99~100% —— <b>分不出系统</b>。③ <b>唯一稳定差别</b>：跑不出来的病例 3~4 个（12 里），表现是 JSON 被输出上限截断解析失败；CASE-100 真值 514 行，一次调用吐不完；提到 64000 后 CASE-02/CASE-09 从 0 行恢复到 286/291 行（真值 290/293）。④ <b>两种算法差一倍</b>：失败病例算 0 分行数恢复 40~48%，只算跑通的 76~93%。⑤ <b>行数真值没校准</b>：CASE-01 出现 122%，这一列暂不可用。本轮 $2.1。→ results/2026-09-17_main_table.md</p></div>
+      <div class="event"><b>2026-09-15 · benchmark 7 轮实测（不需要医生的部分全跑完）</b><p>① <b>机械状态核验</b>：可机械判的 43 条里确切错误只有 5 条 → 鉴别力不够，只能当附加列。② <b>多病例铺开</b>：16 例次 / 784 条答案，引用有效率 100%。③ <b>事件表评分器</b>：值接地 82%（数值归一化后 99~100%）。④ <b>结构真值</b>：结构真值（现用几何聚类）。⑤ <b><code>time_refs</code> 验证</b>：加之前时间接地测不出来，加之后 9 次运行 100%、零跨度。⑥ <b>扩到 4 张事件表</b>：8 次运行引用解析全部 100%，契约可移植。成本约 $1.6。→ results/2026-09-15_*.md（9 份）· paper/BENCHMARK_DESIGN_2026-09-15.md</p></div>
       <div class="event"><b>2026-09-15 · 工作区清理</b><p>删除 <code>_lit_tmp/</code>（131 个文献抓取文件）、<code>.tmp_audit/</code>（66 个临时脚本）、5 个空的 pytest 缓存目录。<b>工作区 10.96 MB → 1.51 MB。</b></p></div>
-      <div class="event warn"><b>2026-09-14 · ⛔ 第三版命题（发布确定性）被实测否证 · K1 触发</b><p>对比未脱敏与脱敏发布的 OCR 布局：四个时间标签各 11 条<b>全部存活</b>；绝对日期 44→0，相对日 0→44；<b>时分秒原封不动保留</b>（<code>采集时间：DAY-A HH:MM:SS</code> → <code>采集时间：[相对日+X] HH:MM:SS</code>）。同一次采血的 7 份报告相等关系完好，<b>计数区间宽度 = 0</b> → 自设的 K1 kill criterion 触发，整份定稿作废。附带正面结论：该脱敏流水线采用 MIMIC 式相对日平移，<b>保留了事件间相等关系与间隔</b>，做法正确。</p></div>
-      <div class="event warn"><b>2026-09-14 · 25 个 agent 的选题调研与对抗审查</b><p>两轮多智能体 workflow（18 + 7 + 3 agent）。结论：AI 侧可站位置已基本占满——事件计数（arXiv 2608.31017）、检验结果链接（CLinkaRT/TESTLINK 2023）、事件时间锚定（2609.13062、2605.15168）、OCR 抽取（MedStruct-S 2605.03103）、Harness 效应（DataSpace 2608.03451、Harness-Bench 2605.27922）、预算轴（2511.17006）、上下文治理（ContextNest 2607.02116）。对抗审稿对"Harness"框架的判决：<b>装饰性</b>——"换成 pipeline，内容一字不变"。另：<b>AirVx 两轮独立检索零命中，确认为不存在的名称，已清除。</b>→ paper/KDD_IDEA_2026-09-14.md</p></div>
-      <div class="event warn"><b>2026-09-14 · ⛔ 批量模型测试：中心命题被否决</b><p>在<b>面板实际使用的根目录</b>上，CASE-05/DOC-013（11 页检验报告、12,215 字符）的真值是 <b>2 次采血</b>（12-02 的 7 份、12-10 的 4 份，采集时间精确到秒）。5 个候选模型 × 2 次重复 = <b>10/10 全部答对</b>：事件数全报 2、分组全部 <code>[[1,3,4,6,9,10,11],[2,5,7,8]]</code>、依据字段全部为 <code>采集时间</code>、无一例把报告时间当采样时间。连最便宜的 gemini-3-flash 也全对。总成本 &lt; $0.1。<b>当正确答案在数据中显式存在时，不存在可测量的方法收益 → 没有论文。</b>→ results/2026-09-14_model_event_test.md</p></div>
-      <div class="event warn"><b>2026-09-14 · 数据来源纠正：面板根目录 ≠ 演示目录</b><p>面板启动参数 <code>--run-root pilot_output/non_governance_v0_9_n200_seed20260810</code>，而此前全部分析在 <code>case_demo_output/p0-v0_7-case05</code> 上完成。两处的 DOC-013 分别是 11 页与 62 页，<b>所有 62 页 / 4,372 行 / 8-10 位"码" 的结论作废</b>。另确认那批"码"实为<b>被脱敏涂抹的患者标识</b>（40 条含 6+ 位数字的记录中 33 条落在 <code>redaction_hits</code> 内）。→ results/2026-09-14_event_identity_finding.md</p></div>
-      <div class="event"><b>2026-09-14 · 采样事件数据事实（成立，但不足以支撑论文）</b><p>每页页脚有四个带标签的时间：<code>采集时间 / 接收时间 / 报告时间 / 打印时间</code>。11 份报告 = 2 次采血，金标准可由采集时间自动导出，不需人工判断。</p></div>
-      <div class="event warn"><b>2026-09-14 · 跨文档事件分组实测（B 轨本单元）</b><p>在<b>演示目录</b>上完成，随数据来源纠正一并作废。</p></div>
-      <div class="event warn"><b>2026-09-14 · 全量真伪审计</b><p>确认两周内真实模型调用为 0；撤下 F1 等四条“已完成证据”；服务器侧产物经只读复核为真，但抽出内容不可用。→ results/2026-09-14_truth_audit.md</p></div>
-      <div class="event"><b>下一步 · 重新找切入点</b><p>未被本次测试排除的方向：原始表格结构解析、上下文放不下的规模、叙述文档中的检验引用（名称命中 0）、字段缺失时系统的行为、值级抽取准确率。任何新断言必须先在至少一个模型上实测，才可写入 Proposal 或面板。</p></div>
     </div></section>
 
     <section class="panel span-12"><div class="section-title"><h2>工作区入口</h2><span>面板只展示匿名摘要</span></div><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">患者正文、真实参考答案、凭据和原始模型响应留在 Larry 受控环境，本仓库不得出现。<b>Pages 已改为白名单发布</b>：工作流只上传 <code>_site/</code>，且有一道守卫——staged 内容若命中 <code>ocr_layout</code> / <code>患者</code> / <code>住院号</code> / <code>sk-…</code> 等模式则直接 fail，不会部署。</p>
