@@ -10,14 +10,14 @@
 4. **做什么**：[论文 Proposal](paper/PROPOSAL.md) 和 [研究卡](RESEARCH_CARD.md)。
 5. **做到哪里**：[实现进度](status/implementation.md)、[评测进度](status/evaluation.md)。
 
-新开任务使用 [开场说明](SESSION_PROMPTS.md)。
+新开任务使用 [开场说明](archive/legacy_20260915/SESSION_PROMPTS.md)。
 
 每个子 session 完成后，先更新自己负责的状态文件，再同步 [CONTROL_PANEL](CONTROL_PANEL.md) 和 [可视化面板](dashboard.html)；新的反例、决策和可复现证据挂到对应文档并从面板链接进入。
 
 ## 按需查阅
 
-- 研究设计：[文献与 idea 交接](RESEARCH_IDEA_HANDOFF.md)。
-- 工程细节：[工程计划](ENGINEERING_PLAN.md)，代码在 `src/`，验证证据在 `results/`。
+- 研究设计：[文献与 idea 交接](archive/legacy_20260915/RESEARCH_IDEA_HANDOFF.md)。
+- 工程细节：[工程计划](archive/legacy_20260915/ENGINEERING_PLAN.md)，代码在 `src/`，验证证据在 `results/`。
 - 对外沟通：[微信消息草稿](paper/2026-09-08_wechat_draft.md)。
 - 当前 KDD idea：[三轮打磨后的候选版本](paper/KDD_IDEA_REVIEWED_2026-09-08.md)；日常以 [Proposal](paper/PROPOSAL.md) 为准。
 - 论文与阅读卡：[论文阅读包](D:/UESTC/科研/论文/26.7-/EHR_Harness_论文阅读包)；项目内 [DataSpace 初读卡](references/READING_DATASPACE.md)供复习。

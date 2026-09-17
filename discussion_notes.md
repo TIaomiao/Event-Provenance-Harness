@@ -2,7 +2,7 @@
 
 仅记录非敏感理解、疑问与提议；正式变更由总控汇入研究卡。
 
-已有 DataSpace 阅读与最近邻文献讨论，按下方日期接续；正式决策见 CONTEXT.md 与 RESEARCH_CARD.md。
+已有 DataSpace 阅读与最近邻文献讨论，按下方日期接续；正式决策见 archive/legacy_20260915/CONTEXT.md 与 RESEARCH_CARD.md。
 
 文中“阅读包”的位置：[DataSpace 深读笔记](D:/UESTC/科研/论文/26.7-/EHR_Harness_论文阅读包/03_研究卡与笔记/02_DataSpace深读与两月阅读计划.md)、[最近邻文献对照表](D:/UESTC/科研/论文/26.7-/EHR_Harness_论文阅读包/03_研究卡与笔记/03_最近邻文献对照表_2026-09-08.md)。文献缺口与贡献的讨论判断仍需原文核验。
 

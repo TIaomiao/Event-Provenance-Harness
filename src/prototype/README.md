@@ -35,4 +35,4 @@ python3 temporal_rebase.py --case-dir <获准的病例输出目录> --producer-s
 
 扩展已有病例时加 --reference-sidecar <已有v0.2及以上旁表>，固定参考文档、来源哈希与原点记录。source rules或原点来源变化会阻断；不得混用不同case_coordinate_id的数值。
 
-默认上限30文档/250页，本轮实际26文档/187页。实际模型执行仍沿用具体授权。详见根目录ENGINEERING_PLAN.md与results/2026-09-08_temporal_recovery_report.md。
+默认上限30文档/250页，本轮实际26文档/187页。实际模型执行仍沿用具体授权。详见根目录archive/legacy_20260915/ENGINEERING_PLAN.md与results/2026-09-08_temporal_recovery_report.md。

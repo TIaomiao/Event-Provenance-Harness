@@ -34,7 +34,8 @@
 - 状态文件采用“当前快照 + 历史归档”结构：B 只更新 `status/implementation_current.md`，C 只更新 `status/evaluation_current.md`；每个快照控制在约 30–50 行，保留当前协议、最新结果、阻塞和下一步。完整工作单元记录追加到对应的 `*_history.md`，不要继续把长日志追加到旧的 `implementation.md` 或 `evaluation.md`。A 需要追溯历史时再读取归档。
 - 本地 Git 管理研究代码与资料，禁止自动 push。提交前检查敏感内容与非本任务修改。
 - archive/ 保存归集前快照，仅供历史追溯；当前安排以根目录文档为准。
-- README.md 只维护入口，CONTEXT.md 维护研究决策，RESEARCH_CARD.md 维护首轮协议，status/ 维护角色进度，results/ 保存证据。其他文档通过链接引用状态，避免重复维护数值与阶段。
+- README.md 只维护入口，RESEARCH_CARD.md 维护首轮协议，status/ 维护角色进度，results/ 保存证据。其他文档通过链接引用状态，避免重复维护数值与阶段。
+- 2026-09-15 归档：CONTEXT.md、ENGINEERING_PLAN.md、RESEARCH_IDEA_HANDOFF.md、SESSION_PROMPTS.md 描述的是"嵌套 harness"那一版方案，内容已过期，整体移入 `archive/legacy_20260915/`。当前安排以 CONTROL_PANEL.md + RESEARCH_CARD.md + paper/PROPOSAL.md 为准，不要从归档文档判断现状。
 - CONTROL_PANEL.md 是日常总控面板：列出论文方向、当前实验、阅读队列、session 状态、阻塞点和下一步。所有 session 开始先读它，并在完成工作单元后更新自己负责的面板行；详细证据仍放对应状态/结果文件。
 - 总控面板优先读取 `status/implementation_current.md` 和 `status/evaluation_current.md`；状态快照更新后，B/C 必须同步更新自己负责的面板行和 dashboard.html 最近事件，避免面板沿用旧状态。
 - dashboard.html 是 CONTROL_PANEL.md 的本地可视化入口；面板中的数字和状态只允许来自当前 Markdown 状态/结果文件。更新研究状态时同步检查页面是否仍与总控一致。
