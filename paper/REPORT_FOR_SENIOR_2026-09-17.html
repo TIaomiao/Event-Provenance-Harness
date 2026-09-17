@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>benchmark 主表 · 阶段对齐</title>
+<style>
+  @page { size: A4; margin: 15mm 13mm 15mm 13mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0; color: #1a2420; background: #fff;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    font-size: 12.5pt; line-height: 1.85;
+  }
+  h1 { font-size: 20pt; line-height: 1.3; margin: 0 0 4pt; }
+  .sub { color: #6b7772; font-size: 10pt; margin: 0 0 15pt; }
+  h2 { font-size: 14pt; margin: 19pt 0 7pt; padding-bottom: 4pt;
+       border-bottom: 1.5pt solid #0d6b57; color: #0d6b57; }
+  h2 .n { color: #b9c6bf; margin-right: 6pt; font-weight: 400; }
+  h3 { font-size: 12.5pt; margin: 12pt 0 4pt; }
+  p { margin: 0 0 8pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin-bottom: 5pt; }
+  .lead { background: #f0f7ef; border-left: 5pt solid #0d6b57;
+          padding: 11pt 13pt; border-radius: 0 7pt 7pt 0; }
+  .bad { background: #fff4ed; border-left: 5pt solid #c2410c;
+         padding: 12pt 14pt; border-radius: 0 7pt 7pt 0; }
+  .bad b { color: #c2410c; }
+  .big { font-size: 15pt; font-weight: 700; color: #c2410c; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 6pt 0 10pt; }
+  th, td { text-align: left; padding: 5pt 6pt; border-bottom: 0.75pt solid #e3e0d6; vertical-align: top; }
+  th { color: #5c5850; font-weight: 700; background: #faf9f4; }
+  .ctr { text-align: center; }
+  .foot { margin-top: 16pt; padding-top: 8pt; border-top: 0.75pt solid #ddd; color: #6b7772; font-size: 9.5pt; line-height: 1.7; }
+  .pagebreak { page-break-before: always; }
+  code { font-family: Consolas, monospace; font-size: 10pt; background: #f0ede3; padding: 0 3pt; }
+  .r { color: #8b3e28; font-weight: 700; }
+  .g { color: #24633d; font-weight: 700; }
+  .ask { background: #f6f7fb; border: 1pt solid #ccd3e6; border-radius: 7pt; padding: 10pt 13pt; margin: 0 0 10pt; }
+  .ask b { color: #2b3f7a; }
+</style>
+</head>
+<body>
+
+<h1>benchmark 主表跑出来了<br>请师兄定四件事</h1>
+<p class="sub">2026-09-17 · 12 个真实病例 · 四个系统跑在同一批文档上 · 花费约 $4.8</p>
+
+<div class="lead">
+  <p style="margin:0"><b>一句话：按你说的"先把任务的输入输出定死再比"，我们把主表跑出来了。</b><br>
+  四个系统、同一批文档、同一套评分器。结论是<b>引用可解析率这一列谁都满分、分不出系统</b>，
+  真正能分开系统的是<b>时间落地</b>和<b>行数恢复</b>。另外<b>撤回了上一版一个错数字</b>。请师兄定口径。</p>
+</div>
+
+<h2><span class="n">01</span>主表</h2>
+
+<p>只比 <code>laboratory_observations</code>（检验观测）这一张表，每个病例抽同样的文档，评分器同一个。
+文档里实际有多少行，用几何方法算出来（见第 03 节），12 个病例合计 <b>2518 行</b>。</p>
+
+<table>
+  <tr>
+    <th style="width:22%">系统</th>
+    <th class="ctr">模型<br>调用</th>
+    <th class="ctr">输出行数</th>
+    <th class="ctr">引用<br>可解析</th>
+    <th class="ctr">值接地<br>逐字/归一化</th>
+    <th class="ctr">时间<br>接地</th>
+    <th class="ctr">报了病例里<br>不存在的时间</th>
+    <th class="ctr">状态码</th>
+    <th class="ctr">成本</th>
+  </tr>
+  <tr>
+    <td><b>规则/几何</b><br>（不用模型）</td>
+    <td class="ctr">0</td>
+    <td class="ctr">2518<br><b>100%</b></td>
+    <td class="ctr">100%</td>
+    <td class="ctr">100% / 100%<br>（注※）</td>
+    <td class="ctr">99.5%</td>
+    <td class="ctr">0</td>
+    <td class="ctr">1/9</td>
+    <td class="ctr">$0</td>
+  </tr>
+  <tr>
+    <td><b>整病例一次问</b></td>
+    <td class="ctr">12</td>
+    <td class="ctr">1300<br><b>52%</b></td>
+    <td class="ctr">100%</td>
+    <td class="ctr">82.4% / 98.9%</td>
+    <td class="ctr r">58.6%</td>
+    <td class="ctr r"><b>464 行</b><br>(36%)</td>
+    <td class="ctr">1/9</td>
+    <td class="ctr">$0.94</td>
+  </tr>
+  <tr>
+    <td><b>同类文档合并一次问</b></td>
+    <td class="ctr">12</td>
+    <td class="ctr">1025<br><b>41%</b></td>
+    <td class="ctr">100%</td>
+    <td class="ctr">85.2% / 99.7%</td>
+    <td class="ctr g">100%</td>
+    <td class="ctr">0</td>
+    <td class="ctr">1/9</td>
+    <td class="ctr">$0.50</td>
+  </tr>
+  <tr>
+    <td><b>逐文档分开问</b></td>
+    <td class="ctr">14</td>
+    <td class="ctr">1617<br><b>64%</b></td>
+    <td class="ctr">100%</td>
+    <td class="ctr">84.3% / 99.8%</td>
+    <td class="ctr g">100%</td>
+    <td class="ctr">0</td>
+    <td class="ctr">1/9</td>
+    <td class="ctr">$0.76</td>
+  </tr>
+</table>
+
+<p style="font-size:10.5pt;color:#6b7772">※ 规则法的字段是从它引用的那个格子里抄出来的，接地为真是构造保证，所以它只能证明"度量没坏"，不能证明它比模型强。</p>
+
+<p>另外要看的：<b>有些病例系统根本跑不出来</b>——整病例一次问有 3/12 个病例吐不出可解析的 JSON，同类合并 4/12，逐文档 2/12。这些病例的输出是 0 行，现在被算进上表的行数里了。</p>
+
+<h2><span class="n">02</span>三条结论</h2>
+
+<h3>结论 1：引用可解析率已经废了</h3>
+<p>三个模型设置、3942 行，<b>引用可解析率全部 100%</b>。现有临床抽取评测报的就是这个指标
+（ACIE 报 hallucinated reference 0.0%）。<b>它已经饱和，分不出系统好坏。</b></p>
+
+<h3>结论 2：能分开系统的是时间落地</h3>
+<p>同一个模型、同一个输出上限、同一批文档，<b>只换了上下文范围</b>：整病例一次问时间接地
+<b class="r">58.6%</b>，同类合并和逐文档都是 <b class="g">100%</b>。</p>
+<p>那 464 行不是格式差异，是<b>完整的年-月-日，而这个"年-月-日"在整份病例里一次都没出现过</b>
+（比的是数字序列，所以"2024年3月5日"和"2024-03-05"算同一个）。而它的引用还是 100% 可解析。</p>
+<div class="bad">
+  <p style="margin:0"><b>这是本次最值钱的一格：引用存在性检查看不见这一类错。</b><br>
+  两次整病例运行，报出病例里不存在的时间的比例是 <b>24% 和 41%</b>，都远高于 0。</p>
+</div>
+
+<h3>结论 3：撤回上一版一个错数字</h3>
+<p>上一版我报"<b>13% 的数值在整份文档里找不到</b>"。这次查明是<b>我自己造的假象</b>：
+输出上限设成 8000 太小，模型吐到一半被截断。同一配置提高到 16000 之后，那个数字就没了。</p>
+<p>重测 3926 个值：逐字接地 82~85%，按数值归一化后 <b>98.9~99.8%</b>，
+逐字不接地的 633 处<b>没有一处是"整份病例里连子串都找不到"</b>。</p>
+<table>
+  <tr><th style="width:40%">逐字不接地的原因</th><th class="ctr">数量</th><th>出现在哪</th></tr>
+  <tr><td>尾零 / 小数位不同</td><td class="ctr">421</td><td>模型自己引用的那份文档</td></tr>
+  <tr><td>千分位、空格等格式差异</td><td class="ctr">163</td><td>模型自己引用的那份文档</td></tr>
+  <tr><td>前导零</td><td class="ctr">48</td><td>模型自己引用的那份文档</td></tr>
+  <tr><td>前缀截断</td><td class="ctr">1</td><td>模型自己引用的那份文档</td></tr>
+</table>
+<p style="margin-bottom:0"><b>值这一层没有编造，编造发生在时间这一层。</b>（其中 21 处全文找不到数值相等的数字，只在同一份文档里以"更长数字的子串"形式出现，相当于取整。）</p>
+
+<h2><span class="n">03</span>行数真值是怎么算的</h2>
+<p>不用人工数。每页把格子的横坐标做直方图，连续密集的一串算一列；<b>值列</b>就是那一列里
+六成以上是纯数字、且位置在页面中右部（这样最左边的"序号列"不会被误选）。然后按纵坐标把值格聚成行，
+<b>聚出多少簇就是多少行</b>。</p>
+<p>12 个病例算下来 2518 行。跟模型对照：CASE-05 几何 139 / 模型 141；CASE-06 几何 330 / 模型 315；
+CASE-09 几何 293 / 模型 291。没找到值列的 75 页平均只有 50 个格子、其中纯数字占 4%，是纯文字页，不是漏行。</p>
+<p><b>要说明的是：这不是医生金标准，是"文档结构上确实有多少行"。</b>它可以逐页复算，但没有人逐行核对过。</p>
+
+<h2><span class="n">04</span>请师兄定四件事</h2>
+
+<div class="ask">
+  <p><b>① 主表的行列就按上面这样定，行不行？</b><br>
+  行的顺序：规则 → 整病例 → 同类合并 → 逐文档。列就是那九列。</p>
+</div>
+
+<div class="ask">
+  <p><b>② "值接地"用哪个口径？</b><br>
+  <b>问题</b>：同一份输入重跑三遍，值接地是 <b>95% / 95% / 84%</b>，跳 11 个点。引用和时间都是 100%/100%/100%，纹丝不动。<br>
+  <b>原因</b>：文档写 <code>5.60</code>，模型抄成 <code>5.6</code> 判接地，抄成 <code>5.60</code> 也判接地；但文档写 <code>5.6</code>、模型写 <code>5.60</code> 就判不接地。小数位写法一变，百分比就跳。<br>
+  <b>三个选项</b>：报区间（"84%，三次 95/95/84"）／跑多次取平均（成本翻 3~5 倍）／换成"数值相等"口径（98.9~99.8%，三遍基本不跳，但抓不到格式差异了）。</p>
+</div>
+
+<div class="ask">
+  <p><b>③ "系统级失败"要不要单列一列？</b><br>
+  <b>具体例子</b>：CASE-100 的文档里实实在在写着 <b>514 行</b>检验结果。整病例一次问时模型要一次吐出 514 行 JSON，
+  输出上限装不下，返回断掉的 JSON → 这个病例最后是 <b>0 行</b>。它把这行整体拉低约 20 个点。<br>
+  <b>但</b>："抽了 50 行、漏了 464 行" 是<b>抽取能力</b>问题；"一个字都没吐出来" 是<b>系统跑不完</b>。
+  混在一列，看表的人会以为系统抽得不全，其实是根本没跑出来。把上限提到 64000 后，CASE-02 从 0 行变 286 行（真值 290）、
+  CASE-09 从 0 行变 291 行（真值 293）——一恢复就是 98% 的准头，说明它本来抽得出来。<br>
+  <b>建议</b>：拆成"跑通病例数 / 总数"和"跑通病例上的行数恢复率"两列。</p>
+</div>
+
+<div class="ask">
+  <p><b>④ 拿几何真值当"行数恢复率"的分母，行不行？</b><br>
+  它不是医生金标准。要不要只当辅助列，主指标换成别的？</p>
+</div>
+
+<h2><span class="n">05</span>还没做的（不遮掩）</h2>
+<ul>
+  <li>16 张事件表<b>只做了 1 张</b>。检验表是唯一有稳定网格结构的；用药表、诊断表的时间不在页脚而在行内，得逐表定规则。</li>
+  <li>规模只有 <b>12 个病例</b>（池子里有 200 个）。</li>
+  <li><b>只测了一个模型</b>（最便宜的那个）。</li>
+  <li>"为什么上下文一变，模型就开始编时间"——<b>机制没解释</b>，只知道现象稳。</li>
+  <li>内容正确率<b>做不了</b>（没有医生金标准）。本表所有格子都是机械可算的"可验证性"，不是"答得对不对"。</li>
+</ul>
+
+<div class="foot">
+  数据：治理后的 200 病例池，本次用 12 个。原始 PDF、OCR 正文、身份映射留在受控环境，本汇报只有匿名聚合数。<br>
+  模型：<code>[j]gemini-3-flash</code>，温度 0，<code>max_tokens</code> 16000。本次花费约 $4.8（含几次失败的尝试；主表那一轮约 $2.2）。<br>
+  完整实测记录在仓库 <code>results/2026-09-17_main_table.md</code>；总控面板 <code>CONTROL_PANEL.md</code>。
+</div>
+
+</body>
+</html>

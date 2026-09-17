@@ -44,6 +44,7 @@ jobs:
           cp RESEARCH_CARD.md _site/
           cp paper/PROPOSAL.md _site/paper/
           cp paper/BRIEF_FOR_ADVISOR.pdf _site/paper/
+          cp paper/REPORT_FOR_SENIOR_2026-09-17.pdf _site/paper/
 
           echo "--- staged files ---"
           find _site -type f | sort
