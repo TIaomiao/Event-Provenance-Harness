@@ -21,30 +21,42 @@
 <body>
 <main class="shell">
   <div style="background:#eef4fb;border:2px solid #2b5d8a;border-radius:14px;padding:14px 18px;margin-bottom:18px">
-    <b style="color:#2b5d8a;font-size:18px">现在做什么：把 4 万份病历做成「AI 洗好切好、贴好标签的菜」，然后证明它真的能被现成 AI 直接用。</b>
+    <b style="color:#2b5d8a;font-size:18px">现在做什么：把 4 万份病历做成「AI 洗好切好、贴好标签的菜」，然后量出<b>哪个准备动作值钱、各值多少</b>。</b>
     <div style="font:14.5px 'Segoe UI',sans-serif;color:#4c5866;margin-top:6px;line-height:1.75">
       找<b>没参与建库</b>的 AI，不给说明书、不给例子、不许人帮忙，让它直接回答医生的问题，看答对多少、费多大劲。<br>
       方法：把库做 <b>5 个版本</b>（生数据 → 格式统一 → 单位归一 → 加溯源和状态 → 加机器说明书），逐个拆零件看 AI 掉多少分。<br>
+      与 FHIRBench 的分工：<b>它比"已经结构化的数据怎么序列化"，我们比"扫描件 → 能用的数据"这一段</b>（版面、印章、定性结果、页码污染都在这一段）。<br>
       早期十四条被否证的方向收在 <a href="attempts.html" style="color:#2b5d8a;font-weight:700">《试过什么，为什么都不行》→</a>
     </div>
   </div>
-  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">AI-Ready 医疗数据库<br><em>现成 AI 能不能直接用</em></h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-17<br>方向：<b>师兄定的 AI-Ready</b></div></header>
+  <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">真实医院数据<br><em>要加工到哪一步，现成 AI 才能直接用</em></h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-18<br>方向：<b>师兄定的 AI-Ready</b></div></header>
+
+  <section class="panel span-12" style="margin-bottom:18px"><div class="section-title"><h2>2026-09-18 对齐结论（师兄 + 契阔）</h2><span>主张重定 · 两条新轴 · 必须引用</span></div>
+    <div class="status-list">
+      <div class="row"><span class="tag">主张</span><div><strong>从"结构化比原文好"改成"从扫描件到可用数据这段路上，哪些准备动作值钱、各值多少"</strong><small>题目：<b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b>（中文：真实医院数据要加工到哪一步，现成 AI 才能直接用？）</small></div><span class="pill doing">已落到 Proposal</span></div>
+      <div class="row"><span class="tag">M1</span><div><strong>真实原生数据</strong><small>FHIRBench 用 100 个<b>合成 FHIR bundle</b>（输入已结构化）；我们是真实扫描 PDF（33,456 例 / 410,467 文档 / 2,130,171 页已处理），中间那一段没人量过。契阔："我们是真实的原生数据，更具有参考价值以及难度。"</small></div></div>
+      <div class="row"><span class="tag">M2</span><div><strong>队列级</strong><small>临床要的是"这批人里有多少……"；实测<b>原文 10 例到上下文上限、12 例直接 HTTP 400</b>，结构化一次装下整批 984 例。3.3 万例规模上原文不是更贵，是物理不可能。</small></div></div>
+      <div class="row"><span class="tag">必须引</span><div><strong>FHIRBench + HoloBench</strong><small>师兄点名。FHIRBench 占"格式决定可用性"，HoloBench 占"长上下文聚合退化、max/min 抗退化"——我们的队列级结果复现了后者，不得声称新发现。</small></div><span class="pill risk">引用义务</span></div>
+      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间（契阔：medical 的纵向序列需要对时间应对）</strong><small>先做<b>日期抽取校验</b>，再加 T1~T5 时间题（最早采集日期、检验与医嘱同日天数、最小值出现在哪天、队列首末间隔、先正常后异常的跨日变化）；并评估"时间轴"是否单列成<b>第六层</b>。</small></div><span class="pill wait">待服务器</span></div>
+      <div class="row"><span class="tag">新轴 2</span><div><strong>影像（契阔：后续加点影像）</strong><small>影像报告现在是文本类别之一（每 400 例约 458 份）；下一步作为独立对象轴：报告版面 → 报告文本结构化 → 图像模态。本轮只预留扩展位。</small></div><span class="pill wait">后续</span></div>
+    </div>
+  </section>
 
   <section class="hero">
-    <div class="panel"><h2>试跑已经跑完了（60 题 × 三个版本）</h2><p class="claim">结论是<strong>没差别</strong>：<strong>原文 67%</strong>、<strong>AI-Ready 超集 65%</strong>、<strong>只有结构化层（丢了原文）58%</strong>。<br>原因很清楚——<strong>题目全是日期和文档计数，而日期在原文里字面就有</strong>，结构化帮不上忙。这正是师兄预判的那一支：<em>没差别 → 说明问题设计错了。</em></p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">下一步：改成「只有结构才答得出来」的题（值超阈值次数、最大最小值、定性结果计数、跨文档同日对齐），答案键改由强模型出候选 + 人工核。</div></div>
+    <div class="panel"><h2>五版本实验：病例级 8 个条件已跑完</h2><p class="claim">同一批 12 例 × 6 题 × 8 个条件（正向 5 + 反向 3），消费者 <code>gemini-3-flash</code>，一次调用、无例子、无重试。<br>首轮原始结果是 <strong>v1~v4 都是 77.8%、v5 跳到 93.1%</strong>，差异全在"算一下"型的计数题上——<em>正在用定稿答案键重打分</em>，数字以结果文件为准。</p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">中途自查：消费者计数普遍比我们的键高 1~3，于是用两个不同家族强模型审计——结论是<b>计数键站得住，是消费者多算</b>；同时抓到白细胞最大值键错 2 例，按题剔除不硬算。</div></div>
     <div class="panel"><h2>几个关键数字</h2><div class="mini-stat">
-      <div class="stat"><b>67%</b><span>原文答对率</span></div>
-      <div class="stat"><b>65%</b><span>AI-Ready 超集答对率</span></div>
-      <div class="stat alert"><b>58%</b><span>有损结构化反而更差</span></div>
-      <div class="stat"><b>$8.51</b><span>本轮试跑花费</span></div>
+      <div class="stat"><b>984</b><span>本批病例数（batch-full-01）</span></div>
+      <div class="stat"><b>10 例</b><span>原文硬上限（12 例 HTTP 400）</span></div>
+      <div class="stat"><b>20 万+</b><span>结构化一次装下整批的 token</span></div>
+      <div class="stat alert"><b>SSH 断</b><span>2026-09-18 晚 · 恢复后继续</span></div>
     </div></div>
   </section>
 
   <div class="grid">
 
-    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 CONTROL_PANEL.md 对齐 · 2026-09-17</span></div><p style="font-size:20px;line-height:1.3;margin:0 0 14px"><b>Building an AI-Ready EHR Database: Measuring Whether Off-the-Shelf Agents Can Use It</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：构建 AI-Ready 电子病历数据库——用「没参与建库的现成 AI 能不能直接用」来度量就绪度。<br>主轴（师兄定的）：<b>不是算有标签的准确率，而是看现有 AI 的直接可用性</b>。已有工作把 AI-Ready 当成人工打的等级量表（J Clin Med 2026 的 0–2 三级）或一次性对照（medRxiv 多智能体预问诊），<b>没有人把它做成一个可由外部 Agent 复现、可证伪的指标</b>——空隙在这里。</p></section>
+    <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 CONTROL_PANEL.md 对齐 · 2026-09-18</span></div><p style="font-size:20px;line-height:1.3;margin:0 0 14px"><b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：真实医院数据要加工到哪一步，现成 AI 才能直接用？<br>主轴（师兄定的）：<b>不是算有标签的准确率，而是量出每个准备动作各值多少</b>。已有工作把 AI-Ready 当成人工打的等级量表（J Clin Med 2026 的 0–2 三级）或一次性对照，<b>没有人把"扫描件 → 能用的数据"这一段做成逐层可复现的曲线</b>——空隙在这里。</p></section>
 
-    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>可证伪 · 试跑第一阶段已完成</span></div><p style="margin:0;font-size:17px;line-height:1.4"><b>把库里每加一样东西，现成 AI 就应该更能用。</b><br>做法：同一批问题、同一批 AI，在 5 个版本上各跑一遍；<b>再从最好的版本开始一次只拿走一样，看掉多少分——掉得最多的那个零件就是论文的卖点。</b><br><span style="color:#b91c1c">当前状态：第一轮试跑<b>没测出差别</b>（题目太简单），题目要重设计。</span></p></section>
+    <section class="panel span-4"><div class="section-title"><h2>中心命题</h2><span>可复现 · 正向曲线 + 反向拆件</span></div><p style="margin:0;font-size:17px;line-height:1.4"><b>库里每加一样东西，值多少分；一次拿走一样，掉多少分。</b><br>同一批问题、同一个 AI，在 5 个版本上各跑一遍画曲线；再从最完整的版本一次只拿走一样，看掉多少分——<b>掉得最多的那个零件就是论文的卖点。</b><br><span style="color:#b7851c">当前状态：病例级 8 个条件跑完、待用定稿键重打分；队列级待服务器恢复。</span></p></section>
 
     <section class="panel span-6"><div class="section-title"><h2>贡献（按证据分级）</h2><span>一条证据链</span></div><div class="status-list">
       <div class="row"><span class="tag">主</span><div><strong>一个可复现的 AI-Ready 度量</strong><small>现有工作把它当人工打的等级量表或一次性对照；我们定义成「一个没参与建库的 AI，无说明书、无示例、无人工干预下能答对多少」——可证伪、可被第三方复现。</small></div></div>
@@ -52,11 +64,11 @@
       <div class="row"><span class="tag">评测</span><div><strong>不需要医生的可验证性指标</strong><small>引用可解析率、值/时间接地、真负例配额、一次性完成率。全部机械可算，不需要临床金标准。</small></div></div>
     </div></section>
 
-    <section class="panel span-6"><div class="section-title"><h2>新颖性边界</h2><span>AI-Ready 这个词已被用过，必须引用</span></div><div class="status-list">
-      <div class="row"><span class="tag">先例</span><div><strong>J Clin Med 2026《From Medical Records to AI-Ready Datasets》</strong><small>提出 <b>0–2 三级人工量表</b>测数据集就绪度。是<b>人工打分</b>，不是可执行指标——我们的差别在这里。</small></div></div>
-      <div class="row"><span class="tag">现成</span><div><strong>medRxiv 多智能体预问诊 → AI-ready data</strong><small>把患者自述结构化成 AI-ready data 并做下游对照。是<b>单一系统、一次性对照</b>；我们是同一条流水线 5 个版本做消融。</small></div></div>
-      <div class="row"><span class="tag">工业</span><div><strong>Snowflake / Data4Life 的 AI-Ready Data Framework</strong><small>工程口径，非学术；说明这个词在业界有共识、可引用，但不能当学术贡献。</small></div></div>
-      <div class="row"><span class="tag">不可进</span><div><strong>表格结构抽取</strong><small>MedStruct-S（KSEM 2026）、Key Coverage Matters、ClinOCR-Bench 等已占满。不得作为主贡献——<b>抽取只是我们建库的手段，不是贡献本身</b>。</small></div></div>
+    <section class="panel span-6"><div class="section-title"><h2>新颖性边界</h2><span>这两篇必须引用，否则一句话就被否</span></div><div class="status-list">
+      <div class="row"><span class="tag">必引 1</span><div><strong>FHIRBench（medRxiv 2026-07-14.26358020）</strong><small>100 个<b>合成 FHIR bundle</b>、4 模型 × 3 任务，比序列化格式，结论"紧凑格式更好"。它比的是<b>已结构化的数据怎么序列化</b>；我们比的是<b>扫描件 → 能用的数据</b>那一段。</small></div><span class="pill risk">最近先例</span></div>
+      <div class="row"><span class="tag">必引 2</span><div><strong>HoloBench（arXiv 2410.11996）</strong><small>长上下文聚合随规模退化、max/min 抗退化。<b>我们的队列级结果复现了同一现象，不得声称新发现</b>；我们的增量在"容量门槛"（原文 10 例 vs 结构化 984 例）。</small></div><span class="pill risk">不得越界</span></div>
+      <div class="row"><span class="tag">先例</span><div><strong>J Clin Med 2026《From Medical Records to AI-Ready Data》</strong><small>提出 <b>0–2 三级人工量表</b>测数据集就绪度。是<b>人工打分</b>，不是可执行、可逐层归因的度量——我们的差别在这里。</small></div></div>
+      <div class="row"><span class="tag">不可进</span><div><strong>表格结构抽取</strong><small>MedStruct-S（KSEM 2026）、Key Coverage Matters、ClinOCR-Bench 等已占满。不得作为主贡献——<b>抽取只是我们建库的手段</b>。</small></div></div>
     </div></section>
 
     <section class="panel span-12"><div class="section-title"><h2>师兄定的实验设计（原文照录）</h2><span>5 个版本 · 5 个指标 · 一个最大的坑</span></div>
@@ -76,15 +88,15 @@
       </div>
     </section>
 
-    <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-17 更新 · 按师兄的分支指令</span></div>
+    <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-18 更新 · 按师兄/契阔的对齐结论</span></div>
       <table>
         <tr><th>步</th><th>做什么</th><th>为什么</th><th>状态</th></tr>
-        <tr><td><b>1</b></td><td><b>加难题型</b>：值超阈值次数、最大/最小值、定性结果（阴性/阳性）计数、跨文档同日对齐</td><td>试跑证明日期题在原文里字面就有，结构化帮不上忙；<b>题必须依赖"只有结构才答得出"的信息</b></td><td><span class="pill doing">现在做</span></td></tr>
-        <tr><td><b>2</b></td><td><b>答案键改由强模型出候选 + 人工核</b></td><td>难题型的答案无法再靠格级几何机械导出；师兄明确说过"数据集的答案不一定特别准"，这条路是他原本建议的</td><td><span class="pill doing">现在做</span></td></tr>
-        <tr><td><b>3</b></td><td><b>补齐 5 个版本</b>（现在只有 v1 生数据 / v5 结构化 / v5b 超集三个）</td><td>师兄的曲线要 5 个点：生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书</td><td><span class="pill wait">待 1、2 完成</span></td></tr>
-        <tr><td><b>4</b></td><td><b>逐个拆零件</b>：从 v5 一次拿走一样，看掉多少分</td><td>掉得最多的那个零件就是论文卖点</td><td><span class="pill wait">待 3</span></td></tr>
-        <tr><td><b>5</b></td><td><b>换第二个消费者模型</b>再跑一遍</td><td>防止"增益其实来自某个模型的偏好"这个攻击</td><td><span class="pill wait">待 3</span></td></tr>
-        <tr><td><b>6</b></td><td>把 3 个 AI-Ready 缺口量成指标：页码误入率、<b>定性结果漏抽率</b>、含图页占比</td><td>这三条是人工核对时发现的真实缺口；<b>benchmark 的活儿是暴露它们，不是修好它们</b></td><td><span class="pill doing">素材已有</span></td></tr>
+        <tr><td><b>1</b></td><td><b>五版本超集建库</b>（整批 batch-full-01，984 例；零模型建库）</td><td>师兄要的那条曲线的输入：生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书，每版原文一行不删</td><td><span class="pill done">已完成</span></td></tr>
+        <tr><td><b>2</b></td><td><b>病例级 8 条件</b>：正向 5 点 + 反向 3 点 × 12 例 × 6 题</td><td>同一批问题、同一个没参与建库的 AI；一次调用、无例子、无重试</td><td><span class="pill done">已跑完</span></td></tr>
+        <tr><td><b>3</b></td><td><b>答案键定稿 + 重打分</b>（几何层 + 两个独立强模型审计）</td><td>首轮计数题消费者比键高 1~3 → 先审计自己的键；计数键站得住、白细胞最大值键错 2 例要剔除</td><td><span class="pill doing">进行中</span></td></tr>
+        <tr><td><b>4</b></td><td><b>队列级 11 题 × 5 正向 + 4 反向</b>（200 例与整批 984 例）</td><td>跨病例聚合；原文 10 例就到上限，只有结构化层能跑——M2 的直接证据</td><td><span class="pill wait">待服务器</span></td></tr>
+        <tr><td><b>5</b></td><td><b>日期抽取校验 → 时间题型族 T1~T5</b>；评估"时间轴"是否单列第六层</td><td>契阔：medical 的纵向序列需要对时间应对</td><td><span class="pill wait">待服务器</span></td></tr>
+        <tr><td><b>6</b></td><td><b>换第二/第三个消费者模型</b>重复病例级曲线（同键同协议）</td><td>"曲线形状稳定"的唯一证明方式；防"增益来自某个模型偏好"这类攻击</td><td><span class="pill wait">待 4</span></td></tr>
       </table>
     </section>
 
@@ -95,11 +107,11 @@
     </div></section>
 
     <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div>
-      <div class="callout"><b>题目不够难，测不出差别。</b>第一轮 60 题全是日期/文档计数（"查一下"型），而日期在原文里字面就有 → 原文 67% vs AI-Ready 65%，没差别。<b>这是师兄预判的分支，不是失败</b>；下一步改成"只有结构才答得出来"的题。</div>
+      <div class="callout"><b>服务器断了（2026-09-18 晚）。</b>Larry 的 SSH 连不上（banner exchange 超时）：键定稿脚本、队列级脚本、后台任务都在机器上，链路恢复后接着跑。方向与文档不受影响，已全部落到仓库。</div>
       <div class="decision" style="margin-top:14px">
-        <div class="row"><span class="tag">其次</span><div><strong>难题型的答案键做不出来</strong><small>值超阈值次数、最大最小值这类题，答案依赖"行/列"结构，而那个结构会被<b>页码、定性结果</b>污染（人工核对时实测）。→ 答案键改由强模型出候选 + 人工核。</small></div></div>
-        <div class="row"><span class="tag">再其次</span><div><strong>五个版本只做了三个</strong><small>现在有 v1 生数据 / v5 结构化 / v5b 超集；师兄要的那条 5 点曲线还差两个点（格式统一、单位归一）。</small></div></div>
-        <div class="row"><span class="tag">已知风险</span><div><strong>号池网关的可用模型会漂</strong><small>同一天内 <code>gpt-5.6-sol</code> 从超时变可用、<code>luna/terra/gpt-5.5</code> 从可用变 503。<b>实验必须记录当时用的模型名，否则不可复现。</b></small></div></div>
+        <div class="row"><span class="tag">其次</span><div><strong>答案键的置信度决定结论上限</strong><small>几何层逐项 recall 88~99%（与"结果列数值格计数"这一独立口径比对 85.3%）。绝对做对率带不确定度；<b>跨版本比较不受影响</b>，因为所有条件共用同一键。</small></div></div>
+        <div class="row"><span class="tag">再其次</span><div><strong>纵向时间还没接</strong><small>契阔要求的"时间应对"要先过<b>日期抽取校验</b>；真实扫描件上的日期常缺标签，覆盖率低的题只能缩小样本或降级成"该说不知道"型。</small></div></div>
+        <div class="row"><span class="tag">已知风险</span><div><strong>号池网关的可用模型会漂</strong><small>同一天内 <code>gpt-5.6-sol</code> 从超时变可用、<code>luna/terra/gpt-5.5</code> 从可用变 503。<b>每轮必须记录模型名，否则不可复现。</b></small></div></div>
       </div>
     </section>
 
@@ -189,6 +201,8 @@
   </div>
 
     <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
+      <div class="event"><b>2026-09-18 · 主张重定：从"结构化比原文好"改成"哪个准备动作值钱、各值多少"</b><p>① 师兄定题：<b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b>（中文：真实医院数据要加工到哪一步，现成 AI 才能直接用？）；两条 Motivation（真实原生扫描件 vs FHIRBench 的合成 FHIR bundle；队列级原文物理不可行）；并点名 <b>FHIRBench 与 HoloBench 必须引用</b>。② 契阔补三条：真实原生数据更有参考价值与难度；<b>medical 的纵向序列需要对时间应对</b>；<b>后续加点影像</b>。③ 落地：<code>paper/PROPOSAL.md</code> v1.1 + <code>paper/AI_READY_PLAN.md</code>（新增"纵向时间轴"与"影像轴"两节，含 T1~T5 时间题与第六层候选）。</p></div>
+      <div class="event"><b>2026-09-18 · 五版本超集在整批上建完（984 例），病例级 8 条件实测完成</b><p>① <b>建库零模型参与</b>：v1→v5 严格超集（原文一行不删、逐层加一样）+ 反向 3 条件，全批 <code>batch-full-01</code>（984 病例 / 5,255 文档），另有不含原文的结构化链供队列级使用。② <b>病例级 12 例 × 6 题 × 8 条件</b>（消费者 <code>gemini-3-flash</code>，一次调用/例、无例子、无重试）：首轮原始结果 <b>v1~v4 都是 77.8%、v5 93.1%</b>，差异集中在"算一下"型计数题。③ <b>答案键自查</b>：消费者计数普遍比键高 1~3 → 用两个不同家族强模型审计，结论是<b>计数键站得住</b>（33=33 逐行 32/33、9=9、8=8），是消费者多算；同时抓到<b>白细胞最大值键错 2 例</b>（一例是病历正文引用的外院值，一例是几何层无法归属的裸单元格），按题剔除不硬算。④ 键的独立口径背书：130 份检验文档一致率 85.3%，逐项 recall WBC 87.8% / HGB 98.8% / CREA 91.1% / PLT 98.8% / UREA 90.1%。⑤ 队列级 11 题（A0~A10）与键定稿跑在服务器上，当晚 SSH 中断，恢复后继续。</p></div>
       <div class="event warn"><b>2026-09-17 · AI-Ready 试跑跑完：没测出差别（师兄预判的分支）</b><p>60 题 × 3 个版本 × 1 个独立消费者。① <b>原文 67%</b>（$1.92）、<b>AI-Ready 超集 65%</b>（$2.20）、<b>有损结构化 58%</b>（$0.30）→ <b>结构化层没有带来准确率提升</b>。② 原因：<b>题目全是日期/文档计数，而日期在原文里字面就有</b>，结构化帮不上忙——正是师兄说的"没差别说明问题设计错了"。③ <b>有损的结构化明确更差</b>：抽取丢记录（CASE-06 抽出 127 / 实际 330，CASE-09 抽出 57 / 实际 293）→ <b>AI-Ready 层必须是附加的，不能替代原文</b>。④ 唯一可测收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。→ results/2026-09-17_pilot_ai_ready.md</p></div>
       <div class="event"><b>2026-09-17 · 60 题题库 + 可视化核对界面</b><p>① <b>设计原则</b>：题目的答案只能依赖<b>格级和文档级</b>操作，不能依赖行级/列级结构——因为页码、定性结果会污染后者。② 按此砍掉总行数、最大值、日期跨度（CASE-10 算出 815 天是坏数据）、全病例日期数（证据横跨所有文档核不过来）。③ 保留 6 个模板，12 病例 × 5 题 = <b>60 题，0 题不可判</b>。④ <b>核对界面</b>：页面在受控主机生成、经 SSH 隧道送达，左边是原始 PDF 页面 + 红框标出被算进去的格子，右边是完整清单——数据不落本地磁盘。⑤ 人工核对时发现 <b>3 个真实 AI-Ready 缺口</b>：页码被当成检验值、<b>阴性结果整列漏抽</b>、散点图没进库。→ paper/QUESTION_BANK_PILOT60.md</p></div>
       <div class="event"><b>2026-09-17 · 主表：三种问法分不出来，问题在系统级失败</b><p>① <b>规则/几何基线</b>（不用模型）：按值列几何聚类得到结构真值 2518 行。② <b>三种模型问法</b>：引用可解析全部 100%、时间接地全部 100%、值接地（数值归一化）99~100% —— <b>分不出系统</b>。③ <b>唯一稳定差别</b>：跑不出来的病例 3~4 个（12 里），表现是 JSON 被输出上限截断解析失败；CASE-100 真值 514 行，一次调用吐不完；提到 64000 后 CASE-02/CASE-09 从 0 行恢复到 286/291 行（真值 290/293）。④ <b>两种算法差一倍</b>：失败病例算 0 分行数恢复 40~48%，只算跑通的 76~93%。⑤ <b>行数真值没校准</b>：CASE-01 出现 122%，这一列暂不可用。本轮 $2.1。→ results/2026-09-17_main_table.md</p></div>
