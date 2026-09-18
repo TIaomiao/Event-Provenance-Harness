@@ -122,3 +122,33 @@
 4. 换第二个、第三个消费者模型重复病例级曲线（同键同协议）——这是"曲线形状稳定"的唯一证明方式。
 5. 挑一例做**可视化核对**：原 PDF 与红框对照，确认几何层答案键在真实版面上成立。
 6. 向师兄确认三件事：时间轴做第六层还是只做题型族；队列级题的临床化程度；"医生核对时间"是否要真人小样本实测。
+
+## 八、怎么重跑（中断后从这里接）
+
+脚本本地在 `.local/`（gitignored，权限原因不入库），服务器在 `/tmp/ladder_scripts/`；
+密钥在服务器 `/tmp/ladder_scripts/key.txt`（`run.py` / `agg.py` 默认读它，不需要在命令行传 key）。
+
+| 本地文件 | 服务器名 | 作用 |
+| --- | --- | --- |
+| `bench_ladder_build.py` | `build.py` | 扫描批次 → 五版本载荷（v1~v5 + 反向 3）+ 结构化链 d1~d5 + 机械事实 `facts.json` |
+| `bench_ladder_qbank.py` | `qbank.py` | 从机械事实出 12 例 × 6 题题库（含答案键与关键词型） |
+| `bench_ladder_run.py` | `run.py` | 病例级 8 条件 × N 例，一次调用/例，打分并写 `results_main.json` |
+| `bench_key_finalize.py` | `finalize.py` | 用两个独立强模型复核键 → `keys_final.json` |
+| `bench_ladder_rescore.py` | `rescore.py` | 用定稿键重打分（不再调模型）→ `final.json` |
+| `bench_ladder_agg.py` | `agg.py` | 队列级 11 题，正向 + 反向（`--reverse m1,m2,m3,m4`） |
+| `probe_date_audit.py` | `date_audit.py` | 日期抽取校验（纵向时间前置） |
+| `bench_ladder_driver.py` | `driver.py` | **一条命令跑完全部未完成步骤（每步有产物就跳过，可重复执行）** |
+
+```bash
+# 服务器上，一条命令接着跑（断线后重跑同一条即可）
+cd /tmp/ladder_scripts && setsid nohup python3 driver.py \
+    --batch batch-full-01 --model '[j]gemini-3-flash' --workers 8 \
+    > /tmp/ladder/driver.log 2>&1 < /dev/null &
+tail -f /tmp/ladder/driver.log        # 结果汇总最后落在 /tmp/ladder/REPORT.md
+```
+
+产物位置：批次扫描与结构化链在 `/tmp/ladder_full/`（`facts.json`、`keywords.json`、`struct_d1..d5.jsonl`、`bank.json`、`SPEC.md`），
+病例级载荷与全部结果在 `/tmp/ladder/`（`v1..v5`、`v5_m1..m3`、`results_main.json`、`keys_final.json`、`final.json`、`agg_n*.json`、`date_audit.json`、`REPORT.md`）。
+**原始 PDF 与 OCR 正文始终留在受控环境，只有聚合数字回到本地。**
+
+条件清单（固定，勿改口径）：病例级 `v1,v2,v3,v4,v5,v5_m3,v5_m2,v5_m1`；队列级正向 `d1..d5`，反向 `m4,m3,m2,m1`（m4 = 机器说明书，m3 = 溯源与状态，m2 = 单位归一，m1 = 格式统一）。
