@@ -3,7 +3,7 @@
 当前工作从 [项目 README](../README.md) 开始。本目录按需要追溯旧版本。
 
 - `context-v001/`：2026-09-05 初始交接包与当时的状态。
-- `planning/`：早期研究规划、session 方案和会前准备草稿。
+- `planning/`：早期研究规划、session 方案和会前准备草稿。其中 `PROPOSAL_event_identity_20260914.md` 是 2026-09-11 版 Proposal 正文（事件身份 + 嵌套 Harness 路线），2026-09-18 由 AI-Ready 版正文取代，保留作数据事实与历史记录。
 - `migration/`：2026-09-05 归集报告与 SHA-256 清单。清单的 `destination` 路径仍相对项目根目录解析。
 - `document_cleanup_20260908_1727/`：本次精简前 8 份文档的完整副本，包含整理前的讨论文件。
 

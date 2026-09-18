@@ -3,6 +3,8 @@
 更新：2026-09-11。主轴已确认；本版裁定多日期与来源边界，采用 C 已实现的序列化作为首轮联调入口，并明确真实样例选择与查询任务。
 总控状态见 [CONTROL_PANEL](CONTROL_PANEL.md)，Proposal 正文见 [paper/PROPOSAL.md](paper/PROPOSAL.md)。
 
+> **当前主轴（2026-09-18 起）：AI-Ready 医疗数据库。** 五版本超集阶梯、五指标口径、实验协议与边界见 **[paper/AI_READY_PLAN.md](paper/AI_READY_PLAN.md)**。本文件下文的 E1 协议属于"事件身份"路线，作为历史与数据事实保留；接手新实验请以 AI_READY_PLAN.md 为准。
+
 ## 三层定位
 
 - **论文方向**：面向真实纵向 EHR 的 Data Agent Harness，目标仍暂定 KDD 2027 Cycle 2；投稿日期、赛道及 MICAD 备选安排另行核对。
