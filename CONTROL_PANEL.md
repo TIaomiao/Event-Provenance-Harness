@@ -10,7 +10,7 @@
 
 **AI-Ready 医疗数据库——真实医院数据要加工到哪一步，现成 AI 才能直接用？**
 
-2026-09-18 师兄把主张重定为：**"从扫描件到可用数据这段路上，哪些准备动作值钱、各值多少。"** 英文题目：*AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?*
+**归属（勿混）**：方向与"值得做"来自**师兄**（2026-09-18 16:32/16:39：扣住 ai-ready 来做、解决真问题、今年已有相关工作、差异点是真实扫描 PDF）；**纵向时间**与**影像**两条轴来自**契阔**（17:36–17:37）；**主张"哪些准备动作值钱、各值多少"、题目、M1/M2、与 FHIRBench 的分工、必引 FHIRBench/HoloBench 都是我方提案**（已转征询，尚无明确表态）。对外表述不要写成"师兄定的题"。
 
 - **协议入口**：[paper/AI_READY_PLAN.md](paper/AI_READY_PLAN.md)（五版本定义、五指标口径、实验协议、已有证据、边界、纵向时间与影像两条新轴）。论文正文入口：[paper/PROPOSAL.md](paper/PROPOSAL.md)。**接手任何 session 先读这两份。**
 - **两条 Motivation**：M1 真实原生数据——FHIRBench 用的是 100 个合成 FHIR bundle（输入已结构化），我们是从真实扫描 PDF 起，中间那一段没人量过；M2 队列级——原文 10 例到上下文上限、12 例直接 HTTP 400，33,456 例规模上物理不可能。

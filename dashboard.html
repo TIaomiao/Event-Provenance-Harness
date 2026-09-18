@@ -31,14 +31,15 @@
   </div>
   <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">真实医院数据<br><em>要加工到哪一步，现成 AI 才能直接用</em></h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-18<br>方向：<b>师兄定的 AI-Ready</b></div></header>
 
-  <section class="panel span-12" style="margin-bottom:18px"><div class="section-title"><h2>2026-09-18 对齐结论（师兄 + 契阔）</h2><span>主张重定 · 两条新轴 · 必须引用</span></div>
+  <section class="panel span-12" style="margin-bottom:18px"><div class="section-title"><h2>2026-09-18 对齐结论（师兄 + 契阔）</h2><span>归属写清 · 方向是他们的 · 主张是我们的</span></div>
     <div class="status-list">
-      <div class="row"><span class="tag">主张</span><div><strong>从"结构化比原文好"改成"从扫描件到可用数据这段路上，哪些准备动作值钱、各值多少"</strong><small>题目：<b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b>（中文：真实医院数据要加工到哪一步，现成 AI 才能直接用？）</small></div><span class="pill doing">已落到 Proposal</span></div>
-      <div class="row"><span class="tag">M1</span><div><strong>真实原生数据</strong><small>FHIRBench 用 100 个<b>合成 FHIR bundle</b>（输入已结构化）；我们是真实扫描 PDF（33,456 例 / 410,467 文档 / 2,130,171 页已处理），中间那一段没人量过。契阔："我们是真实的原生数据，更具有参考价值以及难度。"</small></div></div>
+      <div class="row"><span class="tag">归属</span><div><strong>方向与"值得做"来自师兄；纵向时间与影像来自契阔；主张、题目、M1/M2 是我方提案（已转征询）</strong><small>师兄 16:32/16:39 原话："可以扣住 ai-ready 来做，而且解决真问题，但是查了一下今年都有相关工作"、"但咱们是真实的扫描 pdf"。契阔 17:36–17:37："我们是真实的原生数据 更具有参考价值以及难度"、"medical 的纵向序列，需要对时间应对"、"以及后续加点影像"、"可以了"。<b>对外不要写成"师兄定的题"。</b></small></div><span class="pill risk">归属</span></div>
+      <div class="row"><span class="tag">主张</span><div><strong>从"结构化比原文好"改成"从扫描件到可用数据这段路上，哪些准备动作值钱、各值多少"（我方提案）</strong><small>题目（我方提案）：<b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b>（中文：真实医院数据要加工到哪一步，现成 AI 才能直接用？）</small></div><span class="pill doing">待他们表态</span></div>
+      <div class="row"><span class="tag">M1</span><div><strong>真实原生数据（师兄点名的差异点）</strong><small>FHIRBench 用 100 个<b>合成 FHIR bundle</b>（输入已结构化）；我们是真实扫描 PDF（33,456 例 / 410,467 文档 / 2,130,171 页已处理），中间那一段没人量过。</small></div></div>
       <div class="row"><span class="tag">M2</span><div><strong>队列级</strong><small>临床要的是"这批人里有多少……"；实测<b>原文 10 例到上下文上限、12 例直接 HTTP 400</b>，结构化一次装下整批 984 例。3.3 万例规模上原文不是更贵，是物理不可能。</small></div></div>
-      <div class="row"><span class="tag">必须引</span><div><strong>FHIRBench + HoloBench</strong><small>师兄点名。FHIRBench 占"格式决定可用性"，HoloBench 占"长上下文聚合退化、max/min 抗退化"——我们的队列级结果复现了后者，不得声称新发现。</small></div><span class="pill risk">引用义务</span></div>
-      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间（契阔：medical 的纵向序列需要对时间应对）</strong><small>先做<b>日期抽取校验</b>，再加 T1~T5 时间题（最早采集日期、检验与医嘱同日天数、最小值出现在哪天、队列首末间隔、先正常后异常的跨日变化）；并评估"时间轴"是否单列成<b>第六层</b>。</small></div><span class="pill wait">待服务器</span></div>
-      <div class="row"><span class="tag">新轴 2</span><div><strong>影像（契阔：后续加点影像）</strong><small>影像报告现在是文本类别之一（每 400 例约 458 份）；下一步作为独立对象轴：报告版面 → 报告文本结构化 → 图像模态。本轮只预留扩展位。</small></div><span class="pill wait">后续</span></div>
+      <div class="row"><span class="tag">必引</span><div><strong>FHIRBench + HoloBench（我方列的引用义务）</strong><small>FHIRBench 占"格式决定可用性"，HoloBench 占"长上下文聚合退化、max/min 抗退化"——我们的队列级结果复现了后者，不得声称新发现。</small></div><span class="pill risk">引用义务</span></div>
+      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间（契阔要求）：做第六层 v6 还是只做题型族，待定；两种做法的差别见 AI_READY_PLAN.md</strong><small>共同前置是<b>日期抽取校验</b>；时间题 T1~T5（最早采集日期、检验与医嘱同日天数、最小值出现在哪天、队列首末间隔、先正常后异常的跨日变化）。</small></div><span class="pill wait">待拍板</span></div>
+      <div class="row"><span class="tag">新轴 2</span><div><strong>影像（契阔要求：要纳入）</strong><small>预留已具体化：① 影像题 2~3 道（份数／最近一次日期／检查部位关键词，键走文档级机械操作）② 版面层预留 <code>report_sections</code>（所见/结论/建议）③ 含图页占比量成指标 ④ 图像模态本轮不做，写 future work。</small></div><span class="pill doing">设计已落</span></div>
     </div>
   </section>
 
