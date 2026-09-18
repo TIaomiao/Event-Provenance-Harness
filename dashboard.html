@@ -38,8 +38,9 @@
       <div class="row"><span class="tag">M1</span><div><strong>真实原生数据（师兄点名的差异点）</strong><small>FHIRBench 用 100 个<b>合成 FHIR bundle</b>（输入已结构化）；我们是真实扫描 PDF（33,456 例 / 410,467 文档 / 2,130,171 页已处理），中间那一段没人量过。</small></div></div>
       <div class="row"><span class="tag">M2</span><div><strong>队列级</strong><small>临床要的是"这批人里有多少……"；实测<b>原文 10 例到上下文上限、12 例直接 HTTP 400</b>，结构化一次装下整批 984 例。3.3 万例规模上原文不是更贵，是物理不可能。</small></div></div>
       <div class="row"><span class="tag">必引</span><div><strong>FHIRBench + HoloBench（我方列的引用义务）</strong><small>FHIRBench 占"格式决定可用性"，HoloBench 占"长上下文聚合退化、max/min 抗退化"——我们的队列级结果复现了后者，不得声称新发现。</small></div><span class="pill risk">引用义务</span></div>
-      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间（契阔要求）：做第六层 v6 还是只做题型族，待定；两种做法的差别见 AI_READY_PLAN.md</strong><small>共同前置是<b>日期抽取校验</b>；时间题 T1~T5（最早采集日期、检验与医嘱同日天数、最小值出现在哪天、队列首末间隔、先正常后异常的跨日变化）。</small></div><span class="pill wait">待拍板</span></div>
-      <div class="row"><span class="tag">新轴 2</span><div><strong>影像（契阔要求：要纳入）</strong><small>预留已具体化：① 影像题 2~3 道（份数／最近一次日期／检查部位关键词，键走文档级机械操作）② 版面层预留 <code>report_sections</code>（所见/结论/建议）③ 含图页占比量成指标 ④ 图像模态本轮不做，写 future work。</small></div><span class="pill doing">设计已落</span></div>
+      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间 → 第六层 v6（已定案）</strong><small>师兄 9-08 就提过"多时序"，契阔 9-18 又要求"纵向序列需要对时间应对"，v6 把这条线落地：加 <code>date_role</code>／<code>day_index</code>／每条观测的 <code>date</code>／按天的 <code>timeline</code>／每病例的 <code>timeline_summary</code>（首末采集日期、跨度、有检验的天数、检验与医嘱同日天数）。反向点 v6−时间轴 = v5。前置：<b>日期抽取校验</b>。</small></div><span class="pill done">已定案</span></div>
+      <div class="row"><span class="tag">新轴 2</span><div><strong>影像：要纳入，但按数据实际收敛（已定案）</strong><small>我们这批 PDF <b>没有 DICOM 影像、也没有影像标注</b>，<code>imaging_report</code> 是文本报告（每例约 1.1 份）。所以做：① 影像题 Q10/Q11（份数、最近一次采集日期，键机械可算）② 含图页占比指标（"含图页没进库"这条缺口的量化）③ <code>report_sections</code> 字段预留（所见/结论/建议）。<b>图像模态不做</b>。</small></div><span class="pill done">已定案</span></div>
+      <div class="row"><span class="tag">接入</span><div><strong>autoresearch 接入 = 把协议做成 agent 能自动跑（已定案）</strong><small>已落地：<code>driver.py</code> 一条命令 9 步 + 每步有产物就跳过（可中断续跑）+ 自动出题（11 道题与机械键）+ 结束自检（条件/HTTP/产物）+ 只含聚合数字的 <code>PUBLISH.json</code>。<b>题的临床化不冲突</b>：L1 机械题集走自动链路作主结果，L2 临床题集（键=强模型候选+人工核）单独挂作辅助结果。</small></div><span class="pill done">已定案</span></div>
     </div>
   </section>
 
@@ -92,12 +93,12 @@
     <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-18 更新 · 按师兄/契阔的对齐结论</span></div>
       <table>
         <tr><th>步</th><th>做什么</th><th>为什么</th><th>状态</th></tr>
-        <tr><td><b>1</b></td><td><b>五版本超集建库</b>（整批 batch-full-01，984 例；零模型建库）</td><td>师兄要的那条曲线的输入：生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书，每版原文一行不删</td><td><span class="pill done">已完成</span></td></tr>
-        <tr><td><b>2</b></td><td><b>病例级 8 条件</b>：正向 5 点 + 反向 3 点 × 12 例 × 6 题</td><td>同一批问题、同一个没参与建库的 AI；一次调用、无例子、无重试</td><td><span class="pill done">已跑完</span></td></tr>
-        <tr><td><b>3</b></td><td><b>答案键定稿 + 重打分</b>（几何层 + 两个独立强模型审计）</td><td>首轮计数题消费者比键高 1~3 → 先审计自己的键；计数键站得住、白细胞最大值键错 2 例要剔除</td><td><span class="pill doing">进行中</span></td></tr>
-        <tr><td><b>4</b></td><td><b>队列级 11 题 × 5 正向 + 4 反向</b>（200 例与整批 984 例）</td><td>跨病例聚合；原文 10 例就到上限，只有结构化层能跑——M2 的直接证据</td><td><span class="pill wait">待服务器</span></td></tr>
-        <tr><td><b>5</b></td><td><b>日期抽取校验 → 时间题型族 T1~T5</b>；评估"时间轴"是否单列第六层</td><td>契阔：medical 的纵向序列需要对时间应对</td><td><span class="pill wait">待服务器</span></td></tr>
-        <tr><td><b>6</b></td><td><b>换第二/第三个消费者模型</b>重复病例级曲线（同键同协议）</td><td>"曲线形状稳定"的唯一证明方式；防"增益来自某个模型偏好"这类攻击</td><td><span class="pill wait">待 4</span></td></tr>
+        <tr><td><b>1</b></td><td><b>六版本超集建库</b>（整批 batch-full-01，984 例；零模型建库）</td><td>生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书 → <b>加纵向时间轴</b>，每版原文一行不删</td><td><span class="pill done">构建器已改好</span></td></tr>
+        <tr><td><b>2</b></td><td><b>一条命令跑完协议</b>：<code>driver.py</code> 9 步（含键定稿、重打分、日期校验、自检、PUBLISH.json）</td><td>autoresearch 接入的形态：agent 无人值守可跑、可中断续跑</td><td><span class="pill doing">待服务器</span></td></tr>
+        <tr><td><b>3</b></td><td><b>病例级 9 条件 × 12 例 × 11 题</b>（v1~v6 正向 + 反向 3）</td><td>一条曲线回答"哪个准备动作值钱"，含时间题与影像题</td><td><span class="pill wait">待服务器</span></td></tr>
+        <tr><td><b>4</b></td><td><b>队列级 16 题 × 正向 6 + 反向 5</b>（200 例与整批 984 例）</td><td>跨病例聚合；原文 10 例就到上限，只有结构化层能跑——M2 的直接证据</td><td><span class="pill wait">待服务器</span></td></tr>
+        <tr><td><b>5</b></td><td><b>日期校验 → 时间题覆盖率</b>（Q7~Q9、A11~A13）；含图页指标</td><td>时间题的键依赖日期抽取，覆盖率决定样本大小；含图页是已发现缺口的量化</td><td><span class="pill wait">待服务器</span></td></tr>
+        <tr><td><b>6</b></td><td><b>换第二/第三个消费者模型</b>重复病例级曲线（同键同协议）</td><td>"曲线形状稳定"的唯一证明方式；防"增益来自某个模型偏好"这类攻击</td><td><span class="pill wait">待服务器</span></td></tr>
       </table>
     </section>
 
