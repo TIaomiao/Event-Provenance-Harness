@@ -30,7 +30,7 @@ jobs:
       - name: Stage site (allowlist)
         run: |
           set -euo pipefail
-          mkdir -p _site/paper
+          mkdir -p _site/paper _site/related_work
 
           # Every allowlisted path MUST exist. Without this check a bare `cp` fails
           # with an unhelpful message - a rename once slipped through and the site
@@ -44,7 +44,10 @@ jobs:
             RESEARCH_CARD.md \
             paper/PROPOSAL.md \
             paper/BRIEF_FOR_ADVISOR.pdf \
-            paper/benchmark-main-table-report.pdf
+            paper/benchmark-main-table-report.pdf \
+            paper/AI_READY_CLAIM_MAP.md \
+            paper/BENCHMARK_DESIGN_V2_DRAFT.md \
+            related_work/AI_READY_EVIDENCE_MATRIX.md
           do
             if [ ! -f "$f" ]; then
               echo "::error::allowlisted file missing from the repository: $f"
@@ -66,6 +69,9 @@ jobs:
           cp paper/PROPOSAL.md _site/paper/
           cp paper/BRIEF_FOR_ADVISOR.pdf _site/paper/
           cp paper/benchmark-main-table-report.pdf _site/paper/
+          cp paper/AI_READY_CLAIM_MAP.md _site/paper/
+          cp paper/BENCHMARK_DESIGN_V2_DRAFT.md _site/paper/
+          cp related_work/AI_READY_EVIDENCE_MATRIX.md _site/related_work/
 
           echo "--- staged files ---"
           find _site -type f | sort
