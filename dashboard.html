@@ -31,14 +31,14 @@
   </div>
   <header><div><div class="eyebrow">EHR Harness / Research Control Room</div><h1 class="title">真实医院数据<br><em>要加工到哪一步，现成 AI 才能直接用</em></h1></div><div class="stamp">本地研究主工作区<br>更新时间：2026-09-18<br>方向：<b>师兄定的 AI-Ready</b></div></header>
 
-  <section class="panel span-12" style="margin-bottom:18px"><div class="section-title"><h2>2026-09-18 对齐结论（师兄 + 契阔）</h2><span>归属写清 · 方向是他们的 · 主张是我们的</span></div>
+  <section class="panel span-12" style="margin-bottom:18px"><div class="section-title"><h2>2026-09-18 对齐结论（师兄 + 师兄）</h2><span>归属写清 · 方向是他们的 · 主张是我们的</span></div>
     <div class="status-list">
-      <div class="row"><span class="tag">归属</span><div><strong>方向与"值得做"来自师兄；纵向时间与影像来自契阔；主张、题目、M1/M2 是我方提案（已转征询）</strong><small>师兄 16:32/16:39 原话："可以扣住 ai-ready 来做，而且解决真问题，但是查了一下今年都有相关工作"、"但咱们是真实的扫描 pdf"。契阔 17:36–17:37："我们是真实的原生数据 更具有参考价值以及难度"、"medical 的纵向序列，需要对时间应对"、"以及后续加点影像"、"可以了"。<b>对外不要写成"师兄定的题"。</b></small></div><span class="pill risk">归属</span></div>
+      <div class="row"><span class="tag">归属</span><div><strong>方向与"值得做"来自师兄；纵向时间与影像来自师兄；主张、题目、M1/M2 是我方提案（已转征询）</strong><small>师兄 16:32/16:39 原话："可以扣住 ai-ready 来做，而且解决真问题，但是查了一下今年都有相关工作"、"但咱们是真实的扫描 pdf"。师兄 17:36–17:37："我们是真实的原生数据 更具有参考价值以及难度"、"medical 的纵向序列，需要对时间应对"、"以及后续加点影像"、"可以了"。<b>对外不要写成"师兄定的题"。</b></small></div><span class="pill risk">归属</span></div>
       <div class="row"><span class="tag">主张</span><div><strong>从"结构化比原文好"改成"从扫描件到可用数据这段路上，哪些准备动作值钱、各值多少"（我方提案）</strong><small>题目（我方提案）：<b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b>（中文：真实医院数据要加工到哪一步，现成 AI 才能直接用？）</small></div><span class="pill doing">待他们表态</span></div>
       <div class="row"><span class="tag">M1</span><div><strong>真实原生数据（师兄点名的差异点）</strong><small>FHIRBench 用 100 个<b>合成 FHIR bundle</b>（输入已结构化）；我们是真实扫描 PDF（33,456 例 / 410,467 文档 / 2,130,171 页已处理），中间那一段没人量过。</small></div></div>
       <div class="row"><span class="tag">M2</span><div><strong>队列级</strong><small>临床要的是"这批人里有多少……"；实测<b>原文 10 例到上下文上限、12 例直接 HTTP 400</b>，结构化一次装下整批 984 例。3.3 万例规模上原文不是更贵，是物理不可能。</small></div></div>
       <div class="row"><span class="tag">必引</span><div><strong>FHIRBench + HoloBench（我方列的引用义务）</strong><small>FHIRBench 占"格式决定可用性"，HoloBench 占"长上下文聚合退化、max/min 抗退化"——我们的队列级结果复现了后者，不得声称新发现。</small></div><span class="pill risk">引用义务</span></div>
-      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间 → 第六层 v6（已定案）</strong><small>师兄 9-08 就提过"多时序"，契阔 9-18 又要求"纵向序列需要对时间应对"，v6 把这条线落地：加 <code>date_role</code>／<code>day_index</code>／每条观测的 <code>date</code>／按天的 <code>timeline</code>／每病例的 <code>timeline_summary</code>（首末采集日期、跨度、有检验的天数、检验与医嘱同日天数）。反向点 v6−时间轴 = v5。前置：<b>日期抽取校验</b>。</small></div><span class="pill done">已定案</span></div>
+      <div class="row"><span class="tag">新轴 1</span><div><strong>纵向时间 → 第六层 v6（已定案）</strong><small>师兄 9-08 就提过"多时序"，师兄 9-18 又要求"纵向序列需要对时间应对"，v6 把这条线落地：加 <code>date_role</code>／<code>day_index</code>／每条观测的 <code>date</code>／按天的 <code>timeline</code>／每病例的 <code>timeline_summary</code>（首末采集日期、跨度、有检验的天数、检验与医嘱同日天数）。反向点 v6−时间轴 = v5。前置：<b>日期抽取校验</b>。</small></div><span class="pill done">已定案</span></div>
       <div class="row"><span class="tag">新轴 2</span><div><strong>影像：要纳入，但按数据实际收敛（已定案）</strong><small>我们这批 PDF <b>没有 DICOM 影像、也没有影像标注</b>，<code>imaging_report</code> 是文本报告（每例约 1.1 份）。所以做：① 影像题 Q10/Q11（份数、最近一次采集日期，键机械可算）② 含图页占比指标（"含图页没进库"这条缺口的量化）③ <code>report_sections</code> 字段预留（所见/结论/建议）。<b>图像模态不做</b>。</small></div><span class="pill done">已定案</span></div>
       <div class="row"><span class="tag">接入</span><div><strong>autoresearch 接入 = 把协议做成 agent 能自动跑（已定案）</strong><small>已落地：<code>driver.py</code> 一条命令 9 步 + 每步有产物就跳过（可中断续跑）+ 自动出题（11 道题与机械键）+ 结束自检（条件/HTTP/产物）+ 只含聚合数字的 <code>PUBLISH.json</code>。<b>题的临床化不冲突</b>：L1 机械题集走自动链路作主结果，L2 临床题集（键=强模型候选+人工核）单独挂作辅助结果。</small></div><span class="pill done">已定案</span></div>
     </div>
@@ -55,6 +55,77 @@
   </section>
 
   <div class="grid">
+
+    <section class="panel span-12"><div class="section-title"><h2>六版本曲线（病例级，12 例 × 11 题 × 3 次重复）</h2><span>左：逐层加料；右：从 v5 逐层拿走</span></div>
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px">
+        <div>
+          <svg viewBox="0 0 620 260" style="width:100%;height:auto">
+            <line x1="60" y1="210" x2="600" y2="210" stroke="#d9d5c9"/>
+            <line x1="60" y1="40" x2="60" y2="210" stroke="#d9d5c9"/>
+            <g font-family="Segoe UI" font-size="11" fill="#65716c">
+              <text x="18" y="214">50%</text><text x="18" y="129">70%</text><text x="18" y="44">90%</text>
+              <line x1="60" y1="123" x2="600" y2="123" stroke="#eee9dc" stroke-dasharray="3 3"/>
+              <line x1="60" y1="38" x2="600" y2="38" stroke="#eee9dc" stroke-dasharray="3 3"/>
+            </g>
+            <polyline fill="none" stroke="#0d6b57" stroke-width="3"
+              points="105,160 190,157 275,153 360,160 445,86 530,25"/>
+            <g fill="#0d6b57">
+              <circle cx="105" cy="160" r="6"/><circle cx="190" cy="157" r="6"/><circle cx="275" cy="153" r="6"/>
+              <circle cx="360" cy="160" r="6"/><circle cx="445" cy="86" r="6"/><circle cx="530" cy="25" r="7"/>
+            </g>
+            <g font-family="Segoe UI" font-size="12" fill="#17231f" text-anchor="middle">
+              <text x="105" y="182">61.6%</text><text x="190" y="179">62.1%</text><text x="275" y="175">62.8%</text>
+              <text x="360" y="182">61.6%</text><text x="445" y="76">73.0%</text><text x="530" y="15">81.9%</text>
+            </g>
+            <g font-family="Segoe UI" font-size="11" fill="#65716c" text-anchor="middle">
+              <text x="105" y="232">v1 生数据</text><text x="190" y="232">v2 格式统一</text><text x="275" y="232">v3 单位归一</text>
+              <text x="360" y="232">v4 溯源状态</text><text x="445" y="232">v5 说明书</text><text x="530" y="232">v6 时间轴</text>
+            </g>
+            <rect x="80" y="196" width="470" height="8" fill="#eef4fb" rx="4"/>
+            <text x="315" y="203" font-family="Segoe UI" font-size="10" fill="#4c5866" text-anchor="middle">前四层几乎不动分（+1.2 点）</text>
+          </svg>
+        </div>
+        <div>
+          <table>
+            <tr><th>从 v5 拿走</th><th class="num">做对率</th><th class="num">掉了多少</th></tr>
+            <tr><td><b>v5（完整）</b></td><td class="num"><b>73.0%</b></td><td class="num">—</td></tr>
+            <tr><td>− 单位归一（观测表）</td><td class="num">66.2%</td><td class="num" style="color:#b91c1c">−6.8</td></tr>
+            <tr><td>− 格式统一（信封+坐标）</td><td class="num">67.7%</td><td class="num" style="color:#b91c1c">−5.3</td></tr>
+            <tr><td>− 溯源与状态</td><td class="num">76.1%</td><td class="num" style="color:#0d6b57">+3.1</td></tr>
+          </table>
+          <p style="margin:10px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#65716c">v6−时间轴 = v5（按构造），所以反向多出的那个点就是 v5 本身。溯源与状态层<b>拿走反而涨</b>——它对这类题没有正收益。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel span-12"><div class="section-title"><h2>怎么读这条曲线：总分被"送分题"压住了</h2><span>11 题里只有 7 题真的在比数据库</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div>
+          <table>
+            <tr><th>题</th><th>v1 生数据</th><th>v5</th><th>v6</th></tr>
+            <tr><td>WBC 最大值（算）</td><td class="num">30/33</td><td class="num">30/33</td><td class="num">30/33</td></tr>
+            <tr><td>HGB 最小值（算）</td><td class="num">36/36</td><td class="num">36/36</td><td class="num">36/36</td></tr>
+            <tr><td>检验报告份数（查）</td><td class="num">36/36</td><td class="num">36/36</td><td class="num">36/36</td></tr>
+            <tr><td>关键词有没有（真没有）</td><td class="num">36/36</td><td class="num">36/36</td><td class="num">36/36</td></tr>
+            <tr><td>影像报告份数（查）</td><td class="num">36/36</td><td class="num">36/36</td><td class="num">36/36</td></tr>
+          </table>
+          <p style="margin:10px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#65716c"><b>这 5 题原文就答得出</b>（共 177 个判定），v1 已经拿到 <b>98.3%</b>。所以总分 61.6% 不等于"模型很笨"，而是<b>送分题撑住了分母</b>。</p>
+        </div>
+        <div>
+          <table>
+            <tr><th>只有库答得出的 6 题</th><th>v1</th><th>v5</th><th>v6</th></tr>
+            <tr><td>超参考上限行数（算）</td><td class="num">9/36</td><td class="num">29/36</td><td class="num">33/36</td></tr>
+            <tr><td>低于下限行数（算）</td><td class="num">27/36</td><td class="num">36/36</td><td class="num">33/36</td></tr>
+            <tr><td>最早采集日期（查）</td><td class="num">14/36</td><td class="num">15/36</td><td class="num">23/36</td></tr>
+            <tr><td>HGB 最小值那天（算）</td><td class="num">12/36</td><td class="num">12/36</td><td class="num">23/36</td></tr>
+            <tr><td>检验与医嘱同日天数（算）</td><td class="num">3/36</td><td class="num">3/36</td><td class="num">19/36</td></tr>
+            <tr><td>最近影像报告日期（查）</td><td class="num">3/36</td><td class="num">18/36</td><td class="num">17/36</td></tr>
+            <tr><td><b>小计</b></td><td class="num"><b>31.5%</b></td><td class="num"><b>52.3%</b></td><td class="num"><b>68.5%</b></td></tr>
+          </table>
+          <p style="margin:10px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#65716c">这才是这条曲线真正的信号：<b>只有库答得出的题，31.5% → 52.3% → 68.5%</b>，翻了一倍还多。</p>
+        </div>
+      </div>
+    </section>
 
     <section class="panel span-8"><div class="section-title"><h2>论文定位</h2><span>与 CONTROL_PANEL.md 对齐 · 2026-09-18</span></div><p style="font-size:20px;line-height:1.3;margin:0 0 14px"><b>AI-Ready EHR at Scale: Which Data-Preparation Steps Actually Make Real Hospital Records Usable by Off-the-Shelf Agents?</b></p><p style="margin:0;color:var(--muted);font:14px 'Segoe UI',sans-serif">中文工作译名：真实医院数据要加工到哪一步，现成 AI 才能直接用？<br>主轴（师兄定的）：<b>不是算有标签的准确率，而是量出每个准备动作各值多少</b>。已有工作把 AI-Ready 当成人工打的等级量表（J Clin Med 2026 的 0–2 三级）或一次性对照，<b>没有人把"扫描件 → 能用的数据"这一段做成逐层可复现的曲线</b>——空隙在这里。</p></section>
 
@@ -90,7 +161,7 @@
       </div>
     </section>
 
-    <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-18 更新 · 按师兄/契阔的对齐结论</span></div>
+    <section class="panel span-12"><div class="section-title"><h2>接下来的推进</h2><span>2026-09-18 更新 · 按师兄/师兄的对齐结论</span></div>
       <table>
         <tr><th>步</th><th>做什么</th><th>为什么</th><th>状态</th></tr>
         <tr><td><b>1</b></td><td><b>六版本超集建库</b>（整批 batch-full-01，984 例；零模型建库）</td><td>生数据 → 格式统一 → 单位归一 → 加溯源与状态 → 加机器说明书 → <b>加纵向时间轴</b>，每版原文一行不删</td><td><span class="pill done">构建器已改好</span></td></tr>
@@ -108,11 +179,11 @@
       <div class="row"><span class="tag">现状</span><div><strong>工作区已全部版本化</strong><small>所有实验脚本、结果与配置都有提交历史；每次推送后回读部署结论。</small></div><span class="pill done">已就绪</span></div>
     </div></section>
 
-    <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2></div>
-      <div class="callout"><b>服务器断了（2026-09-18 晚）。</b>Larry 的 SSH 连不上（banner exchange 超时）：键定稿脚本、队列级脚本、后台任务都在机器上，链路恢复后接着跑。方向与文档不受影响，已全部落到仓库。</div>
+    <section class="panel span-4"><div class="section-title"><h2>现在最重要的阻塞</h2><span>2026-09-19</span></div>
+      <div class="callout"><b>只有一个消费者模型。</b>六版本曲线目前只有 <code>gemini-3-flash</code> 一家的数据。审稿人第一刀就会问"换个模型这条曲线还在不在"——所以换第二、第三个模型重跑是<b>必做项</b>，不是可选项。</div>
       <div class="decision" style="margin-top:14px">
-        <div class="row"><span class="tag">其次</span><div><strong>答案键的置信度决定结论上限</strong><small>几何层逐项 recall 88~99%（与"结果列数值格计数"这一独立口径比对 85.3%）。绝对做对率带不确定度；<b>跨版本比较不受影响</b>，因为所有条件共用同一键。</small></div></div>
-        <div class="row"><span class="tag">再其次</span><div><strong>纵向时间还没接</strong><small>契阔要求的"时间应对"要先过<b>日期抽取校验</b>；真实扫描件上的日期常缺标签，覆盖率低的题只能缩小样本或降级成"该说不知道"型。</small></div></div>
+        <div class="row"><span class="tag">其次</span><div><strong>队列级方差太大</strong><small>200 例同一条件四次跑从 0/16 到 13/16，只能读趋势不能读分数；整批 984 例最好也只有 2.5/16。<b>队列级要变成可信结论，需要更多重复或换更稳的问法。</b></small></div></div>
+        <div class="row"><span class="tag">再其次</span><div><strong>答案键的置信度决定结论上限</strong><small>几何层逐项 recall 88~99%、日期确认率 88.2%。绝对做对率带不确定度；<b>跨版本比较不受影响</b>（所有条件共用同一键）。</small></div></div>
         <div class="row"><span class="tag">已知风险</span><div><strong>号池网关的可用模型会漂</strong><small>同一天内 <code>gpt-5.6-sol</code> 从超时变可用、<code>luna/terra/gpt-5.5</code> 从可用变 503。<b>每轮必须记录模型名，否则不可复现。</b></small></div></div>
       </div>
     </section>
@@ -204,7 +275,7 @@
 
     <section class="panel span-12"><div class="section-title"><h2>最近事件</h2><span>详细证据进入对应文档</span></div><div class="timeline">
       <div class="event"><b>2026-09-19 · 六版本曲线实测完成：说明书 +11 点、时间轴 +8.9 点、溯源状态层没有正收益</b><p>① <b>设置</b>：批次 <code>batch-full-01</code>（984 病例 / 5,255 文档）；病例级 12 例 × 11 题 × 9 条件 × <b>3 次重复</b> = 324 次调用；队列级 16 题 × 正向 6 + 反向 5 × 4 次重复，在 200 例与整批 984 例两个尺度；消费者 <code>gemini-3-flash</code>，一次调用、无例子、无重试；<b>建库零模型参与</b>，答案键由几何层产出、两个独立强模型复核。② <b>曲线</b>：v1 61.6% / v2 62.1% / v3 62.8% / v4 61.6% / <b>v5 73.0%</b> / <b>v6 81.9%</b>；反向 v5−溯源状态 76.1%、v5−单位归一 66.2%、v5−格式统一 67.7%。③ <b>机制</b>：最大值/最小值/文档计数这类题九个条件全一样（<code>max/min</code> 抗退化，与 HoloBench 一致）；"超参考上限行数"从 12/36（有观测表无说明书）跳到 29/36（有说明书）——<b>同一份观测表，没有说明书时基本不被使用</b>；时间层把"检验与医嘱同日天数"从 3/36 提到 19/36。④ <b>队列级</b>：200 例最好 11.8/16、最差 6.0/16；<b>整批 984 例最好只有 2.5/16</b>，d3（带逐项观测）超上下文跑不了；原文硬上限仍是 10 例。⑤ <b>两类失败单列</b>：格式失败（d4 一次整段不按 JSON 返回）与容量失败（层越厚能覆盖的病例越少）。⑥ <b>协议教训</b>：单次运行方差极大（同条件 0/16~13/16），已固定病例级 3 次、队列级 4 次重复，禁止单次数字画曲线。→ results/2026-09-19_ladder.md</p></div>
-      <div class="event"><b>2026-09-18 · 主张重定：从"结构化比原文好"改成"哪个准备动作值钱、各值多少"</b><p>① 主张与题目为我方提案（已转师兄/契阔征询）：两条 Motivation（真实原生扫描件 vs FHIRBench 的合成 FHIR bundle；队列级原文物理不可行），并列出必须引用 <b>FHIRBench 与 HoloBench</b>。② 师兄 16:32/16:39：扣住 ai-ready 来做、解决真问题、今年已有相关工作、差异点是真实扫描 PDF。③ 契阔 17:36–17:37：真实原生数据更有参考价值与难度；<b>纵向序列需要对时间应对</b>；<b>后续加点影像</b>。④ 落地：<code>paper/PROPOSAL.md</code> v1.1 + <code>paper/AI_READY_PLAN.md</code>（纵向时间轴 v6、影像按数据实际收敛、autoresearch 接入形态）。</p></div>
+      <div class="event"><b>2026-09-18 · 主张重定：从"结构化比原文好"改成"哪个准备动作值钱、各值多少"</b><p>① 主张与题目为我方提案（已转师兄/师兄征询）：两条 Motivation（真实原生扫描件 vs FHIRBench 的合成 FHIR bundle；队列级原文物理不可行），并列出必须引用 <b>FHIRBench 与 HoloBench</b>。② 师兄 16:32/16:39：扣住 ai-ready 来做、解决真问题、今年已有相关工作、差异点是真实扫描 PDF。③ 师兄 17:36–17:37：真实原生数据更有参考价值与难度；<b>纵向序列需要对时间应对</b>；<b>后续加点影像</b>。④ 落地：<code>paper/PROPOSAL.md</code> v1.1 + <code>paper/AI_READY_PLAN.md</code>（纵向时间轴 v6、影像按数据实际收敛、autoresearch 接入形态）。</p></div>
       <div class="event"><b>2026-09-18 · 五版本超集在整批上建完（984 例），病例级 8 条件实测完成</b><p>① <b>建库零模型参与</b>：v1→v5 严格超集（原文一行不删、逐层加一样）+ 反向 3 条件，全批 <code>batch-full-01</code>（984 病例 / 5,255 文档），另有不含原文的结构化链供队列级使用。② <b>病例级 12 例 × 6 题 × 8 条件</b>（消费者 <code>gemini-3-flash</code>，一次调用/例、无例子、无重试）：首轮原始结果 <b>v1~v4 都是 77.8%、v5 93.1%</b>，差异集中在"算一下"型计数题。③ <b>答案键自查</b>：消费者计数普遍比键高 1~3 → 用两个不同家族强模型审计，结论是<b>计数键站得住</b>（33=33 逐行 32/33、9=9、8=8），是消费者多算；同时抓到<b>白细胞最大值键错 2 例</b>（一例是病历正文引用的外院值，一例是几何层无法归属的裸单元格），按题剔除不硬算。④ 键的独立口径背书：130 份检验文档一致率 85.3%，逐项 recall WBC 87.8% / HGB 98.8% / CREA 91.1% / PLT 98.8% / UREA 90.1%。⑤ 队列级 11 题（A0~A10）与键定稿跑在服务器上，当晚 SSH 中断，恢复后继续。</p></div>
       <div class="event warn"><b>2026-09-17 · AI-Ready 试跑跑完：没测出差别（师兄预判的分支）</b><p>60 题 × 3 个版本 × 1 个独立消费者。① <b>原文 67%</b>（$1.92）、<b>AI-Ready 超集 65%</b>（$2.20）、<b>有损结构化 58%</b>（$0.30）→ <b>结构化层没有带来准确率提升</b>。② 原因：<b>题目全是日期/文档计数，而日期在原文里字面就有</b>，结构化帮不上忙——正是师兄说的"没差别说明问题设计错了"。③ <b>有损的结构化明确更差</b>：抽取丢记录（CASE-06 抽出 127 / 实际 330，CASE-09 抽出 57 / 实际 293）→ <b>AI-Ready 层必须是附加的，不能替代原文</b>。④ 唯一可测收益是<b>成本</b>：单位成本做对题数 v5 是 v1 的约 5.5 倍。→ results/2026-09-17_pilot_ai_ready.md</p></div>
       <div class="event"><b>2026-09-17 · 60 题题库 + 可视化核对界面</b><p>① <b>设计原则</b>：题目的答案只能依赖<b>格级和文档级</b>操作，不能依赖行级/列级结构——因为页码、定性结果会污染后者。② 按此砍掉总行数、最大值、日期跨度（CASE-10 算出 815 天是坏数据）、全病例日期数（证据横跨所有文档核不过来）。③ 保留 6 个模板，12 病例 × 5 题 = <b>60 题，0 题不可判</b>。④ <b>核对界面</b>：页面在受控主机生成、经 SSH 隧道送达，左边是原始 PDF 页面 + 红框标出被算进去的格子，右边是完整清单——数据不落本地磁盘。⑤ 人工核对时发现 <b>3 个真实 AI-Ready 缺口</b>：页码被当成检验值、<b>阴性结果整列漏抽</b>、散点图没进库。→ paper/QUESTION_BANK_PILOT60.md</p></div>
