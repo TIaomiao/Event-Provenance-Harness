@@ -1,7 +1,17 @@
 # AI-Ready 医疗数据库：论文 Proposal（当前正文入口）
 
-版本：v1.1（2026-09-18）。本文件是论文 Proposal 的**唯一当前正文入口**。
-方向的常驻定义、五版本与五指标口径、实验协议、已有证据与边界见 **[AI_READY_PLAN.md](AI_READY_PLAN.md)**；当前状态见 [CONTROL_PANEL.md](../CONTROL_PANEL.md)。
+> ## ⚠️ 2026-09-19 会后订正
+>
+> 师兄 2026-09-19 会议（`AI_READY_EHR_MEETING_BASELINE_2026-09-19.md`）确认方向继续，同时要求：**先调研相关工作、先明确 AI-ready 与非 AI-ready 的本质差异、先设计主表，再跑实验**。
+>
+> 本文以下内容按会后口径重新定位：
+> - **英文长标题是工作题目**，未被会议逐字批准；
+> - **中心命题、三条贡献、六层曲线全部标为"待检验"**，不作为已成立的主张；
+> - 旧抽取 benchmark 归为**前期预实验**，不占 AI-ready 主结果位置；
+> - 下一步执行顺序见 `AI_READY_CLAIM_MAP.md`（一页研究逻辑）与 `BENCHMARK_DESIGN_V2_DRAFT.md`（主表草案）。
+
+版本：v1.2（2026-09-19 会后订正）。本文件是论文 Proposal 的**唯一当前正文入口**。
+方向的常驻定义、六版本与五指标口径、实验协议、已有证据与边界见 **[AI_READY_PLAN.md](AI_READY_PLAN.md)**；当前状态见 [CONTROL_PANEL.md](../CONTROL_PANEL.md)。
 
 v1.1 的归属（逐条写清，避免以后再混）：
 

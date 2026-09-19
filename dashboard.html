@@ -20,6 +20,17 @@
 </head>
 <body>
 <main class="shell">
+  <div style="background:#fff4ed;border:2px solid #c2410c;border-radius:14px;padding:14px 18px;margin-bottom:18px">
+    <b style="color:#c2410c;font-size:18px">⚠️ 2026-09-19 会后基线（先读这条，它覆盖下面与此冲突的表述）</b>
+    <div style="font:14.5px 'Segoe UI',sans-serif;color:#5c5850;margin-top:6px;line-height:1.75">
+      师兄确认方向继续（医疗 AI-ready，用 Harness + Agent 组织实现），<b>但当前最紧要的不是加层数、扩病例量、调分数</b>，而是：<br>
+      <b>① 调研 AI-ready 相关工作 → ② 说清 AI-ready 与常规方案的本质区别 → ③ 先设计主表 → ④ 再做针对性实验。</b><br>
+      <b>因此下面这条六层曲线是「既有探索性结果」，不是会议认可的贡献；层数本身不是卖点；旧抽取 benchmark 归为前期预实验。</b><br>
+      三个交付物：<a href="related_work/AI_READY_EVIDENCE_MATRIX.md" style="color:#c2410c;font-weight:700">相关工作对照表</a> ·
+      <a href="paper/AI_READY_CLAIM_MAP.md" style="color:#c2410c;font-weight:700">一页研究逻辑</a> ·
+      <a href="paper/BENCHMARK_DESIGN_V2_DRAFT.md" style="color:#c2410c;font-weight:700">主表设计草案</a>
+    </div>
+  </div>
   <div style="background:#eef4fb;border:2px solid #2b5d8a;border-radius:14px;padding:14px 18px;margin-bottom:18px">
     <b style="color:#2b5d8a;font-size:18px">现在做什么：把 4 万份病历做成「AI 洗好切好、贴好标签的菜」，然后量出<b>哪个准备动作值钱、各值多少</b>。</b>
     <div style="font:14.5px 'Segoe UI',sans-serif;color:#4c5866;margin-top:6px;line-height:1.75">
@@ -45,7 +56,7 @@
   </section>
 
   <section class="hero">
-    <div class="panel"><h2>六版本曲线跑出来了：值钱的是两样东西</h2><p class="claim">同一批 12 例 × 11 题 × 9 个条件 × 3 次重复（消费者 <code>gemini-3-flash</code>，一次调用、无例子、无重试，建库零模型参与）。<br><strong>生数据 61.6% → 机器说明书 73.0% → 纵向时间轴 81.9%</strong>；前四层单独看几乎不动分，真正的台阶是<b>说明书（+11 点）</b>与<b>时间轴（+8.9 点）</b>；<b>溯源与状态层没有正收益</b>（拿走反而 +3.1 点）。</p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend">机制：单位归一那层是<b>地基</b>，但同一份观测表在<b>没有说明书时基本不被使用</b>——"超上限行数"只对 12/36，有说明书 29/36，加时间层 33/36。</div></div>
+    <div class="panel"><h2>六层曲线（探索性结果，非会议认可的贡献）</h2><p class="claim">同一批 12 例 × 11 题 × 9 个条件 × 3 次重复（消费者 <code>gemini-3-flash</code>，一次调用、无例子、无重试，建库零模型参与）。<br><strong>生数据 61.6% → 机器说明书 73.0% → 纵向时间轴 81.9%</strong>；前四层单独看几乎不动分，台阶是<b>说明书</b>与<b>时间轴</b>；<b>溯源与状态层没有正收益</b>。</p><div class="meter"><i></i><i></i><i></i><i></i><i></i></div><div class="legend"><b>会后口径</b>：这条曲线现在只用来证明"分层归因这个做法跑得通"；<b>哪几层进论文、主指标是什么、对照是什么，都要等主表设计定稿</b>（见上方三个交付物）。</div></div>
     <div class="panel"><h2>几个关键数字</h2><div class="mini-stat">
       <div class="stat"><b>61.6%</b><span>生数据</span></div>
       <div class="stat"><b>81.9%</b><span>六层齐备（v6）</span></div>
