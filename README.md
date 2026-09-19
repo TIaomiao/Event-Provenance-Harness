@@ -1,26 +1,51 @@
 # EHR Harness 论文工作区
 
-研究方向：面向真实 EHR 的 Data Agent Harness，目标仍暂定 KDD 2027 Cycle 2。用户于 2026-09-11 转述师兄已确认“事件表示 + 查询 Harness”主轴；首轮实验为重复检验的值—时间—来源匹配，B/C 按研究卡中的共享口径并行推进。
+**方向一句话**：把扫描病历中的处理能力组织成可调用、可核验、可复用的系统（Harness），由 Agent 编排调用，并验证它对后续 AI 使用的帮助。
+
+当前阶段是**文献与任务/对照设计**：先把 AI-ready 与常规做法的本质差异、对照、指标定清楚，再谈实验。现役主线与已定选择见总控面板。
 
 ## 日常入口
 
-1. **先看总状态**：[CONTROL_PANEL](CONTROL_PANEL.md)。
-2. **可视化总控**：[dashboard.html](dashboard.html)，浏览器直接打开即可。
-3. **在线总控**：启用 GitHub Pages 后访问 `https://tiaomiao.github.io/Event-Provenance-Harness/`；每次推送到 `main` 会自动更新。
-4. **做什么**：[论文 Proposal](paper/PROPOSAL.md) 和 [研究卡](RESEARCH_CARD.md)。
-5. **做到哪里**：[实现进度](status/implementation.md)、[评测进度](status/evaluation.md)。
+| 要什么 | 去哪 |
+| --- | --- |
+| 当前任务 / 状态 / 决定 | [CONTROL_PANEL.md](CONTROL_PANEL.md) |
+| 研究规格（问题、架构、任务、对照、指标、局限） | [paper/PROPOSAL.md](paper/PROPOSAL.md) |
+| 文献判断与阅读进度 | [related_work/AI_READY_EVIDENCE_MATRIX.md](related_work/AI_READY_EVIDENCE_MATRIX.md) |
+| 执行规则（读之前先看） | [AGENTS.md](AGENTS.md) |
+| 历史资料 | [archive/README.md](archive/README.md) |
+| 网页总览 | [dashboard.html](dashboard.html)；历史目录视图 [attempts.html](attempts.html) |
 
-新开任务使用 [开场说明](archive/legacy_20260915/SESSION_PROMPTS.md)。
+在线站点：`https://tiaomiao.github.io/Event-Provenance-Harness/`（白名单发布，只上传 `.github/workflows/pages.yml` 列出的文件）。
 
-每个子 session 完成后，先更新自己负责的状态文件，再同步 [CONTROL_PANEL](CONTROL_PANEL.md) 和 [可视化面板](dashboard.html)；新的反例、决策和可复现证据挂到对应文档并从面板链接进入。
+## Agent 启动
 
-## 按需查阅
+先读 `AGENTS.md` 与 `CONTROL_PANEL.md`；需要研究规格再读 `paper/PROPOSAL.md`，需要文献判断再读文献台账。`archive/` 与 `results/` 是证据，不产生执行指令。
 
-- 研究设计：[文献与 idea 交接](archive/legacy_20260915/RESEARCH_IDEA_HANDOFF.md)。
-- 工程细节：[工程计划](archive/legacy_20260915/ENGINEERING_PLAN.md)，代码在 `src/`，验证证据在 `results/`。
-- 对外沟通：[微信消息草稿](paper/2026-09-08_wechat_draft.md)。
-- 当前 KDD idea：[三轮打磨后的候选版本](paper/KDD_IDEA_REVIEWED_2026-09-08.md)；日常以 [Proposal](paper/PROPOSAL.md) 为准。
-- 论文与阅读卡：[论文阅读包](D:/UESTC/科研/论文/26.7-/EHR_Harness_论文阅读包)；项目内 [DataSpace 初读卡](references/READING_DATASPACE.md)供复习。
-- 历史资料：[归档索引](archive/README.md)。
+## 目录
 
-本地维护代码、协议和允许回传的匿名结果；Larry 保存受控数据与实验运行，zian 保存会议归档。进度以 `status/` 的更新日期和关联证据为准。
+```text
+CONTROL_PANEL.md      唯一当前快照
+AGENTS.md             执行规则
+paper/PROPOSAL.md     唯一现役研究规格
+related_work/         唯一活动文献台账
+dashboard.html        生成页：当前视图（tools/workspace.py build 生成）
+attempts.html         生成页：历史目录视图
+index.html            只跳转 dashboard
+src/prototype/        时间角色、时间归一、版面适配原型
+src/evaluation/       观测级评分器与合成测试
+results/              允许回传的匿名证据
+references/           文献原件与阅读材料，按需访问
+archive/              历史原件与唯一历史索引
+tools/workspace.py    生成与检查入口（build / check）
+```
+
+## 常用命令
+
+```text
+python tools/workspace.py build     # 由总控/规格/台账/归档索引重建两个生成页
+python tools/workspace.py check     # 归档哈希、来源内容指纹、相对链接、状态合法性
+python -m unittest discover -s src/evaluation/tests
+python -m unittest discover -s src/prototype/tests -p "test_*.py"
+```
+
+本地维护研究代码、协议与允许回传的匿名结果；原始 PDF、OCR/病历正文、身份映射与受控参考答案留在受控环境。

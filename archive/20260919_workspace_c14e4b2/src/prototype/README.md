@@ -1,10 +1,10 @@
 # 原型实现
 
-本目录维护原型及对应测试。2026-09-08 起已有 temporal_rebase.py，负责旧L1/L2时间证据核对与共同坐标候选旁表。它不修改源文件，不直接写入临床事件表。
+B 在此目录维护原型及对应测试。2026-09-08 起已有 temporal_rebase.py，负责旧L1/L2时间证据核对与共同坐标候选旁表。它不修改源文件，不直接写入临床事件表。
 
 ## B/C 对齐材料：内部草案 v0.1（2026-09-11）
 
-`temporal_roles.bind_candidates` 只检查上游已经给出的显式角色和行链接，尚未接入 sidecar；共享协议以 [现役研究规格](../../paper/PROPOSAL.md) 为准。`candidate_ordinals` 是本次输入列表的零基下标，不是 sidecar 的 `token_ordinal`，也不是稳定 evidence id。
+`temporal_roles.bind_candidates` 只检查上游已经给出的显式角色和行链接，尚未接入 sidecar；共享协议由 A 定版。`candidate_ordinals` 是本次输入列表的零基下标，不是 sidecar 的 `token_ordinal`，也不是稳定 evidence id。
 
 纯合成例子（同一病例、文档、页）：
 
@@ -19,7 +19,7 @@ result = bind_candidates(candidates, rows)
 
 未给出角色时，即使行关联存在也保持 unresolved。document 角色原样保留，不转为 event_time；所有输出保留 api_ready=false、clinical_time_roles_validated=false。不同病例/文档/页、越界与重复关联拒绝处理；输入不修改。
 
-待定项：同一表头覆盖多个检验行的作用域；每个日期独立角色及角色证据定位；与 sidecar 来源哈希和 coordinate_id 对接。当前单候选只允许一个行链接，不适合表头共享日期。临床重复事件的合并/拆分和评分仍未实现。
+待 A/C 决策：同一表头覆盖多个检验行的作用域；每个日期独立角色及角色证据定位；与 sidecar 来源哈希和 coordinate_id 对接。当前单候选只允许一个行链接，不适合表头共享日期。临床重复事件的合并/拆分和评分仍未实现。
 
 本地合成验证：
 

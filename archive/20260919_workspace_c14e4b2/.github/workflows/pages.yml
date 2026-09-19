@@ -26,21 +26,27 @@ jobs:
 
       # Allowlist publish: ONLY the files listed below reach the public site.
       # Nothing else in the repository is uploaded, so a stray committed file
-      # cannot leak by accident. Add a path here only after an anonymisation check,
-      # and update the existence check, the copies and the generated links in the
-      # same change - a rename once slipped through and the site silently stopped
-      # updating for ten pushes.
+      # cannot leak by accident. Add a path here only after an anonymisation check.
       - name: Stage site (allowlist)
         run: |
           set -euo pipefail
           mkdir -p _site/paper _site/related_work
 
+          # Every allowlisted path MUST exist. Without this check a bare `cp` fails
+          # with an unhelpful message - a rename once slipped through and the site
+          # silently stopped updating for ten pushes.
           missing=0
           for f in \
             dashboard.html \
             attempts.html \
             CONTROL_PANEL.md \
+            WEEKLY_REPORT_PROTOCOL.md \
+            RESEARCH_CARD.md \
             paper/PROPOSAL.md \
+            paper/BRIEF_FOR_ADVISOR.pdf \
+            paper/benchmark-main-table-report.pdf \
+            paper/AI_READY_CLAIM_MAP.md \
+            paper/BENCHMARK_DESIGN_V2_DRAFT.md \
             related_work/AI_READY_EVIDENCE_MATRIX.md
           do
             if [ ! -f "$f" ]; then
@@ -54,12 +60,17 @@ jobs:
           cp dashboard.html _site/dashboard.html
           cp attempts.html _site/attempts.html
 
-          # 白名单发布：只放明确不含患者内容的当前页面与研究摘要。
+          # 白名单发布：只放明确不含患者内容的文件。
           # results/ 下的实测记录一律不上公开站点（其中含病例时间戳等派生信息）；
           # 它们留在仓库里供导师侧 AI 读取，仓库可见性由人工确认。
-          # 生成页里指向白名单外文件的链接已经写成固定基线上的 GitHub 入口。
           cp CONTROL_PANEL.md _site/
+          cp WEEKLY_REPORT_PROTOCOL.md _site/
+          cp RESEARCH_CARD.md _site/
           cp paper/PROPOSAL.md _site/paper/
+          cp paper/BRIEF_FOR_ADVISOR.pdf _site/paper/
+          cp paper/benchmark-main-table-report.pdf _site/paper/
+          cp paper/AI_READY_CLAIM_MAP.md _site/paper/
+          cp paper/BENCHMARK_DESIGN_V2_DRAFT.md _site/paper/
           cp related_work/AI_READY_EVIDENCE_MATRIX.md _site/related_work/
 
           echo "--- staged files ---"

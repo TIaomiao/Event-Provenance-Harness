@@ -1,194 +1,105 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>试过什么，为什么都不行</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>历史资料 · EHR Harness</title>
+<!-- 生成文件，勿手改：由 tools/workspace.py build 从现役 Markdown 的具名段落生成 -->
 <style>
-  :root{--ink:#17231f;--muted:#65716c;--green:#0d6b57;--red:#c2410c;--line:#d9d5c9}
-  *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(135deg,#f7f4eb,#e8eee6);color:var(--ink);
-       font-family:"Microsoft YaHei","PingFang SC",Georgia,serif;line-height:1.85;font-size:15.5px}
-  main{max-width:1080px;margin:auto;padding:26px 22px 70px}
-  h1{font-size:clamp(28px,4.4vw,42px);line-height:1.2;margin:6px 0 4px;letter-spacing:-.02em}
-  .sub{color:var(--muted);font-size:13.5px;margin:0 0 22px}
-  h2{font-size:20px;margin:34px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--green);color:var(--green)}
-  h2 .n{color:#b9c6bf;margin-right:8px;font-weight:400}
-  h3{font-size:16.5px;margin:18px 0 6px}
-  .card{background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px;
-        box-shadow:0 12px 30px rgba(32,42,35,.06)}
-  .top{background:#fff4ed;border-left:6px solid var(--red);border-radius:0 12px 12px 0;padding:16px 18px}
-  .top b{color:var(--red);font-size:18px}
-  .ok{background:#f0f7ef;border-left:6px solid var(--green);border-radius:0 12px 12px 0;padding:16px 18px}
-  table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 4px}
-  th,td{text-align:left;padding:9px 9px;border-bottom:1px solid #ebe7dc;vertical-align:top}
-  th{color:#4d5852;font-weight:700;background:#faf9f4}
-  tr:last-child td{border-bottom:0}
-  .r{color:#8b3e28;font-weight:700;white-space:nowrap}
-  .g{color:#24633d;font-weight:700;white-space:nowrap}
-  .y{color:#8a6415;font-weight:700;white-space:nowrap}
-  .num{font-size:24px;font-weight:700;color:var(--red)}
-  a{color:var(--green)}
-  .links a{display:inline-block;margin:4px 8px 4px 0;padding:7px 13px;border:1px solid #bad0c2;border-radius:99px;
-           background:#f1f6ed;text-decoration:none;font:600 13px 'Segoe UI',sans-serif}
-  .small{font-size:13.5px;color:var(--muted)}
-  .scroll{overflow-x:auto}
+:root{--ink:#16241f;--muted:#5f6f69;--line:#dfe6e2;--bg:#f6f8f7;--card:#fff;
+--accent:#0d6b57;--accent-soft:#e6f2ee;--warn:#8a5a00;--warn-soft:#fdf3e0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.68 "Microsoft YaHei","PingFang SC","Segoe UI",sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:28px 22px 64px}
+header.top{border-bottom:3px solid var(--accent);padding-bottom:18px;margin-bottom:22px}
+.eyebrow{font:600 12px/1 "Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1.title{font-size:31px;line-height:1.24;margin:10px 0 8px}
+h1.title em{font-style:normal;color:var(--accent)}
+.sub{color:var(--muted);font-size:15px;margin:0}
+.stamp{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;
+padding:5px 12px;font:13px/1.5 "Segoe UI",sans-serif;color:var(--muted)}
+.chip b{color:var(--ink)}
+.chip.stage{background:var(--accent-soft);border-color:#bfdfd5;color:var(--accent);font-weight:700}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+nav.tabs a{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600;font-size:14px}
+nav.tabs a:hover{border-color:var(--accent);color:var(--accent)}
+section.block{background:var(--card);border:1px solid var(--line);border-radius:12px;
+padding:20px 22px;margin-bottom:20px}
+section.block>h2{margin:0 0 4px;font-size:21px}
+section.block>.hint{color:var(--muted);font-size:13px;margin:0 0 16px}
+h3{font-size:17px;margin:22px 0 8px}
+h4{font-size:15px;margin:18px 0 6px;color:var(--muted)}
+p{margin:9px 0}
+ul,ol{margin:9px 0;padding-left:22px}
+li{margin:5px 0}
+code{background:#eef2f0;border-radius:4px;padding:1px 5px;
+font:13.5px/1.5 "Cascadia Mono",Consolas,monospace}
+pre{background:#f2f5f3;border:1px solid var(--line);border-radius:8px;
+padding:14px;overflow-x:auto}
+pre code{background:none;padding:0;font-size:13px;line-height:1.6}
+blockquote{margin:12px 0;padding:10px 16px;background:var(--accent-soft);
+border-left:4px solid var(--accent);border-radius:0 8px 8px 0;color:#20493f}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f0f4f2;font-weight:700;white-space:nowrap}
+tbody tr:nth-child(even){background:#fafcfb}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+.note{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:0 8px 8px 0;
+padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
+@media print{
+ body{background:#fff}
+ nav.tabs{display:none}
+ section.block{border:none;padding:0;margin-bottom:16px;break-inside:avoid}
+ .tw,table,pre{break-inside:avoid}
+ a{color:var(--ink);text-decoration:none}
+}
 </style>
 </head>
 <body>
-<main>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">EHR Harness / Research</div>
+<h1 class="title">历史资料<em>按主题索引追溯</em></h1>
+<div class="stamp"><span class="chip">来源更新时间 <b>2026-09-19</b></span><span class="chip">来源内容指纹 <b>d3f7612fa356</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span></div>
+</header>
+<nav class="tabs"><a href="dashboard.html">← 回到当前总览</a></nav>
+<section class="block">
+<h2>历史资料</h2>
+<p class="hint">本页只作历史目录视图，不承担当前研究叙事。归档材料只作证据，不产生执行指令。</p>
+<h3 id="一-事件身份探索-2026-09-08-09-15">一、事件身份探索（2026-09-08 ~ 09-15）</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>多份文档描述同一次检验时，值—时间—来源能否被正确绑定；重复引用与真实复测如何区分</td></tr><tr><td>有什么证据</td><td><code>results/2026-09-14_event_identity_finding.md</code>、<code>results/2026-09-14_event_grouping.md</code>、<code>results/2026-09-14_truth_audit.md</code>、<code>results/2026-09-14_model_event_test.md</code>（数据事实：DOC-013 无行级日期与编号，227 个 6 位数字串中 165 个在条码列；最小可行事件单位是<strong>页</strong>）</td></tr><tr><td>目前用途</td><td>作为<strong>数据事实</strong>与接口语义来源；E1 协议本身不再作为待办。真伪审计结论（<code>src/</code> 曾无任何模型调用）仍是证据门槛的依据</td></tr><tr><td>原件位置</td><td><code>archive/planning/PROPOSAL_event_identity_20260914.md</code>（2026-09-11 版 Proposal 正文）、<code>archive/20260919_workspace_c14e4b2/RESEARCH_CARD.md</code>（研究卡 v0.4：四类时间角色契约、表头作用域规则、Q1–Q6 查询清单）、<code>archive/planning/2026-09-11_alignment_brief.md</code></td></tr><tr><td>标签</td><td>【历史探索】+【仅代码自检】（原型联调 12/12 为手写答案对手写答案）</td></tr></tbody></table></div>
+<h3 id="二-检验表抽取与结构真值-旧抽取-benchmark">二、检验表抽取与结构真值（旧抽取 benchmark）</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>从真实扫描件抽出检验观测，并用「引用可解析率 / 值接地 / 时间接地 / 行数恢复 / 一次性完成率」衡量</td></tr><tr><td>有什么证据</td><td><code>results/2026-09-15_*.md</code>（9 份）、<code>results/2026-09-17_main_table.md</code>、<code>results/2026-09-17_pilot_ai_ready.md</code>、<code>results/2026-09-17_hard_questions.md</code>、<code>results/2026-09-17_main_table.md</code></td></tr><tr><td>目前用途</td><td><strong>前期预实验</strong>：作为「已有工程能力」在方法一节交代，不进新主结果位置</td></tr><tr><td>原件位置</td><td><code>archive/20260919_workspace_c14e4b2/paper/BENCHMARK_DESIGN_2026-09-15.md</code>、<code>.../BENCHMARK_DATASET_PROTOCOL.md</code>、<code>.../QUESTION_BANK_PILOT60.md</code>、<code>.../benchmark-main-table-report.pdf</code>、<code>.../REPORT_FOR_SENIOR_2026-09-17.html</code>、<code>archive/results_snapshot_20260915/</code></td></tr><tr><td>标签</td><td>【历史探索】+【待复核】（几何真值未校准；出现过 122% 的行数恢复）</td></tr></tbody></table></div>
+<h3 id="三-阶梯与消费者探索-2026-09-18-09-19">三、阶梯与消费者探索（2026-09-18 ~ 09-19）</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>把准备动作拆成严格超集的多层版本，逐层测量哪一层值多少；并换多个消费者模型复现方向</td></tr><tr><td>有什么证据</td><td><code>results/2026-09-19_ladder.md</code>（病例级 12 例 × 11 题 × 9 条件 × 3 次重复；队列级 16 题在两个尺度）、<code>results/2026-09-18_queue_level.md</code></td></tr><tr><td>目前用途</td><td><strong>探索性结果</strong>：只用来支撑「分层归因这个做法可跑通」；层数与各层地位待新问题定义确定</td></tr><tr><td>原件位置</td><td><code>archive/20260919_workspace_c14e4b2/paper/AI_READY_PLAN.md</code>（六版本与五指标口径、正向/反向协议、边界）、<code>.../paper/AI_READY_CLAIM_MAP.md</code>（研究问题与候选主张映射）、<code>.../related_work/EVIDENCE_CORRECTION_LOG.md</code></td></tr><tr><td>标签</td><td>【历史探索】+【待复核】（消费者命名均为 Gemini 系，家族独立性未证实；真实返回型号未记录）</td></tr></tbody></table></div>
+<h3 id="四-会议与决策-2026-09-19">四、会议与决策（2026-09-19）</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>把 2026-09-19 会议的逐字稿、自动纪要与文字补充交叉核对成一份可引用的会后基线；区分「会议决定」与「整理者建议」</td></tr><tr><td>有什么证据</td><td>逐字稿相对时间定位（如 10:30「具体几层他们也不会关心」、19:41「实验做表一定去证实上面的一个 motivation」、27:49「AI ready 跟不 AI ready 的本质的一个点是什么」）；多份来源交叉核对</td></tr><tr><td>目前用途</td><td><strong>事实来源</strong>：当前有效选择已并入总控「已定选择与来源」表；需要逐字核对时查原件</td></tr><tr><td>原件位置</td><td><code>archive/20260919_workspace_c14e4b2/AI_READY_EHR_MEETING_BASELINE_2026-09-19.md</code>、<code>.../paper/DECISION_LOG_2026-09-19.md</code>（D-001~D-015，标注来源类型）</td></tr><tr><td>标签</td><td>【历史探索】（会议原件不改写为会议原话之外的措辞）</td></tr></tbody></table></div>
+<h3 id="五-文献纠错">五、文献纠错</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>记录对抗式审查后发现的文献事实错误、越界表述与证据状态颗粒度问题</td></tr><tr><td>有什么证据</td><td>修正 1：Representation Wins 的结果方向被写反（一手来源为作者结果源文件 <code>paper/sections/04_results.tex</code>，QA 上叙述式赢、ML 上结构化赢）；修正 2：撤回「唯一空位」表述；修正 3：证据状态改为五级；修正 4：主指标与「物理上做不了」的措辞改为限定条件；修正 5：C3 从负结论改回问题；修正 6：区分会议原文与整理者建议</td></tr><tr><td>目前用途</td><td>审计链：文献台账 S1 条目保留 <code>correction_ref: EVIDENCE_CORRECTION_LOG#修正1</code>，不抹掉修正来源</td></tr><tr><td>原件位置</td><td><code>archive/20260919_workspace_c14e4b2/related_work/EVIDENCE_CORRECTION_LOG.md</code>、<code>.../related_work/AI_READY_EVIDENCE_MATRIX.md</code>（纠错前版本）</td></tr><tr><td>标签</td><td>【已发现具体错误】（修正后结论以现役台账为准）</td></tr></tbody></table></div>
+<h3 id="六-整理快照与迁移">六、整理快照与迁移</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>每次大规模文档收敛前先保全原件，保证可恢复、可核对</td></tr><tr><td>有什么证据</td><td>本批次 <code>manifest.json</code> 登记每份原件的原路径、归档路径、动作（copy/move）、字节数、SHA-256、来源提交、并入位置、用途与发布等级</td></tr><tr><td>目前用途</td><td>追溯与单文件恢复；不作为现役安排</td></tr><tr><td>原件位置</td><td><code>archive/20260919_workspace_c14e4b2/</code>（2026-09-19 批次，基线 <code>c14e4b2</code>）、<code>archive/document_cleanup_20260908_1727/</code>、<code>archive/migration/</code>、<code>archive/results_snapshot_20260915/</code></td></tr><tr><td>标签</td><td>【历史探索】</td></tr></tbody></table></div>
+<h3 id="七-早期规划与交接包">七、早期规划与交接包</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>原来解决什么</td><td>项目早期的方案探索、session 开场说明与远程状态快照</td></tr><tr><td>有什么证据</td><td><code>archive/legacy_20260915/</code>（CONTEXT、ENGINEERING_PLAN、RESEARCH_IDEA_HANDOFF、SESSION_PROMPTS：描述的是「嵌套 harness」那一版方案）、<code>archive/context-v001/</code>（2026-09-05 初始交接包与远程状态快照）、<code>archive/planning/</code>（早期研究规划与会前草稿）</td></tr><tr><td>目前用途</td><td>只作历史与数据事实；不要从这些文档判断现状</td></tr><tr><td>原件位置</td><td>见左列目录</td></tr><tr><td>标签</td><td>【历史探索】</td></tr></tbody></table></div>
+</section>
+<section class="block">
+<h2>归档批次</h2>
+<p class="hint">整理前原件与逐份哈希。</p>
+<ul>
+<li><code>archive/20260919_workspace_c14e4b2/</code>：2026-09-19 工作区收敛快照（清单见同目录 manifest.json）。</li>
+<li><code>archive/document_cleanup_20260908_1727/</code>、<code>archive/legacy_20260915/</code>、<code>archive/context-v001/</code>、<code>archive/planning/</code>、<code>archive/migration/</code>、<code>archive/results_snapshot_20260915/</code>。</li>
+</ul>
+</section>
 
-<h1>试过什么，为什么都不行</h1>
-<p class="sub">2026-08-25 到 09-15。目标：KDD 2027，另外在考虑 CVPR、MICCAI、ACM MM。</p>
-
-<div class="top">
-  <p style="margin:0 0 8px"><b>先说结论：我们试了十几个方向，一个都没成。</b></p>
-  <p style="margin:0">看着东西不少，但还不能写论文。下面每一件事都写清楚了：我们做了什么、怎么发现不行、是不是别人早做过了。</p>
+<footer>
+<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md、paper/PROPOSAL.md、
+related_work/AI_READY_EVIDENCE_MATRIX.md 与 archive/README.md 的具名段落。
+患者正文、受控参考答案、凭据与原始模型响应不在本页，也不在本仓库。</p>
+</footer>
 </div>
-
-<h2><span class="n">1</span>手里有什么</h2>
-
-<table>
-  <tr><th style="width:22%">东西</th><th>情况</th><th style="width:16%">能不能用</th></tr>
-  <tr>
-    <td>数据</td>
-    <td>总共 3.96 万个病例目录、46 万份 PDF。其中 <b>200 个病例已经治理完</b>：OCR 出来的文字带坐标和置信度，每份文档标了类型，还做了脱敏。每个病例 5 到 18 份 PDF，一般 11 份。</td>
-    <td class="g">能用</td>
-  </tr>
-  <tr>
-    <td>文档类型</td>
-    <td>200 个病例里：医嘱 200、病程记录 200、入院记录 200、检验报告 187、医嘱执行 195、出院记录 196、影像报告 180、病理报告 122。</td>
-    <td class="g">能用</td>
-  </tr>
-  <tr>
-    <td>检验报告长什么样</td>
-    <td>每页一张表，六列：项目名称、缩写、结果、单位、参考区间、检测方法。页脚印着四个时间：采集时间、接收时间、报告时间、打印时间。<b>表格里面没有时间，也没有标本号，时间和编号都只在页级。</b></td>
-    <td class="g">已查清</td>
-  </tr>
-  <tr>
-    <td>脱敏流水线</td>
-    <td>已跑通。做法是对的：绝对日期换成"相对日 + 偏移"，时分秒保留，同一个病人内部的间隔也保留。</td>
-    <td class="g">能用</td>
-  </tr>
-  <tr>
-    <td>代码</td>
-    <td>一个评分器加 45 个测试，还有几个时间处理的小模块。<b>但全部只在编造的合成数据上跑过，真实数据上一条合格结果都没产出过。</b></td>
-    <td class="y">只是半成品</td>
-  </tr>
-  <tr>
-    <td>模型通道</td>
-    <td>已经打通：在受控主机上跑，只有提问发出去，数据不外流。跑一次实验不到 1 美元。</td>
-    <td class="g">能用</td>
-  </tr>
-</table>
-
-<h2><span class="n">2</span>试过的 15 个方向</h2>
-
-<div class="scroll">
-<table>
-  <tr><th style="width:9%">时间</th><th style="width:26%">方向</th><th style="width:40%">我们想做什么</th><th style="width:25%">结果</th></tr>
-  <tr><td>08-25</td><td>EHR 治理评估</td><td>做六类能打分的任务：文档分类、脱敏漏检误删、缺失状态区分、表格行绑定、来源证据、隔离</td><td class="small">做了一阵，后来不再提了。文件里没写为什么停。</td></tr>
-  <tr><td>08-25</td><td>缺失值怎么表示</td><td>比较五种做法：直接补值、补值加标记、规则编码、可学习 token、统一对照</td><td class="small">需要更高权限的数据和人工金标准，条件没到位</td></tr>
-  <tr><td>08-25</td><td>医学影像模型复现</td><td>用公开数据复现 U-Net / nnU-Net，报 Dice 和 HD95</td><td class="small">没启动</td></tr>
-  <tr><td>09-05</td><td>EHR 数据 Agent</td><td>按问题去组织跨文档证据，调模型抽事实，生成带时间和来源的记录，检查冲突</td><td class="r">不行<br><span class="small">后来做成了主线，但被审稿人说这个框架是摆设</span></td></tr>
-  <tr><td>09-08</td><td>事件来源三层设计</td><td>第一层管事件身份，第二层按查询决定物化什么，第三层做评测器</td><td class="r">不行<br><span class="small">模型 10 次全对，我们这套东西没有用武之地</span></td></tr>
-  <tr><td>09-11</td><td>数采样次数，不数文档</td><td>11 页报告其实只有 2 次抽血，让系统算对次数</td><td class="r">不行<br><span class="small">模型自己就能算对，而且审稿人说框架是摆设</span></td></tr>
-  <tr><td>09-14</td><td>脱敏之后还算不算得出来</td><td>猜脱敏把时间抹掉后，就数不出抽血次数了</td><td class="r">不行<br><span class="small">一测发现时分秒原样保留，还是能数</span></td></tr>
-  <tr><td>09-14</td><td>证据会计</td><td>输出不只给答案，还要给"几条证据支撑"和每条证据的出处</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td>擦掉之后还能查吗</td><td>把脱敏当成一个要优化的东西，权衡隐私和分析能力</td><td class="y">没测<br><span class="small">可能拿不到授权</span></td></tr>
-  <tr><td>09-14</td><td>可判定性分级</td><td>把任务按"能不能判定"分 5 级，配一个自动金标准</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td>金标准是有边界的</td><td>不给唯一答案，给"所有可能的答案"和让它收敛的最小证据</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td>许可不在文本里</td><td>测"数据表示本身丢掉了什么"</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td>被擦掉的与被留下的</td><td>区分"本来就没有"和"被删了看不出来"</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td>跨层归属许可</td><td>事件身份是"行→页→抽血→病程记录引用"一串连接，每一跳的许可只在某一层存在</td><td class="y">没测</td></tr>
-  <tr><td>09-14</td><td><b>两个地方名字对不上</b></td><td>病程记录里写的是"[检验组合名][日期]"，检验报告里写的是具体项目名和缩写，两边<b>一条都对不上</b>（0/50）</td><td class="g">还活着<br><span class="small">名字对不上已经测出来了，但"会不会因此把一次检验数成两次"还没测</span></td></tr>
-</table>
-</div>
-
-<h2><span class="n">3</span>三次动手实测，三次都不行</h2>
-
-<div class="card">
-  <h3>第一次：让模型数抽血次数</h3>
-  <p>我们拿一个真实病例，11 页检验报告，让模型回答"这个病人抽了几次血、哪些页是同一次"。</p>
-  <p>答案可以从页脚"采集时间"直接读出来：7 页挤在十几秒内，算一次；另外 4 页在另一天，算另一次。所以正确答案是 2。</p>
-  <p style="margin-bottom:0"><span class="num">10 次调用，10 次全对。</span><br>
-  5 个模型各跑 2 遍，都说 2 次，分组跟我们算的一模一样，引用的也都是"采集时间"，<b>没有一个把报告时间当成采样时间</b>。最便宜的那个模型也全对。</p>
-</div>
-
-<div class="card">
-  <h3>第二次：审稿人说我们的框架是摆设</h3>
-  <p style="margin-bottom:0">我们让一个审稿角色来挑刺。它的原话是：<b>"把标题和正文里的 Harness 换成 pipeline，内容一个字都不用改。"</b>
-  我们写的三条"为什么非要这套结构不可"，被逐条驳倒了。<br>
-  这件事之后我们定了条规矩：<b>把 Harness 这个词删掉，论证还成立，就说明它是摆设。</b></p>
-</div>
-
-<div class="card">
-  <h3>第三次：以为脱敏之后就算不出来了</h3>
-  <p>我们猜：脱敏把日期抹了，那抽血次数应该就数不出来了。</p>
-  <p style="margin-bottom:0">一对比就发现猜错了。四个时间标签全都还在，绝对日期换成了"相对日 + 偏移"，<b>但时分秒一个没动</b>。
-  所以同一次抽血的几页还是能对上，次数照样数得出来。<br>
-  <span class="small">顺带一个好消息：我们这套脱敏做的是对的，时间间隔和顺序都保住了。</span></p>
-</div>
-
-<div class="top">
-  <p style="margin:0"><b>还有一件得主动说的事。</b>
-  之前汇报过的那些成绩（F1 从 0 涨到 1.0 之类），后来查出来是<b>拿手写的答案去对另一份手写的答案</b>，模型调用次数其实是 0。
-  这些已经从面板上全撤了。<b>这个项目第一次真的调用大模型，就是上面第一次实验的那 10 次。</b></p>
-</div>
-
-<h2><span class="n">4</span>别人已经做过的，别再投了</h2>
-
-<div class="scroll">
-<table>
-  <tr><th style="width:34%">我们想做的</th><th style="width:30%">别人做过了</th><th>为什么这挡住我们</th></tr>
-  <tr><td>数事件不数文档</td><td>arXiv 2608.31017</td><td>这个标题级的主张已经被拿走了</td></tr>
-  <tr><td>把检验结果对到它那次检验</td><td>CLinkaRT（2023）、TESTLINK（2023）</td><td>任务名就叫"把检验结果链接到检验事件"</td></tr>
-  <tr><td>临床事件的时间锚定</td><td>arXiv 2609.13062、2605.15168</td><td>技术路线已经被占了</td></tr>
-  <tr><td>从 OCR 临床报告里抽结构化数据</td><td>MedStruct-S（2026）、Key Coverage Matters</td><td>中文医院检验报告的抽取基准已经有了</td></tr>
-  <tr><td>把 OCR 噪声当成一种输入信号</td><td>ICML 2026 workshop</td><td>连这个小改进都有人做了</td></tr>
-  <tr><td>比较不同编排框架的效果</td><td>DataSpace、Harness-Bench</td><td>"框架很重要"已经是常识，不算发现</td></tr>
-  <tr><td>控制 Agent 的花费</td><td>arXiv 2511.17006（COLM 2026）</td><td>预算作为一等变量已经有人做了</td></tr>
-  <tr><td>可验证的上下文管理</td><td>ContextNest、Eywa</td><td>这个位置被占了</td></tr>
-  <tr><td>长任务为什么失败</td><td>LongDS-Bench（2605.30434）</td><td>标题就是"长程数据分析 Agent 的失败"</td></tr>
-  <tr><td>答案要有出处</td><td>ACIE（2606.19602）</td><td>实测幻觉引用 0.0%、缺引用 1.2%，说明这不是瓶颈</td></tr>
-  <tr><td>跨文档判断是不是同一个事件</td><td>THYME 规范、Son &amp; Taira 2004</td><td>2004 年就有先例，只是对象是影像</td></tr>
-  <tr><td>文档级查重</td><td>Gabriel 2018</td><td>现成工具，不算创新</td></tr>
-  <tr><td>事件级去重</td><td>疫苗剂量去重、药物警戒、测序 UMI</td><td>方法早就有了，不能说"首次提出"</td></tr>
-</table>
-</div>
-
-<p class="small">另外三条最顺手的路子也都满了：控制成本、管理上下文、诊断长任务失败。学术界自己也在说通用 Agent 基准已经饱和了（arXiv 2606.26158、2609.03141）。</p>
-
-<h2><span class="n">5</span>所以我们缺什么</h2>
-
-<div class="ok">
-  <p style="margin:0 0 8px"><b>不缺数据，不缺算力，不缺人手，不缺代码。</b></p>
-  <p style="margin:0 0 8px">缺的是：<b>哪个临床问题真的重要。</b></p>
-  <p style="margin:0">上面 15 个方向里，真正"动手测过才发现不行"的只有 3 个。剩下大部分是我们自己猜的方向，本来就不重要。
-  09-14 一天连着错三次，根子就在这：<b>我们在拿猜测代替临床判断。</b></p>
-</div>
-
-<h2><span class="n">6</span>想请师兄定的三件事</h2>
-<div class="card">
-  <ol style="margin:0;padding-left:22px">
-    <li style="margin-bottom:8px">病程记录和检验报告对同一份检验用了两套名字，一条都对不上。<b>这在科室里算问题吗？真会有人把一次检验数成两次吗？</b></li>
-    <li style="margin-bottom:8px"><b>临床上哪些问题必须把好几份文档拼起来才能回答？</b>举两三个您或同事日常真遇到的就行。</li>
-    <li>如果模型读单份文档已经够准了，<b>那这套系统还差什么才算有用？</b></li>
-  </ol>
-</div>
-
-<h2><span class="n">7</span>相关文件</h2>
-<div class="links">
-  <a href="dashboard.html">总览面板</a>
-  <a href="paper/BRIEF_FOR_ADVISOR.pdf">给师兄的汇报 PDF</a>
-  <a href="paper/KDD_IDEA_2026-09-14.md">选题调研与审稿意见</a>
-  <a href="results/2026-09-14_model_event_test.md">那 10 次调用的明细</a>
-  <a href="results/2026-09-14_truth_audit.md">两周产物真伪审计</a>
-  <a href="results/2026-09-14_event_identity_finding.md">采血次数的数据事实</a>
-  <a href="CONTROL_PANEL.md">总控面板</a>
-</div>
-
-<p class="small" style="margin-top:22px">本页数字都来自真实数据上能重跑的脚本。患者原始数据、OCR 正文和参考答案全部留在受控环境里，没有进仓库。</p>
-
-</main>
-</body></html>
+</body>
+</html>

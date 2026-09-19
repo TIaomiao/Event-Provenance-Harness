@@ -1,0 +1,600 @@
+{
+  "batch": "archive/20260919_workspace_c14e4b2",
+  "created": "2026-09-19",
+  "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+  "source_branch": "main",
+  "working_tree_at_capture": "clean (git status --short 为空；无未跟踪文件)",
+  "backup": {
+    "location": "仓库外本地备份（路径不在本文件登记，见会话记录与本地受控清单）",
+    "contents": "整理前整树副本（含 .local/）+ git bundle（--all 完整历史）+ index/diff/status 元数据",
+    "verification": "303/303 文件 SHA-256 逐一比对一致；git bundle verify 报 complete history"
+  },
+  "restore_hint": "原件字节未加任何横幅；恢复时按 original_path 复制回仓库根，并核对 sha256。历史相对链接按归档前位置理解。",
+  "publish_level_basis": "按整理前（c14e4b2）的 Pages 白名单与 .gitignore 判定：pages-allowlisted / repo-visible / local-untracked。白名单在同一变更内已随文件迁移更新。",
+  "counts": {
+    "copy": 15,
+    "move": 33
+  },
+  "keep_register": [
+    {
+      "path": "paper/PROPOSAL.md",
+      "role": "唯一现役研究规格"
+    },
+    {
+      "path": "related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "role": "唯一活动文献台账"
+    },
+    {
+      "path": "CONTROL_PANEL.md",
+      "role": "唯一当前任务/状态快照"
+    },
+    {
+      "path": "AGENTS.md",
+      "role": "执行规则"
+    },
+    {
+      "path": "README.md",
+      "role": "项目入口"
+    },
+    {
+      "path": "archive/README.md",
+      "role": "唯一历史索引"
+    },
+    {
+      "path": "src/",
+      "role": "原有代码与局部接口说明；本轮不改包路径与公共函数"
+    },
+    {
+      "path": "results/",
+      "role": "原有证据；本轮不动原始结果字节"
+    },
+    {
+      "path": "references/",
+      "role": "文献原件与引用材料，按需访问"
+    },
+    {
+      "path": "tools/workspace.py",
+      "role": "本轮唯一新增的构建/检查工具入口"
+    }
+  ],
+  "entries": [
+    {
+      "original_path": ".github/workflows/pages.yml",
+      "archive_path": "archive/20260919_workspace_c14e4b2/.github/workflows/pages.yml",
+      "action": "copy",
+      "bytes": 3549,
+      "sha256": "28f694bb4688ca446d73051cee0f301a6fa97274db3b4dca80f5a2720460620d",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": ".github/workflows/pages.yml",
+      "purpose": "发布白名单随文件迁移同步更新",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "AGENTS.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/AGENTS.md.snapshot",
+      "action": "copy",
+      "bytes": 7783,
+      "sha256": "f10f953d2f842540334d197ef27f6ec8a2597e0108fbcb1c25e889052738b267",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "AGENTS.md",
+      "purpose": "活动规则文件在本轮整体重写；原件按整理前字节归档；以 .snapshot 命名，避免成为归档子树的自动执行规则",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "AI_READY_EHR_MEETING_BASELINE_2026-09-19.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/AI_READY_EHR_MEETING_BASELINE_2026-09-19.md",
+      "action": "move",
+      "bytes": 17078,
+      "sha256": "1f6d62fdef1388e5ac3ed60dcd59f6abe06459421ce80cd59f9d06a3bcd65976",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "会议事实引用到总控；会议原件归档供追溯",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "CONTROL_PANEL.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/CONTROL_PANEL.md",
+      "action": "copy",
+      "bytes": 40146,
+      "sha256": "d0bf0e1398fb3a530d864c6950c56bc98f1da28602176c78d6ab113ec7aee808",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "提炼为唯一当前快照，旧结果/旧待办移出",
+      "publish_level": "pages-allowlisted"
+    },
+    {
+      "original_path": "DASHBOARD_UPDATE_PROTOCOL.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/DASHBOARD_UPDATE_PROTOCOL.md",
+      "action": "move",
+      "bytes": 1586,
+      "sha256": "f9faaaf99258beff845599d6217892b8b24eb6bad9857b7b91e98f48dc05994d",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "AGENTS.md",
+      "purpose": "生成/检查/发布规则并入执行规则与 tools/workspace.py 帮助；原件归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "GITHUB_REPO_PLAN.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/GITHUB_REPO_PLAN.md",
+      "action": "move",
+      "bytes": 3599,
+      "sha256": "d1e20110722ef6846f67978926b710abadf6db5aadfb04cdd2988ce520dd6965",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "AGENTS.md",
+      "purpose": "发布边界与脱敏约束并入执行规则；含未替代的技术发布契约，先核实后归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/README.md",
+      "action": "copy",
+      "bytes": 2040,
+      "sha256": "e2a24745d6ae66c411c5e4c0b1bdc922c4bdb432f6c5084b6a5e80636f8bd4cb",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "README.md",
+      "purpose": "改为短入口，不再维护第二份研究计划",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "RESEARCH_CARD.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/RESEARCH_CARD.md",
+      "action": "move",
+      "bytes": 16393,
+      "sha256": "cf403a2928ac79233fb409126e7026b37fc1a05615e6c55294de40982031422b",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "paper/PROPOSAL.md",
+      "purpose": "可复用查询例子与接口语义提入现役规格；不继承 E1 待办",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "WEEKLY_REPORT_PROTOCOL.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/WEEKLY_REPORT_PROTOCOL.md",
+      "action": "move",
+      "bytes": 2897,
+      "sha256": "88df20b57bb7e2df6d0b1237dbe206771d3ba56fc6440c23bc5d3111a5c86954",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "汇报结构并入总控；取消强制每周实验/新数字要求",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "archive/README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/archive/README.md",
+      "action": "copy",
+      "bytes": 1082,
+      "sha256": "d6d78d56d7fb1ace1cbc69c1d920e0eb126a2b021f6e7031c9dcf40011cb5014",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "archive/README.md",
+      "purpose": "补单一历史索引（按主题分类 + 标签 + 用途）",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "attempts.html",
+      "archive_path": "archive/20260919_workspace_c14e4b2/attempts.html",
+      "action": "copy",
+      "bytes": 14266,
+      "sha256": "02e7230c8e55caa35cd1b36124296698dced7adb54a597f4374dafa0f28e2bc3",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "attempts.html",
+      "purpose": "重建为历史目录视图（生成文件）",
+      "publish_level": "pages-allowlisted"
+    },
+    {
+      "original_path": "bench_ladder_run.py",
+      "archive_path": "archive/20260919_workspace_c14e4b2/bench_ladder_run.py",
+      "action": "move",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "本地复核为 0 字节占位文件；真实批跑器在本地忽略目录，不是公开入口",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "dashboard.html",
+      "archive_path": "archive/20260919_workspace_c14e4b2/dashboard.html",
+      "action": "copy",
+      "bytes": 53692,
+      "sha256": "ce4dcf390dca971ce657e13ccd9c189b21a567b7d28bdf1012f4c8a39a54418d",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "dashboard.html",
+      "purpose": "重建为当前视图（生成文件）",
+      "publish_level": "pages-allowlisted"
+    },
+    {
+      "original_path": "discussion_notes.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/discussion_notes.md",
+      "action": "move",
+      "bytes": 31106,
+      "sha256": "77f2dab995723c4c1c3460df397c295d4fabcef8420b560a126e0750f8596524",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "purpose": "经核实的阅读进展进入文献台账；历史讨论归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "index.html",
+      "archive_path": "archive/20260919_workspace_c14e4b2/index.html",
+      "action": "copy",
+      "bytes": 880,
+      "sha256": "fafa54f7f4d4a48415083ea7123bcf2350ba249dcf644366a349c363d6bee077",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "index.html",
+      "purpose": "精简为只跳转 dashboard",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/2026-09-08_wechat_draft.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/2026-09-08_wechat_draft.md",
+      "action": "move",
+      "bytes": 433,
+      "sha256": "0c93a7ba04cdeea1a8bc81c61c34f9ef684d04d740782b03eedd00e679c33aeb",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "会前对外沟通草稿",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/AI_READY_CLAIM_MAP.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/AI_READY_CLAIM_MAP.md",
+      "action": "move",
+      "bytes": 8242,
+      "sha256": "71657c3bc727890c0c6977a44b94edf0c0c5509595701373c85aacb5a88a0d3c",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "paper/PROPOSAL.md",
+      "purpose": "研究问题与候选主张映射并入现役规格；原文完整归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/AI_READY_PLAN.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/AI_READY_PLAN.md",
+      "action": "move",
+      "bytes": 22679,
+      "sha256": "b37bb5eb03ed5ba5302f6559cf8183d8b0a9caeea6a954555b8bac2e499ee864",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "paper/PROPOSAL.md",
+      "purpose": "六层模块定义与可复用约束并入现役规格；原文完整归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/BENCHMARK_DATASET_PROTOCOL.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/BENCHMARK_DATASET_PROTOCOL.md",
+      "action": "move",
+      "bytes": 6508,
+      "sha256": "d78a4a400968331ff45b085951c1ffdccd265f8b34ce59712a8378256ead31d3",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧抽取 benchmark 数据集协议：前期预实验",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/BENCHMARK_DESIGN_2026-09-15.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/BENCHMARK_DESIGN_2026-09-15.md",
+      "action": "move",
+      "bytes": 8163,
+      "sha256": "65ef6d1cfdc859515565d92ae0fb3b5e0d93bd4d491d4acca94f70453b48d0cb",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧抽取 benchmark 设计：前期预实验",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/BENCHMARK_DESIGN_V2_DRAFT.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/BENCHMARK_DESIGN_V2_DRAFT.md",
+      "action": "move",
+      "bytes": 7273,
+      "sha256": "e315b7aa64b7fb9883cb1d6a692b39a0800b86e34eedca382f49e325a6d5de07",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "paper/PROPOSAL.md",
+      "purpose": "对照/判定/成本/公平性设计并入现役规格；原文完整归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/BRIEF_FOR_ADVISOR.html",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/BRIEF_FOR_ADVISOR.html",
+      "action": "move",
+      "bytes": 11833,
+      "sha256": "691ed03c2df344c0776a7e7095ca6155550bfb82e2f3f44a8dffde178c11f74a",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧方向导师汇报 PDF 的 HTML 源",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/BRIEF_FOR_ADVISOR.pdf",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/BRIEF_FOR_ADVISOR.pdf",
+      "action": "move",
+      "bytes": 361742,
+      "sha256": "e361a389f32c9471d470ec06083fe4c9981be47a4dc8a4642dd22e8c2c4e6c09",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧方向导师汇报 PDF（会前稿）",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/CANDIDATE_DIRECTIONS.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/CANDIDATE_DIRECTIONS.md",
+      "action": "move",
+      "bytes": 19714,
+      "sha256": "b752a7dd73b5500aeeef347fe1ebc9247d4fab69630deb2a33c4ff9fd01f6ba9",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧方向候选清单",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/DECISION_LOG_2026-09-19.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/DECISION_LOG_2026-09-19.md",
+      "action": "move",
+      "bytes": 5734,
+      "sha256": "261498511f44b64053f080bfb80f5405cfa4ef5c6e10a84afebef6c459d00174",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "当前有效选择与来源并入总控；原始决策记录只读归档，不改写为会议原话",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/DSH_KDD_IDEA_RESEARCH_PROMPT.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/DSH_KDD_IDEA_RESEARCH_PROMPT.md",
+      "action": "move",
+      "bytes": 2316,
+      "sha256": "44b996d814bcf783cdfcdf276fda74867c7c9827eeabe5786cb6da70b18e815e",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧方向调研 prompt",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/KDD_IDEA_2026-09-14.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/KDD_IDEA_2026-09-14.md",
+      "action": "move",
+      "bytes": 15946,
+      "sha256": "ac134e1591824f54952e4d01c32b4613c7b60d46c317c0a344a8c91536e38731",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧 KDD idea 版本",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/KDD_IDEA_REVIEWED_2026-09-08.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/KDD_IDEA_REVIEWED_2026-09-08.md",
+      "action": "move",
+      "bytes": 12722,
+      "sha256": "5beeb935b5d188ab2499f2caf46b578d34675eb38c0f60f8dd0440d3ea00223e",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧 KDD idea 打磨版本",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/PROPOSAL.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/PROPOSAL.md",
+      "action": "copy",
+      "bytes": 12927,
+      "sha256": "c4371642d8ef5af090a0039ea539d5b379cfbfd20d8d14787acf4f458281c5da",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "paper/PROPOSAL.md",
+      "purpose": "整体重写为唯一现役研究规格",
+      "publish_level": "pages-allowlisted"
+    },
+    {
+      "original_path": "paper/QA_PREP_2026-09-17.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/QA_PREP_2026-09-17.md",
+      "action": "move",
+      "bytes": 5832,
+      "sha256": "37385585c815597f51b3f24eaeaa76b5ccf403a249508dc9890fe6c4798282e7",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "会前问答准备稿",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/QUESTION_BANK_PILOT60.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/QUESTION_BANK_PILOT60.md",
+      "action": "move",
+      "bytes": 18226,
+      "sha256": "249d44152e2d23770ec05fffa7aebe54dadc87430abbccd0e181b14bfad5cc2a",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "60 题试跑题集：历史探索结果，不占新主结果位置",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/README.md",
+      "action": "move",
+      "bytes": 229,
+      "sha256": "8ce4621267dc7c4fc03309bba10e02bff24d79e7f4ebca15a7259160dfc3091e",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "会前写作索引，被现役 README 取代",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/REPORT_FOR_SENIOR_2026-09-17.html",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/REPORT_FOR_SENIOR_2026-09-17.html",
+      "action": "move",
+      "bytes": 11898,
+      "sha256": "2703346077454206e4c9e3ea9b22bd6522830a0ca55040e1638bf8c54b15583e",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧方向汇报页（会前稿）",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/benchmark-main-table-report.pdf",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/benchmark-main-table-report.pdf",
+      "action": "move",
+      "bytes": 347019,
+      "sha256": "06d777336693321944e0e5880ebc64231f5e9d8978508a0e693d11ace7a0bbdf",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧 benchmark 主表汇报 PDF（会前稿）",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "paper/现状.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/paper/现状.md",
+      "action": "move",
+      "bytes": 4805,
+      "sha256": "d6c81e0a1ac62853d06bb394dc007d86719842b897b73275815ea6868e4179e7",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "会前现状速记（旧方向）",
+      "publish_level": "repo-visible",
+      "original_sha256": "cec5886bef1663d5035fba33dfc7a70dfc414a4dec2b75ea9cfbcb13b9f0161f",
+      "sanitized": {
+        "reason": "归档前含真实采集日期与时分秒字面量；按 .local/sanitize.py 规则在归档副本内替换",
+        "replacements": {
+          "day_a": 2,
+          "day_b": 1,
+          "clock": 6
+        },
+        "original_location": "仓外本地备份中的整理前整树副本"
+      }
+    },
+    {
+      "original_path": "references/READING_DATASPACE.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/references/READING_DATASPACE.md",
+      "action": "copy",
+      "bytes": 1973,
+      "sha256": "79fde314cbc0a18a8a335e6b403a0f327185e0073e0b4b7c0c8ca919a0d0c45f",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "references/READING_DATASPACE.md",
+      "purpose": "按需阅读卡里的失效链接改指归档后的研究卡",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "action": "copy",
+      "bytes": 12556,
+      "sha256": "e694196c1b8d551db3435b887630fb1aa1cf807632c5b101cfa4bc89f0bda7b7",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "purpose": "改为唯一活动文献台账（含 correction_ref）",
+      "publish_level": "pages-allowlisted"
+    },
+    {
+      "original_path": "related_work/EVIDENCE_CORRECTION_LOG.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/related_work/EVIDENCE_CORRECTION_LOG.md",
+      "action": "move",
+      "bytes": 5591,
+      "sha256": "367aaeeb4a6719e38e28384509b3193d5a1c1052b6b124d6985028beab835bcb",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "related_work/AI_READY_EVIDENCE_MATRIX.md",
+      "purpose": "原件归档；受影响条目在矩阵保留 correction_ref，审计链不断",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "results/README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/results/README.md",
+      "action": "copy",
+      "bytes": 206,
+      "sha256": "cadf5db849bdc071e349eaabbc86a71fdedec865a9e1f21f5abe20fee4a979ed",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "results/README.md",
+      "purpose": "更正入口描述：本目录是证据库，历史实验按归档索引查",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "src/evaluation/DESIGN.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/src/evaluation/DESIGN.md",
+      "action": "copy",
+      "bytes": 10040,
+      "sha256": "389e9572d633795ed3bae4aadb365cfb29efe5bd66115a13b3e4ac8c2f4ae5a5",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "src/evaluation/DESIGN.md",
+      "purpose": "移出待上级裁定的全局排程，保留字段/错误码/评分契约",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "src/evaluation/README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/src/evaluation/README.md",
+      "action": "copy",
+      "bytes": 1610,
+      "sha256": "cc70ec9c20f5ab0b0880deef4858ce89ff0592d5afe219b25fc109c27d7255a9",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "src/evaluation/README.md",
+      "purpose": "移出失效的全局排程，保留技术语义与调用示例",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "src/prototype/README.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/src/prototype/README.md",
+      "action": "copy",
+      "bytes": 2522,
+      "sha256": "14f160541f753947bae7d1954a95e96ba33b65eede8a3e41a4ae1d9245f8605d",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "src/prototype/README.md",
+      "purpose": "移出失效的全局排程，保留技术语义与调用示例",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/evaluation.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/evaluation.md",
+      "action": "move",
+      "bytes": 16869,
+      "sha256": "479028a01e86696a51ec95b2b9cc2c38ed8f72ffa86250ad475fee30ba2a29de",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧长日志：历史探索记录，退出活动入口",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/evaluation_current.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/evaluation_current.md",
+      "action": "move",
+      "bytes": 501,
+      "sha256": "56a3494175c414e69421987ae53942af5d88198d4bc8788a2fb9f7a2f11dbf45",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "只提取本地重新核验后的当前事实",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/evaluation_history.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/evaluation_history.md",
+      "action": "move",
+      "bytes": 140,
+      "sha256": "3b83314f3bccb207fbf7024fd7aba756c171ec3d95f8119213f955ca1117b2c8",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧历史归档文件，随快照结构一并归档",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/implementation.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/implementation.md",
+      "action": "move",
+      "bytes": 13518,
+      "sha256": "2a7b661f0d7acfcbd007c134841bdaa0a7ac4ca4e0c272b918ce43e7a3d7955a",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧长日志：历史探索记录，退出活动入口",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/implementation_current.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/implementation_current.md",
+      "action": "move",
+      "bytes": 2464,
+      "sha256": "f4f8b101ad1a6f202834440c86a89d7fada59f61e2124dd81b7f590eb38abd6d",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": "CONTROL_PANEL.md",
+      "purpose": "只提取本地重新核验后的当前事实；不凭旧日期宣布模块完成",
+      "publish_level": "repo-visible"
+    },
+    {
+      "original_path": "status/implementation_history.md",
+      "archive_path": "archive/20260919_workspace_c14e4b2/status/implementation_history.md",
+      "action": "move",
+      "bytes": 148,
+      "sha256": "35a01962fa8c5cbcea4168d44886a8417cbac32677565c208c8f66fa1482c905",
+      "source_commit": "c14e4b2467e98dc864c034c6d6efa8465941a4e9",
+      "merge_target": null,
+      "purpose": "旧历史归档文件，随快照结构一并归档",
+      "publish_level": "repo-visible"
+    }
+  ]
+}

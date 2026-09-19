@@ -1,11 +1,11 @@
 # 评测实现
 
-本目录维护评分器及对应测试。当前为 `c-eval-dev-v0.1` 合成开发自检，依据研究卡 v0.3 / 共享合成口径 v0.1（研究卡已归档，见 [archive/20260919_workspace_c14e4b2/RESEARCH_CARD.md](../../archive/20260919_workspace_c14e4b2/RESEARCH_CARD.md)）。用户已确认将明确版本同步到远端 `research_harness_week1/evaluation/`，本地维护源码。
+C 在此目录维护评分器及对应测试。当前为 `c-eval-dev-v0.1` 合成开发自检，依据研究卡 v0.3 / 共享合成口径 v0.1。用户已确认将明确版本同步到远端 `research_harness_week1/evaluation/`，本地维护源码。
 
 - [设计、评分口径与 A 待定清单](DESIGN.md)
 - [开发参考人工核对空模板](REVIEW_TEMPLATE.md)
 - `fixtures.py`：12 条手工合成原始观测、参考断言与身份关系；仅开发材料。
-- `scorer.py`：独立离线评分器，标准库实现，不依赖实现侧。
+- `scorer.py`：独立离线评分器，标准库实现，不依赖 B。
 - `demo.py`：正确、错角色、漏复测、误合并、额外输出五种人工提交的诊断。
 - `tests/test_scorer.py`：来源/时间/身份/缺失/成本和异常输入验证。
 

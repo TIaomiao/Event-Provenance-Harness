@@ -21,5 +21,7 @@ runtime/
 !references/papers/*.pdf
 # 给导师看的一页/多页汇报 PDF（只含匿名聚合内容，不含患者正文）
 !paper/*.pdf
+# 已归入整理批次的 PDF 原件：归档批次必须完整，否则 manifest 会指向缺失文件
+!archive/*/**/*.pdf
 *.docx
 *.xlsx
