@@ -98,6 +98,32 @@
       </div>
     </section>
 
+    <section class="panel span-12"><div class="section-title"><h2>换三个消费者模型复现：方向一致，幅度不同</h2><span>同一批题、同一套答案键、同一协议</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div>
+          <table>
+            <tr><th>条件</th><th class="num">flash</th><th class="num">pro-high</th><th class="num">flash-lite</th></tr>
+            <tr><td>v1 生数据</td><td class="num">61.6%</td><td class="num">64.0%</td><td class="num">44.5%</td></tr>
+            <tr><td>v5 机器说明书</td><td class="num">73.0%</td><td class="num">71.1%</td><td class="num">52.4%</td></tr>
+            <tr><td><b>v6 纵向时间轴</b></td><td class="num"><b>81.9%</b></td><td class="num"><b>96.9%</b></td><td class="num"><b>82.4%</b></td></tr>
+            <tr><td colspan="4" style="color:#65716c;font-size:11.5px">只有库答得出的 6 题：v1 <b>31.5 / 37.1 / 15.7</b> → v6 <b>68.5 / 95.8 / 74.1</b></td></tr>
+          </table>
+          <p style="margin:10px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#65716c">弱模型（flash-lite）每个条件都低 15~25 点，但<b>曲线形状与另两家一致</b>——"库好不好用"里有一块与模型无关。</p>
+        </div>
+        <div>
+          <table>
+            <tr><th>配对差（判断台阶是不是模型偏好）</th><th class="num">flash</th><th class="num">pro-high</th><th class="num">lite</th><th>同号</th></tr>
+            <tr><td>说明书 v5−v4</td><td class="num">+11.5</td><td class="num">+5.1</td><td class="num">+5.9</td><td>✅</td></tr>
+            <tr><td>时间轴 v6−v5</td><td class="num">+8.9</td><td class="num">+25.8</td><td class="num">+30.0</td><td>✅</td></tr>
+            <tr><td>单位归一 v5−(v5−m2)</td><td class="num">+6.9</td><td class="num">+6.6</td><td class="num">+1.3</td><td>✅</td></tr>
+            <tr><td>格式统一 v5−(v5−m1)</td><td class="num">+5.3</td><td class="num">+1.2</td><td class="num">+1.0</td><td>✅</td></tr>
+          </table>
+          <p style="margin:10px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#65716c"><b>四个配对差在三家上全部同号</b> → 台阶不是某个模型的偏好。但幅度差很多，所以论文里要报<b>方向 + 幅度区间</b>，不能报单一数字。</p>
+          <p style="margin:8px 0 0;font:12.5px 'Segoe UI',sans-serif;color:#8b3e28">⚠️ 必须一起报的坑：<code>pro-high</code> 在多数条件下<b>格式失败</b>较多（v1/v5 只评到 239/393 行，v6 是满的 393/393），所以它 v6 的 96.9% 里有一部分来自"别的条件格式失败"。跨模型比较必须同时看格式合规率。</p>
+        </div>
+      </div>
+    </section>
+
     <section class="panel span-12"><div class="section-title"><h2>怎么读这条曲线：总分被"送分题"压住了</h2><span>11 题里只有 7 题真的在比数据库</span></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
         <div>
