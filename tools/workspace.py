@@ -58,6 +58,7 @@ PANEL_SECTIONS = [
     "下一次给师兄",
 ]
 PROPOSAL_SECTIONS = [
+    "论文概览",
     "问题",
     "目标使用者与使用场景",
     "输入与输出",
@@ -66,6 +67,7 @@ PROPOSAL_SECTIONS = [
     "候选任务",
     "方法与对照",
     "指标、答案依据与成本",
+    "主张映射表与主结果表",
     "公平性",
     "候选消融",
     "已有素材的定位",
@@ -75,8 +77,11 @@ PROPOSAL_SECTIONS = [
 MATRIX_SECTIONS = ["精选阅读", "阅读卡", "证据状态定义", "检索边界与待核缺口"]
 ARCHIVE_SECTIONS = ["主题索引"]
 
-ALLOWED_STAGES = {"文献与任务/对照设计", "系统与验证", "成稿与投稿"}
+ALLOWED_STAGES = {"用户首轮阅读与研究反馈", "文献与任务/对照设计", "系统与验证", "成稿与投稿"}
 REQUIRED_META = ["updated", "stage", "verified_commit"]
+
+# 论文概览里必须能被机器取到的字段：首屏要用它们做标题与副标题
+OVERVIEW_FIELDS = ["工作题目", "一句话"]
 
 OUTPUTS = ["index.html", "dashboard.html", "attempts.html"]
 
@@ -174,6 +179,7 @@ def _inline(text: str, resolve) -> str:
 
     out = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", link, out)
     out = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", out)
+    out = re.sub(r"(?<![\w*])\*([^*\n]+)\*(?![\w*])", r"<em>\1</em>", out)
     out = re.sub(r"`([^`]+)`", r"<code>\1</code>", out)
     return out
 
@@ -431,6 +437,15 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
     for key in ARCHIVE_SECTIONS:
         sections[f"archive:{key}"] = extract_section(src[ARCHIVE_INDEX], key, ARCHIVE_INDEX)
 
+    # 首屏的题目与一句话直接取自「论文概览」，不在这里另写一份
+    overview = sections["proposal:论文概览"]
+    fields: dict[str, str] = {}
+    for name in OVERVIEW_FIELDS:
+        match = re.search(rf"\*\*{re.escape(name)}\*\*\s*[：:]\s*(.+)", overview)
+        if not match:
+            raise Fail(f"{PROPOSAL}: 「论文概览」缺少字段「**{name}**：…」")
+        fields[name] = match.group(1).strip().rstrip("。")
+
     fingerprints = {rel: sha256_bytes(text.encode("utf-8")) for rel, text in src.items()}
     combined = hashlib.sha256(
         "".join(sorted(fingerprints.values())).encode("ascii")
@@ -458,6 +473,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
     )
 
     tabs = """<nav class="tabs">
+<a href="#paper">论文概览</a>
 <a href="#overview">当前概览</a>
 <a href="#reading">阅读与反馈</a>
 <a href="#system">系统与验证</a>
@@ -467,6 +483,12 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 </nav>"""
 
     dash = f"""{tabs}
+<section class="block" id="paper">
+<h2>论文题目与研究概览</h2>
+<p class="hint">题目与下面这段概览取自 paper/PROPOSAL.md 的「论文概览」：它是当前假设与方案的工作稿，不是已验证结论。</p>
+{render("proposal:论文概览")}
+</section>
+
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
@@ -548,9 +570,9 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 """
 
     dashboard = page(
-        "医疗数据准备 Harness + Agent · 研究总览",
+        f'{fields["工作题目"]} · 研究总览',
         dash,
-        '医疗数据准备 Harness + Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，验证其对后续 AI 使用的帮助</em>',
+        f'{html.escape(fields["工作题目"])}<br><em>{html.escape(fields["一句话"])}</em>',
         stamp,
     )
 
@@ -610,6 +632,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
         "fingerprints": fingerprints,
         "written": written,
         "sections": sorted(sections),
+        "fields": fields,
     }
 
 
@@ -731,6 +754,14 @@ def check(repo: Path) -> tuple[list[str], list[str]]:
             errors.append(f"dashboard.html 未包含 {need!r}")
     if "workspace.py build" not in dash:
         errors.append("dashboard.html 缺少「生成文件」说明")
+    for name, value in built["fields"].items():
+        if value not in dash:
+            errors.append(f"dashboard.html 首屏未显示论文概览字段 {name}={value!r}")
+    paper_at, overview_at = dash.find('id="paper"'), dash.find('id="overview"')
+    if paper_at < 0:
+        errors.append("dashboard.html 缺少论文概览区块（id=\"paper\"）")
+    elif overview_at >= 0 and paper_at > overview_at:
+        errors.append("dashboard.html 首屏顺序错：论文概览必须在当前概览之前")
 
     # 4b. 单文件可用性：页内锚点必须存在，且不得引用外部资源
     for name in OUTPUTS:
@@ -838,6 +869,8 @@ def main() -> int:
         print(f"stage       : {result['meta']['stage']}")
         print(f"updated     : {result['meta']['updated']}")
         print(f"fingerprint : {result['fingerprint']}")
+        for name, value in result["fields"].items():
+            print(f"  {name}: {value}")
         for name, size in result["written"].items():
             print(f"  wrote {name} ({size} bytes)")
         return 0
