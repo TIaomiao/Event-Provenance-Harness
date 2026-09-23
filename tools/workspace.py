@@ -59,6 +59,7 @@ PANEL_SECTIONS = [
 ]
 PROPOSAL_SECTIONS = [
     "论文概览",
+    "Benchmark v0.1 工作稿",
     "问题",
     "目标使用者与使用场景",
     "输入与输出",
@@ -525,6 +526,8 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 {render("proposal:输入与输出")}
 <h3>整体架构</h3>
 {render("proposal:整体架构")}
+<h3>Benchmark v0.1 工作稿</h3>
+{render("proposal:Benchmark v0.1 工作稿")}
 <h3>组件与现有实现对照</h3>
 {render("proposal:组件与现有实现对照")}
 <h3>候选任务</h3>

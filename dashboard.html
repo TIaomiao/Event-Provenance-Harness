@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>可复用的医疗数据准备 Harness + Agent · 研究总览</title>
+<title>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent · 研究总览</title>
 <!-- 生成文件，勿手改：由 tools/workspace.py build 从现役 Markdown 的具名段落生成 -->
 <style>
 :root{--ink:#16241f;--muted:#5f6f69;--line:#dfe6e2;--bg:#f6f8f7;--card:#fff;
@@ -64,8 +64,8 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <div class="wrap">
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
-<h1 class="title">可复用的医疗数据准备 Harness + Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并验证它对后续 AI 使用任务的帮助</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：用户首轮阅读与研究反馈</span><span class="chip">来源更新时间 <b>2026-09-20</b></span><span class="chip">来源内容指纹 <b>b65ba1ee2624</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>084305e</b></span></div>
+<h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
+<div class="stamp"><span class="chip stage">当前阶段：文献与任务/对照设计</span><span class="chip">来源更新时间 <b>2026-09-23</b></span><span class="chip">来源内容指纹 <b>3f640f1c10ca</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>c5a9a4e</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -80,18 +80,18 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <h2>论文题目与研究概览</h2>
 <p class="hint">题目与下面这段概览取自 paper/PROPOSAL.md 的「论文概览」：它是当前假设与方案的工作稿，不是已验证结论。</p>
 <blockquote><strong>本节是当前工作稿：我们准备做什么、打算怎么验证。它是假设与方案，不是已验证结论。</strong></blockquote>
-<p><strong>工作题目</strong>：可复用的医疗数据准备 Harness + Agent</p>
-<p><strong>一句话</strong>：把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并验证它对后续 AI 使用任务的帮助。</p>
-<p>英文工作题目（未定稿）：<em>A Reusable Data-Preparation Harness for Real Hospital Records: Does It Make Off-the-Shelf Agents More Useful?</em></p>
+<p><strong>工作题目</strong>：AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</p>
+<p><strong>一句话</strong>：把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务。</p>
+<p>英文工作题目（未定稿）：<em>AI-Ready EHR: A Reusable Harness–Agent Framework for Preparing Real-World Clinical Records</em></p>
 <p><strong>Motivation</strong></p>
 <ol>
-<li><strong>真实扫描病历这一段没人量过。</strong> 现有「AI-ready」工作要么是人工等级量表与准备指南（JCM 2026 的 0–2 级量表，作者自陈是提案而非经验证工具），要么比的是「已经结构化之后怎么排版」（FHIRBench 用合成 FHIR bundle）。<strong>从扫描件到可用数据中间那一段，没有人量过每一步各值多少。</strong></li>
-<li><strong>「准备之后谁在用、怎么测」也还没回答。</strong> Infherno 能把自由文本变成 FHIR，但止步于合成质量；FHIR-AgentBench 把「取对记录」与「答对问题」分开计分，但金标准只到资源 ID 级。<strong>「输出了结构」与「下游更好用」之间的连线没有被建立。</strong></li>
-<li><strong>规模上可能不是「更贵」，而是「能不能做」。</strong> 队列级问题才是临床真正要的；在单次输入的限制下，原文的可答规模存在硬上限。</li>
+<li><strong>日常医疗数据不是为计算建模产生的。</strong> 它可能缺少明确的字段含义、单位、测量时间、缺失原因、来源和验证条件；完成 OCR 或导出表格，并不等于资料已经可以被 AI 可靠使用。</li>
+<li><strong>AI-ready 需要和具体使用任务连接起来。</strong> JCM 2026 提供了任务、队列、时间、缺失、标准化、数据字典和验证准备等维度，但作者明确将 0–2 评分定位为专家知情的提案，而不是经实证验证的测量工具。我们借用这些准备约束，进一步测量下游任务是否受益。</li>
+<li><strong>准备、使用和核验需要放在同一套协议里。</strong> 我们要比较准备后的可复用资料包与原文合理访问、常规准备方式在可靠性、证据可核验性、复用成本和规模边界上的差异，而不是只比较一种 JSON 表示是否更短。</li>
 </ol>
 <p><strong>研究问题</strong></p>
-<blockquote>把准备能力组织成可调用的 Harness、由 Agent 编排调用，能否让后续 AI 在真实的整理与核验任务上更可靠——<strong>与「原文 + 合理访问」和「可复现的常规准备流水线」相比，好在哪里、好在多少、代价是什么？</strong></blockquote>
-<p>三个子问题：① 哪些准备动作各自贡献多少，哪些没有贡献？② 这种贡献是否<strong>跨模型、跨题目、跨病例</strong>仍然成立（而不是某个模型的偏好）？③ 代价（token、调用、建库、人工核对）与收益的关系是什么形状？</p>
+<blockquote>针对明确的科研资料整理与核验任务，把准备能力组织成可调用的 Harness、由 Agent 编排调用，能否让未参与准备过程的消费者 Agent 更可靠、更容易核验地使用真实病历资料——<strong>与原文合理访问和可复现的常规准备流水线相比，收益、代价和适用边界是什么？</strong></blockquote>
+<p>三个子问题：① 准备后的资料是否更可靠、更容易核验地支持明确任务？② 一次准备能否复用于未参与准备过程的多个任务和病例？③ 可靠性、证据质量、失败率与准备/查询成本之间的关系是什么？</p>
 <p><strong>待验证主张</strong>（全部待检验，不预设正结果）</p>
 <div class="tw"><table><thead><tr><th>编号</th><th>主张</th><th>怎样会被推翻</th></tr></thead><tbody><tr><td>H1（分任务类型）</td><td>把字段含义、状态码与计数规则写成机器说明书，能提高下游 AI 在<strong>计数与阈值类</strong>问题上的表现；对<strong>单文档查找与极值类</strong>问题没有增益</td><td>换模型 / 换题目后差异消失，或差异只来自输入 token 数</td></tr><tr><td>H2（分任务类型）</td><td>把时间排成纵向轴并按天聚合，能提高<strong>时间类</strong>问题的表现</td><td>同上；当前幅度区间很宽，只能报区间</td></tr><tr><td>H3（问法，不是负结论）</td><td>来源与状态字段对 ①答题正确性 ②证据核验效率 ③错误识别分别有什么作用？</td><td>——这是待答问题；已有的单题集观察不足以写成「无价值」</td></tr><tr><td>H4（限定条件）</td><td>在<strong>单次输入、指定模型与配置</strong>下，不做准备时聚合类问题在规模上不可行；该上限在允许分块 / 检索后<strong>尚未测</strong></td><td>允许分块、检索、逐步读取后该上限消失</td></tr><tr><td>H5</td><td>准备的收益可能体现在<strong>成本与运行失败率</strong>上，而不只在答对率</td><td>在预定正确性容差内，成本与失败率也都不改善</td></tr></tbody></table></div>
 <p><strong>候选贡献</strong>（候选，不是已成立）</p>
@@ -100,31 +100,30 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <li><strong>一套对照评测设计</strong>：在候选任务上比较「完整方案」与两条对照（原文 + 合理访问、可复现的常规准备流水线），同时报质量、成本与失败，给出质量—成本曲线。</li>
 <li><strong>一份可复现的答案依据与判定协议</strong>：三层答案键（机械 / 独立模型 / 人工核对）+ 独立于被测库的程序对照键；机械问题与需要临床解释的问题分开。</li>
 </ol>
-<p><strong>本节要一起读的限定</strong>：多层级处理是<strong>候选消融</strong>，不预设每层正收益，层数不是贡献；主题是「整体方案 + 可复用性」，不是「逐层涨分」。目标架构、代码存在、接口可调用与端到端验证是四件不同的事。</p>
 </section>
 
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>用户首轮阅读与研究反馈：四篇阅读卡与原文已备好，等 w 亲自读并填写四问；DSH 侧同步台账与总控</td></tr><tr><td>主要写入会话</td><td>本地 DSH 会话（2026-09-20）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>用户首轮阅读与研究反馈</td></tr><tr><td>工作方向</td><td>可复用的医疗数据准备 Harness + Agent 整体方案</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>084305e</code>（工作区整理）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；协议：现役规格 <code>paper/PROPOSAL.md</code>（含「论文概览」）；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>未运行（本轮只做阅读同步与文档收尾）</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>四篇相关工作初步反馈 + AI-ready benchmark v0.1 收敛：T1 主实验、T3 诊断、T2 后续扩展；准备给师兄的短汇报</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-09-23）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>AI-ready 研究逻辑与 benchmark v0.1 工作稿</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>c5a9a4e</code>（论文概览与阅读状态整理）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；协议：<code>paper/PROPOSAL.md</code>（含 AI-ready 论文概览与 benchmark v0.1）；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>未运行；先完成开发烟测、任务/答案/分母冻结与师兄反馈</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
 <ol>
-<li><strong>用户首轮阅读（w 本人）</strong>：按顺序读四篇——JCM AI-Ready 指南 → Infherno → FHIR-AgentBench → HealthFlow（定向），每篇<strong>亲自回答四问</strong>（输入→输出 / 与什么比 / 依据什么判断好坏 / 哪点适合我们、哪点不能搬）。四张阅读卡已备好：原文定位、术语解释与关键段落翻译都在卡里，<strong>四问的答案栏留空给 w 填</strong>。</li>
-<li><strong>交师兄的两页反馈</strong>：第一页 = 四篇各自的四句话结论 + 原文入口与对应章节 + 阅读状态；第二页 = 以整体方案为中心的两类任务候选，以及准备怎样比较「常规方式」与「完整系统」，把<strong>已有依据</strong>与<strong>仍是建议</strong>分开写。</li>
-<li><strong>DSH 侧核对池</strong>：FHIRBench、Representation Wins、HoloBench 由 DSH 核对书目与内容，<strong>不进入 w 的第一轮必读</strong>；原文没拿到就标清楚，不替作者补。</li>
+<li><strong>完成首轮阅读反馈</strong>：JCM 已开始阅读；Infherno、FHIR-AgentBench、HealthFlow 的原文和阅读卡已备，按四问形成“本人阅读 / 辅助核验”分层记录。</li>
+<li><strong>交师兄的短反馈</strong>：一句主张 + 四篇论文对整体方向的共同启发 + 一个旧 benchmark 暴露的缺口 + 下一步 benchmark v0.1 + 最多三个需确认的问题。</li>
+<li><strong>冻结 benchmark v0.1 的开发入口</strong>：T1 为主实验、T3 为证据诊断、T2 后续扩展；B0/B1/B2/B3 的资料准备与访问边界先做开发烟测，不立即跑全量真实数据。</li>
 </ol>
 <p>三项都属阅读与设计；不需要审批即可推进。</p>
 <h3>最新可核验交付</h3>
 <ul>
 <li><strong>首轮阅读包（2026-09-19/20，仓库外的本地阅读包 <code>26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/</code>）</strong>：四篇原文均已取得并落盘——JCM AI-Ready（Europe PMC 官方全文 XML 转出；MDPI PDF 被 Cloudflare 拦截未取得）、Infherno（arXiv 版 + EACL 2026 发表版，各 12 页）、FHIR-AgentBench（19 页 PDF）、HealthFlow（27 页）。四张阅读卡含逐节原文定位、术语解释与关键段落中译；另有一份两页反馈模板。</li>
-<li><strong>本轮文档收尾</strong>：<code>paper/PROPOSAL.md</code> 顶部补「论文概览」（工作题目 / motivation / 研究问题 / 待验证主张 H1–H5 / 候选贡献）；主张映射表与主结果表拆成两张；<code>dashboard.html</code> 首屏改为先显示论文题目与概览，其后才是状态与任务。</li>
+<li><strong>本轮方向与协议收敛（2026-09-23）</strong>：现役工作题目更新为 AI-Ready EHR；<code>paper/PROPOSAL.md</code> 补入任务相关的 AI-ready 定义、T1/T3/T2 顺序、B0/B1/B2/B3 条件、预算内可核验任务成功率和准备/使用隔离规则。该 benchmark 仍是工作稿，待师兄反馈与开发烟测后冻结。</li>
 <li><strong>上一轮整理（2026-09-19，提交 <code>084305e</code>）</strong>：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 <code>manifest.json</code>（逐份 SHA-256）；Pages 白名单同步。</li>
 <li><strong>代码自检（2026-09-19 实跑）</strong>：<code>src/evaluation</code> → <strong>45/45 OK</strong>；<code>src/prototype</code> → <strong>37/37 OK</strong>。这是合成输入的离线自检，<strong>不是</strong>模型结果，也不代表端到端可用。</li>
 </ul>
 <p>已经跑过的探索性实验（六层超集阶梯、队列级容量、旧抽取 benchmark、60 题试跑）保留在 <code>results/</code>，定位见 <a href="https://github.com/TIaomiao/Event-Provenance-Harness/blob/main/archive/README.md">archive/README.md</a>。它们<strong>不占</strong>新主结果位置。</p>
 <h3>已定选择与来源</h3>
 <p>来源类型：<strong>逐字稿明确</strong> / <strong>用户决策</strong> / <strong>会议整理者建议</strong> / <strong>审查建议</strong> / <strong>默认工作稿</strong>。默认工作稿可回滚；与旧文件冲突时以本表为准。</p>
-<div class="tw"><table><thead><tr><th>选择</th><th>来源类型</th><th>边界</th></tr></thead><tbody><tr><td>研究主线 = 可复用的医疗数据准备 Harness + Agent 整体方案</td><td>用户决策</td><td>会议确认了医疗 AI-ready 方向与 Harness + Agent 的概念框架；整体方案作为中心是会后用户的进一步选择。<strong>这一条已定，不再作为待选事项</strong></td></tr><tr><td>第一轮个人阅读：三篇核心（JCM AI-Ready 指南 / Infherno / FHIR-AgentBench）+ 一篇定向（HealthFlow）</td><td>用户决策</td><td>本轮只要求 w 亲自回答四问；FHIRBench、Representation Wins、HoloBench 由 DSH 核对，不进入第一轮必读</td></tr><tr><td>优先级：先相关工作 → 再定义 AI-ready 与非 AI-ready 的本质差异 → 先设计主表 → 再实验</td><td>逐字稿明确</td><td>会议未完成创新确认、指标定稿、答案依据设计与投稿会场锁定</td></tr><tr><td>多层级处理保留，层数本身不是卖点</td><td>逐字稿明确</td><td>不等于每层可不定义，也不等于六层效果已获认可</td></tr><tr><td>多层级处理作为<strong>候选消融</strong>，不预设每层正收益</td><td>用户决策</td><td>超集差值<strong>不足以唯一归因到单一组件</strong>（长度、预计算程度、提示长度同时变化），只能读作「加上这一样之后结果如何」</td></tr><tr><td>主张只写当前假设与方案，不写「尚未验证所以不能提主张」</td><td>用户决策</td><td>概览与主张必须标明是工作稿；被推翻的条件同时写清</td></tr><tr><td>初步使用场景写为「科研资料整理与核验」</td><td>默认工作稿</td><td>单病例事实/时间整理、跨病例筛选统计是候选任务，待任务设计与师兄反馈，<strong>不能写成已临床验证的需求</strong></td></tr><tr><td>对照并行两条：B1 原文的合理访问（允许分块/检索/逐步读取）＋ B2 可复现的常规准备流水线</td><td>审查建议</td><td>全人工整理不作必须完成的大规模基线，改为少量独立原文核对</td></tr><tr><td>主方案允许分块、检索、逐步读取与通用计算；一次性输入保留为诊断条件</td><td>审查建议</td><td>若加入专属索引/SQL 工具，必须分开报告整体效果与「表示/工具」因素</td></tr><tr><td>全量成本记账：<code>C_total(N)=C_prepare+C_index+Σ(C_query+C_retry/repair)</code></td><td>审查建议</td><td>人工时间另报；摊销次数<strong>预先规定</strong>，不挑对本方法有利的 N；未知成本标「未知」</td></tr><tr><td>主指标候选 = 给定预算内通过预定核验的任务比例</td><td>审查建议</td><td>正确性与接口完成分开；成本 / 人工介入 / 核对时间各自独立成维度，<strong>不合成任意总分</strong>；正式验证前冻结主指标与容差</td></tr><tr><td>答案依据不与被测库共用同一个未经核查的抽取器</td><td>审查建议</td><td>机械查询统计给可追溯答案；另设独立于被测库的程序/SQL 对照键</td></tr><tr><td>脱敏与授权是所有条件的共同前提</td><td>审查建议</td><td>不为制造分数差而关闭该层；不新增数据外发、供应商、公开病历或密钥</td></tr><tr><td>正式验证需 ≥2 个模型家族，并留出未参与开发的病例与题目</td><td>审查建议</td><td>现状：已有三家消费者，命名均为 Gemini 系，家族独立性未证实；真实返回型号/提供方/版本尚未记录</td></tr><tr><td>暂缓未设计清楚的新大批实验</td><td>审查建议</td><td>允许：文献阅读、只读审计、合成输入单元测试、离线复算（仅评分口径变化可对冻结响应统一重评分）</td></tr><tr><td>投稿以 CVPR 为近期候选，其他会议期刊保留</td><td>逐字稿明确</td><td>未锁定唯一会场、年份或截止日期</td></tr><tr><td>开发工具以 DeepSeek 为主，降低单点依赖</td><td>逐字稿明确 + 用户决策</td><td><strong>工具偏好不是论文证据</strong>；论文消费者模型不因此受限</td></tr><tr><td>CMR 工作站与论文分轨</td><td>逐字稿明确</td><td>不把重启服务当论文下一步</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>选择</th><th>来源类型</th><th>边界</th></tr></thead><tbody><tr><td>研究主线 = 可复用的医疗数据准备 Harness + Agent 整体方案</td><td>用户决策</td><td>会议确认了医疗 AI-ready 方向与 Harness + Agent 的概念框架；整体方案作为中心是会后用户的进一步选择。<strong>这一条已定，不再作为待选事项</strong></td></tr><tr><td>AI-ready 的本轮工作定义</td><td>逐字稿明确 + 默认工作稿</td><td>针对明确任务，资料具备可理解字段、时间/状态区分、可回溯证据和可重复访问，使未参与准备的消费者 Agent 能按约定完成任务；不是全局认证分数</td></tr><tr><td>第一轮个人阅读：三篇核心（JCM AI-Ready 指南 / Infherno / FHIR-AgentBench）+ 一篇定向（HealthFlow）</td><td>用户决策</td><td>本轮只要求 w 亲自回答四问；FHIRBench、Representation Wins、HoloBench 由 DSH 核对，不进入第一轮必读</td></tr><tr><td>优先级：先相关工作 → 再定义 AI-ready 与非 AI-ready 的本质差异 → 先设计主表 → 再实验</td><td>逐字稿明确</td><td>会议未完成创新确认、指标定稿、答案依据设计与投稿会场锁定</td></tr><tr><td>多层级处理保留，层数本身不是卖点</td><td>逐字稿明确</td><td>不等于每层可不定义，也不等于六层效果已获认可</td></tr><tr><td>多层级处理作为<strong>候选消融</strong>，不预设每层正收益</td><td>用户决策</td><td>超集差值<strong>不足以唯一归因到单一组件</strong>（长度、预计算程度、提示长度同时变化），只能读作「加上这一样之后结果如何」</td></tr><tr><td>主张只写当前假设与方案，不写「尚未验证所以不能提主张」</td><td>用户决策</td><td>概览与主张必须标明是工作稿；被推翻的条件同时写清</td></tr><tr><td>初步使用场景写为「科研资料整理与核验」</td><td>默认工作稿</td><td>单病例事实/时间整理、跨病例筛选统计是候选任务，待任务设计与师兄反馈，<strong>不能写成已临床验证的需求</strong></td></tr><tr><td>对照条件收敛为 B0/B1/B2/B3</td><td>默认工作稿</td><td>B0 一次性原文为诊断；B1 原文合理访问；B2 常规准备；B3 Harness + Agent；B2 不人为削弱，B3 不预设获胜</td></tr><tr><td>第一轮任务顺序 = T1 主实验 + T3 诊断，T2 后续扩展</td><td>默认工作稿</td><td>先以 HGB 资料包完成单病例闭环，再扩小队列；Jev 作为旁路组件，不成为主实验启动条件</td></tr><tr><td>主方案允许分块、检索、逐步读取与通用计算；一次性输入保留为诊断条件</td><td>审查建议</td><td>若加入专属索引/SQL 工具，必须分开报告整体效果与「表示/工具」因素</td></tr><tr><td>全量成本记账：<code>C_total(N)=C_prepare+C_index+Σ(C_query+C_retry/repair)</code></td><td>审查建议</td><td>人工时间另报；摊销次数<strong>预先规定</strong>，不挑对本方法有利的 N；未知成本标「未知」</td></tr><tr><td>主指标候选 = 给定预算内通过预定核验的任务比例</td><td>审查建议</td><td>正确性与接口完成分开；成本 / 人工介入 / 核对时间各自独立成维度，<strong>不合成任意总分</strong>；正式验证前冻结主指标与容差</td></tr><tr><td>答案依据不与被测库共用同一个未经核查的抽取器</td><td>审查建议</td><td>机械查询统计给可追溯答案；另设独立于被测库的程序/SQL 对照键</td></tr><tr><td>脱敏与授权是所有条件的共同前提</td><td>审查建议</td><td>不为制造分数差而关闭该层；不新增数据外发、供应商、公开病历或密钥</td></tr><tr><td>正式验证需 ≥2 个模型家族，并留出未参与开发的病例与题目</td><td>审查建议</td><td>现状：已有三家消费者，命名均为 Gemini 系，家族独立性未证实；真实返回型号/提供方/版本尚未记录</td></tr><tr><td>暂缓未设计清楚的新大批实验</td><td>审查建议</td><td>允许：文献阅读、只读审计、合成输入单元测试、离线复算（仅评分口径变化可对冻结响应统一重评分）</td></tr><tr><td>投稿以 CVPR 为近期候选，其他会议期刊保留</td><td>逐字稿明确</td><td>未锁定唯一会场、年份或截止日期</td></tr><tr><td>开发工具以 DeepSeek 为主，降低单点依赖</td><td>逐字稿明确 + 用户决策</td><td><strong>工具偏好不是论文证据</strong>；论文消费者模型不因此受限</td></tr><tr><td>CMR 工作站与论文分轨</td><td>逐字稿明确</td><td>不把重启服务当论文下一步</td></tr></tbody></table></div>
 <p>合并进本表的原始决策记录（D-001~D-015）已整体归档，见 <code>archive/20260919_workspace_c14e4b2/paper/DECISION_LOG_2026-09-19.md</code>。</p>
 </section>
 
@@ -209,15 +208,32 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <li><strong>自动实验驱动器</strong>：按协议跑条件、做自检、产出只含聚合数字的结果。</li>
 </ul>
 <p><strong>复用的含义必须可检验</strong>：跨病例、跨未见任务复用同一套组件，减少逐题定制；<strong>准备阶段不得读取留出题目或其答案</strong>。</p>
+<h3>Benchmark v0.1 工作稿</h3>
+<blockquote>本节是会后收敛出的执行草案，不是师兄已批准的最终协议。它用于把 AI-ready 的动机落到可运行的第一轮比较；预算、样本量、任务规则和最终主指标需在开发烟测后冻结。</blockquote>
+<h3 id="可执行的-AI-ready-定义">可执行的 AI-ready 定义</h3>
+<p>针对明确的使用任务，资料包具备可理解的字段含义、可区分的时间和状态、可回溯的证据，以及可重复调用的访问方式，使未参与准备过程的消费者 Agent 能按约定完成任务，而不需要开发者逐题修改资料或代码。AI-ready 是任务和条件相关的使用性质，不预设某种准备方式必然胜出，也不把一个全局 readiness 分数作为本轮结论。</p>
+<h3 id="第一轮任务顺序">第一轮任务顺序</h3>
+<ul>
+<li><strong>T1 主实验：单病例事实与时间整理</strong>。同一资料包完成极值/阈值计数/时间窗口任务，并返回结果、来源、时间角色与未决状态。</li>
+<li><strong>T3 诊断实验：证据核验</strong>。对候选事实判断 <code>supported</code>、<code>contradicted</code> 或 <code>insufficient</code>，定位来源与时间/字段不一致。</li>
+<li><strong>T2 后续扩展：跨病例筛选与统计</strong>。在 T1 闭环稳定后，以小队列测试筛选、计数与首次满足条件的日期整理。</li>
+</ul>
+<p>第一轮建议以 HGB 为单一主指标，资料包限定为一个患者的 3–5 份检验报告；准备阶段不得读取留出题目的具体阈值、时间窗口、候选结论或答案。当前工作稿的模型调用预算上限为 100 美元，待师兄和授权范围确认。</p>
+<h3 id="比较条件">比较条件</h3>
+<div class="tw"><table><thead><tr><th>条件</th><th>准备与访问</th><th>地位</th></tr></thead><tbody><tr><td>B0</td><td>一次性原文输入</td><td>可选诊断条件</td></tr><tr><td>B1</td><td>原文 + 分块、检索、逐步读取和通用计算</td><td>主基线</td></tr><tr><td>B2</td><td>固定的常规准备流程，保留来源、时间和未决项</td><td>强基线</td></tr><tr><td>B3</td><td>Harness + Agent：根据检查结果选择补读、重解析、回查或保留未知</td><td>被评系统</td></tr></tbody></table></div>
+<p>B1 允许合理访问，B2 不人为削弱已有合理准备能力；若 B2 已经足够，允许它胜出。B3 对 B1 的比较回答整体准备与使用是否有益，B3 对 B2 的比较回答准备编排、核验和修复是否带来额外价值。</p>
+<h3 id="第一轮主指标">第一轮主指标</h3>
+<p>主指标候选为“预算内可核验任务成功率”：结果正确、来源确实支持、单位和时间角色正确、相关未知项没有被错误补全，并在预算内完成。同时分开报告内容正确率、证据错误、不当确定回答、技术失败、准备/索引/查询/修复成本和人工时间。JCM 的 0–2 维度用于定义准备产物检查项，不直接作为主结果分数。</p>
+<p><strong>本节要一起读的限定</strong>：多层级处理是<strong>候选消融</strong>，不预设每层正收益，层数不是贡献；主题是「整体方案 + 可复用性」，不是「逐层涨分」。目标架构、代码存在、接口可调用与端到端验证是四件不同的事。</p>
 <h3>组件与现有实现对照</h3>
 <p>「代码存在」「离线测试通过」「有历史运行」「新协议端到端验证」是四件不同的事，下表分别标注。本轮未运行任何真实数据实验。</p>
 <div class="tw"><table><thead><tr><th>功能</th><th>实际路径 / 受控端位置引用</th><th>输入 → 输出</th><th>当前证据（日期）</th><th>与当前主线的关系</th><th>待验证点</th></tr></thead><tbody><tr><td>时间角色与观测绑定</td><td><code>src/prototype/temporal_roles.py</code></td><td>候选坐标 + 行链接 → 绑定结果</td><td>离线合成单测（2026-09-19 实跑，<code>src/prototype</code> 整包 37/37 OK）</td><td>候选组件：时间与来源关联</td><td>单候选只允许一个行链接，不支持表头共享日期；<code>api_ready=false</code> 保留，未改</td></tr><tr><td>时间证据核对与共同坐标旁表</td><td><code>src/prototype/temporal_rebase.py</code></td><td>病例目录 + 生产日期源码 → 私有旁表</td><td>离线合成单测（同上）</td><td>候选组件：时间归一</td><td>需已获准病例目录与来源哈希；扩展时受来源规则阻断保护</td></tr><tr><td>检验表几何适配</td><td><code>src/prototype/laboratory_bbox_adapter.py</code></td><td>版面块 → 表格行</td><td>离线合成单测（同上）</td><td>候选组件：版面 → 行</td><td>只覆盖同页规则表；续页与跨页未支持</td></tr><tr><td>观测级评分器</td><td><code>src/evaluation/scorer.py</code> + <code>tests/</code></td><td>参考答案 + 提交 → 匿名聚合指标</td><td>离线合成单测 <strong>45/45 OK</strong>（2026-09-19 实跑）</td><td>评测器旁路</td><td>真实参考集未建立；主指标口径待冻结</td></tr><tr><td>合成夹具与诊断演示</td><td><code>src/evaluation/fixtures.py</code>、<code>demo.py</code></td><td>合成观测 → 五种错误的诊断输出</td><td>开发材料，非证据</td><td>只做自检，不产生研究结论</td><td>不得当作模型结果</td></tr><tr><td>阶梯构建 / 驱动 / 出题 / 聚合 / 重打分</td><td>本地忽略目录 <code>.local/bench_ladder_*.py</code></td><td>整批文档 → 多层版本与聚合数字</td><td>有历史运行（2026-09-19，<code>results/2026-09-19_ladder.md</code>）</td><td>用于说明「分层归因可跑通」的探索</td><td>本轮未复跑；不进公开仓库</td></tr><tr><td>多消费者复现</td><td>本地忽略目录 <code>.local/bench_consumers.py</code></td><td>同一批题 → 多模型结果</td><td>有历史运行（2026-09-19）</td><td>探索性</td><td>真实返回型号未记录；家族独立性未证实</td></tr><tr><td>治理流水线与印章处理</td><td>受控端 <code>SCS-EHR-Governance/config/mvp.yaml</code></td><td>原始 PDF → OCR/版面产物</td><td>只读引用，<strong>本轮未访问</strong></td><td>数据基础，按需复用接口</td><td>只读复用，不改生产配置</td></tr><tr><td>历史抽取结果</td><td><code>results/*.md</code></td><td>—</td><td>前期预实验证据</td><td>不进主结果位置</td><td>见 §十二</td></tr></tbody></table></div>
 <h3>候选任务</h3>
-<div class="tw"><table><thead><tr><th>任务</th><th>输入</th><th>请求</th><th>输出</th><th>判定依据（草案）</th><th>现状</th></tr></thead><tbody><tr><td><strong>T1</strong> 单病例事实与时间整理</td><td>单病例全部文档（按条件给原文或准备产物）</td><td>某项目的极值 / 超阈值次数 / 某事件最早日期等</td><td>值或日期 + 引用 + 未决状态</td><td>L1 机械键（几何层零模型产出）+ 独立模型复核</td><td><code>NOT_RUN</code></td></tr><tr><td><strong>T2</strong> 跨病例筛选与统计</td><td>一批病例</td><td>满足条件的病例计数</td><td>计数 + 口径 + 依据</td><td>独立于被测库的程序 / SQL 对照键</td><td><code>NOT_RUN</code></td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>任务</th><th>输入</th><th>请求</th><th>输出</th><th>判定依据（草案）</th><th>现状</th></tr></thead><tbody><tr><td><strong>T1</strong> 单病例事实与时间整理</td><td>单病例全部文档（按条件给原文或准备产物）</td><td>某项目的极值 / 超阈值次数 / 某事件最早日期等</td><td>值或日期 + 引用 + 未决状态</td><td>L1 机械键（几何层零模型产出）+ 独立模型复核</td><td><code>NOT_RUN</code></td></tr><tr><td><strong>T3</strong> 证据核验</td><td>单病例资料包 + 候选事实 + 指定来源范围</td><td>判断事实是否被来源支持</td><td><code>supported</code> / <code>contradicted</code> / <code>insufficient</code> + 依据</td><td>独立来源核对 + 抽样人工核对</td><td><code>NOT_RUN</code></td></tr><tr><td><strong>T2</strong> 跨病例筛选与统计</td><td>一批病例</td><td>满足条件的病例计数</td><td>计数 + 口径 + 依据</td><td>独立于被测库的程序 / SQL 对照键</td><td><code>NOT_RUN</code></td></tr></tbody></table></div>
 <h3>方法与对照</h3>
-<p><strong>两条对照并行，不是三选一。</strong></p>
-<div class="tw"><table><thead><tr><th>对照</th><th>它代表什么现实做法</th><th>必须包含的能力</th><th>已知风险</th></tr></thead><tbody><tr><td><strong>B1 原文 + 合理访问</strong></td><td>不做准备，但允许正常使用工具</td><td><strong>分块、检索、逐步读取、通用计算</strong>；一次性输入只作<strong>诊断条件</strong></td><td>若不给这些能力，规模一大就不可比</td></tr><tr><td><strong>B2 可复现的常规准备流水线</strong></td><td>按常识整理一遍</td><td>不等于「只加格式」；不故意削掉它的合理能力</td><td>边界模糊，容易被质疑是稻草人</td></tr><tr><td>少量独立原文核对</td><td>全人工整理的代表</td><td>抽样核对，不作为必做的大规模基线</td><td>人工核对不是自动无误的金标准</td></tr></tbody></table></div>
-<p><strong>主方案（整体方案）也允许分块、检索、逐步读取与通用计算</strong>；若加入专属索引 / SQL 工具，必须分开报告「整体系统效果」与「表示 / 工具」两个因素。</p>
+<p><strong>三组主比较 + 一个诊断条件。</strong></p>
+<div class="tw"><table><thead><tr><th>对照</th><th>它代表什么现实做法</th><th>必须包含的能力</th><th>已知风险</th></tr></thead><tbody><tr><td><strong>B0 一次性原文输入</strong></td><td>不做额外准备</td><td>原文直接输入</td><td>只作诊断条件，不能代表合理的原文访问</td></tr><tr><td><strong>B1 原文 + 合理访问</strong></td><td>不做准备，但允许正常使用工具</td><td><strong>分块、检索、逐步读取、通用计算</strong>；一次性输入只作<strong>诊断条件</strong></td><td>若不给这些能力，规模一大就不可比</td></tr><tr><td><strong>B2 可复现的常规准备流水线</strong></td><td>按常识整理一遍</td><td>保留合理的字段说明、单位、来源、时间和未决项</td><td>边界需在烟测后冻结，不得人为削弱</td></tr><tr><td><strong>B3 Harness + Agent</strong></td><td>根据检查结果选择补读、重解析、回查或保留未知</td><td>与 B2 使用相同的通用访问与计算能力</td><td>组件编排收益待验证</td></tr><tr><td>少量独立原文核对</td><td>全人工整理的代表</td><td>抽样核对，不作为必做的大规模基线</td><td>人工核对不是自动无误的金标准</td></tr></tbody></table></div>
+<p><strong>B1、B2、B3 都允许分块、检索、逐步读取与通用计算</strong>；若加入专属索引 / SQL 工具，必须分开报告「整体系统效果」与「表示 / 工具」两个因素。B2 如果已经足够，允许它胜出。</p>
 <h3>公平性</h3>
 <div class="tw"><table><thead><tr><th>问题</th><th>默认工作稿</th></tr></thead><tbody><tr><td>原文那一方允不允许分块 / 检索 / 逐步读取</td><td><strong>允许</strong>；一次性输入作诊断条件</td></tr><tr><td>准备后那一方允不允许查询 / 计算工具</td><td>允许<strong>通用</strong>计算；专属 SQL / 索引须分开报告</td></tr><tr><td>双方预算怎么匹配</td><td>相同<strong>预设资源上限</strong>下比较，报告<strong>实际消耗</strong>；不强迫各方花完同样 token</td></tr><tr><td>建库成本计不计入</td><td><strong>计入</strong>；摊销次数<strong>预先规定</strong>，不挑对本方法有利的 N</td></tr><tr><td>病例数与题目数</td><td>待定；<strong>留出未参与开发的病例与题目</strong>做验证</td></tr><tr><td>消费者模型数量与家族</td><td><strong>≥2 个家族</strong>；记录请求别名 / 返回型号 / 提供方 / 版本 / 哈希</td></tr><tr><td>答案依据</td><td>机械查询统计 + <strong>独立于被测库</strong>的程序 / SQL 对照键</td></tr><tr><td>脱敏与授权</td><td><strong>所有条件的共同前提</strong>，不为制造分数差而关闭</td></tr></tbody></table></div>
 <h3>候选消融：多层级处理</h3>
@@ -256,21 +272,21 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <h3>阻塞与下一步</h3>
 <p><strong>阻塞</strong></p>
 <ol>
-<li><strong>用户阅读尚未开始</strong>：四张阅读卡已就绪，但<strong>四问的答案栏是空的</strong>——那是 w 本人要写的一栏；DSH 已读不等于 w 已读，不得当成已完成。</li>
-<li><strong>主结果表未填</strong>：成绩一律 <code>NOT_RUN</code>；两条对照（B1 的分块/检索、无检索基线、输出预算扫描）都还没跑。主张映射表（表 1）已填到「判定依据 / 不能据此声称什么」这一层。</li>
+<li><strong>本人阅读与师兄反馈尚未闭环</strong>：JCM 已有摘录和初步理解，其他三篇阅读卡与原文已备；需要把四篇共同启发压缩成短消息，不必等待完整论文稿。</li>
+<li><strong>benchmark v0.1 尚未冻结</strong>：T1/T3/T2、B0/B1/B2/B3、答案依据、预算、分母和失败口径仍是工作稿；开发烟测可以先做，留出集之前必须冻结。</li>
 <li><strong>DSH 侧核对池未清</strong>：FHIRBench 全文本轮仍未取得；Representation Wins 已核；HoloBench 待核；扩展检索里 #4/#5/#6/#13/#16 仍是摘要级或线索级。原文不可得的条目如实标注，不阻塞其他工作。</li>
 <li><strong>两项待上级判断</strong>（不自行裁定，贡献范围已由用户选定、不再列入）：① 医疗任务的专业含义与合格参考标准由谁裁定；② 超出现有授权的动作（数据访问扩展、对外发送、新增付费调用预算、额外人工标注、计算资源、投稿承诺）。</li>
 <li><strong>模型身份未记录</strong>：三家的实际返回型号、提供方与版本未记录，因此不得声称模型无关性已证明。</li>
 <li><strong>本地未核项</strong>：受控端服务器运行目录、计划任务与服务状态未访问；<code>.local/</code> 只做本地清点，未提交、未公开、未删除。</li>
 </ol>
 <p><strong>下一步（唯一）</strong></p>
-<p>把四篇阅读卡交给 w 亲自读，读完后由他填写四问并整理成<strong>交师兄的两页反馈</strong>（第一页四篇结论 + 原文入口 + 阅读状态；第二页整体方案、两类任务候选与对照方式，已有依据与建议分开写）。DSH 侧同步把阅读进度写回台账与总控。<strong>期间不跑新的真实数据实验。</strong></p>
+<p>先向师兄发送一段短进度：AI-ready 是动机、Harness + Agent 是实现、JCM 提供准备维度但不提供已验证收益；附上 T1 主实验 / T3 诊断 / T2 后续扩展的 benchmark v0.1 一句话规划，并请他确认首轮任务口径、参考标准和预算范围。收到反馈后再做两个开发资料包的烟测，不直接扩大真实数据批量实验。</p>
 </section>
 
 <section class="block" id="advisor">
 <h2>下一次给师兄</h2>
 <p class="hint">可以是阅读与设计进展，不强迫有新实验数字。</p>
-<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>文献判断</td><td>四篇的阅读结论：别人怎么定义「准备好」、怎么做准备、怎么设对照、怎么证明收益</td><td>四篇原文已取得、阅读卡已备；<strong>w 的四问答案待填</strong></td></tr><tr><td>推荐任务与对照</td><td>候选任务 T1（单病例事实与时间整理）/ T2（跨病例筛选与统计）的输入输出；B1 原文合理访问 / B2 常规准备流水线两条对照</td><td>已写入 <code>paper/PROPOSAL.md</code>（§六、§七），未实测</td></tr><tr><td>需要他决定的问题</td><td>① 医疗任务的专业含义与合格参考标准由谁裁定；② 超出现有授权的动作</td><td>两项均不自行裁定</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>文献判断</td><td>四篇各自的输入输出、对照、判定依据与对整体方向的共同启发</td><td>JCM 已读摘录；其余三篇辅助核验已完成，w 本人阅读状态逐篇补齐</td></tr><tr><td>推荐任务与对照</td><td>T1 主实验、T3 证据诊断、T2 后续小队列；B0/B1/B2/B3 条件</td><td>已写入 <code>paper/PROPOSAL.md</code> 的 benchmark v0.1 工作稿，尚未实测</td></tr><tr><td>需要他决定的问题</td><td>① 首轮 T1 的医疗语义和参考标准；② 100 美元工作预算是否适用；③ 是否允许在开发烟测后使用指定资料包</td><td>发送短反馈时一次提出，不自行扩展授权</td></tr></tbody></table></div>
 <p>这一轮带的是<strong>阅读与设计进展</strong>，不强迫有新实验数字。</p>
 <h3>待上级判断</h3>
 <ol>
