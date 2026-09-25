@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：文献与任务/对照设计</span><span class="chip">来源更新时间 <b>2026-09-23</b></span><span class="chip">来源内容指纹 <b>3f640f1c10ca</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>c5a9a4e</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-09-25</b></span><span class="chip">来源内容指纹 <b>805707073d11</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>0bb862a</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -105,18 +105,19 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>四篇相关工作初步反馈 + AI-ready benchmark v0.1 收敛：T1 主实验、T3 诊断、T2 后续扩展；准备给师兄的短汇报</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-09-23）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>AI-ready 研究逻辑与 benchmark v0.1 工作稿</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>c5a9a4e</code>（论文概览与阅读状态整理）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；协议：<code>paper/PROPOSAL.md</code>（含 AI-ready 论文概览与 benchmark v0.1）；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>未运行；先完成开发烟测、任务/答案/分母冻结与师兄反馈</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>真实 EHR 多步处理问题调查：12 个开发包 + 4 个已知困难包的单位/时间/动作可行性探针</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-09-25）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>具体流程问题调查与有限可行性探针</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>0bb862a</code>（AI-ready benchmark v0.1 与 dashboard 收敛）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；问题调查结果：<code>results/2026-09-25_ehr_process_probe.md</code>；现役规格：<code>paper/PROPOSAL.md</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>未运行模型；已完成受控端只读匿名元数据探针，下一步仅做小范围确定性回放与 Jev 旁路动作比较</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
 <ol>
-<li><strong>完成首轮阅读反馈</strong>：JCM 已开始阅读；Infherno、FHIR-AgentBench、HealthFlow 的原文和阅读卡已备，按四问形成“本人阅读 / 辅助核验”分层记录。</li>
-<li><strong>交师兄的短反馈</strong>：一句主张 + 四篇论文对整体方向的共同启发 + 一个旧 benchmark 暴露的缺口 + 下一步 benchmark v0.1 + 最多三个需确认的问题。</li>
-<li><strong>冻结 benchmark v0.1 的开发入口</strong>：T1 为主实验、T3 为证据诊断、T2 后续扩展；B0/B1/B2/B3 的资料准备与访问边界先做开发烟测，不立即跑全量真实数据。</li>
+<li><strong>具体流程问题调查</strong>：比较单位关联、时间角色绑定、补查/重解析/停止三个候选，不预先宣布立项。</li>
+<li><strong>推荐切口的有限回放</strong>：以检验报告时间角色和事件粒度绑定为主，单位关联作备选，动作策略作为嵌入式诊断；先用确定性工具，再接入 Jev 旁路。</li>
+<li><strong>阅读端机制补充</strong>：重点查准备表示如何连接下游可靠性，以及如何区分检索、绑定、解释和停止失败。</li>
 </ol>
 <p>三项都属阅读与设计；不需要审批即可推进。</p>
 <h3>最新可核验交付</h3>
 <ul>
 <li><strong>首轮阅读包（2026-09-19/20，仓库外的本地阅读包 <code>26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/</code>）</strong>：四篇原文均已取得并落盘——JCM AI-Ready（Europe PMC 官方全文 XML 转出；MDPI PDF 被 Cloudflare 拦截未取得）、Infherno（arXiv 版 + EACL 2026 发表版，各 12 页）、FHIR-AgentBench（19 页 PDF）、HealthFlow（27 页）。四张阅读卡含逐节原文定位、术语解释与关键段落中译；另有一份两页反馈模板。</li>
 <li><strong>本轮方向与协议收敛（2026-09-23）</strong>：现役工作题目更新为 AI-Ready EHR；<code>paper/PROPOSAL.md</code> 补入任务相关的 AI-ready 定义、T1/T3/T2 顺序、B0/B1/B2/B3 条件、预算内可核验任务成功率和准备/使用隔离规则。该 benchmark 仍是工作稿，待师兄反馈与开发烟测后冻结。</li>
+<li><strong>本轮问题调查（2026-09-25）</strong>：<code>results/2026-09-25_ehr_process_probe.md</code> 记录 12 个开发包（113 份文档 / 453 页）与 4 个已知困难包（55 份文档 / 302 页）的匿名元数据探针。推荐具体问题收敛为“检验报告时间角色—记录/事件粒度绑定”；单位关联为备选；补查/重解析/停止不单独立项。无模型调用、无生产写入、未形成留出集。</li>
 <li><strong>上一轮整理（2026-09-19，提交 <code>084305e</code>）</strong>：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 <code>manifest.json</code>（逐份 SHA-256）；Pages 白名单同步。</li>
 <li><strong>代码自检（2026-09-19 实跑）</strong>：<code>src/evaluation</code> → <strong>45/45 OK</strong>；<code>src/prototype</code> → <strong>37/37 OK</strong>。这是合成输入的离线自检，<strong>不是</strong>模型结果，也不代表端到端可用。</li>
 </ul>
@@ -272,21 +273,21 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <h3>阻塞与下一步</h3>
 <p><strong>阻塞</strong></p>
 <ol>
-<li><strong>本人阅读与师兄反馈尚未闭环</strong>：JCM 已有摘录和初步理解，其他三篇阅读卡与原文已备；需要把四篇共同启发压缩成短消息，不必等待完整论文稿。</li>
-<li><strong>benchmark v0.1 尚未冻结</strong>：T1/T3/T2、B0/B1/B2/B3、答案依据、预算、分母和失败口径仍是工作稿；开发烟测可以先做，留出集之前必须冻结。</li>
+<li><strong>推荐问题仍需有限回放</strong>：页级时间字段与事件粒度的证据强，但尚未在冻结的 2–3 个开发病例上完成动作闭环。</li>
+<li><strong>Jev 尚未进入动作组件实验</strong>：本轮仅保留接口位置和动作候选，尚未比较规则/Jev/普通 LLM，也未预设 Jev 有益。</li>
 <li><strong>DSH 侧核对池未清</strong>：FHIRBench 全文本轮仍未取得；Representation Wins 已核；HoloBench 待核；扩展检索里 #4/#5/#6/#13/#16 仍是摘要级或线索级。原文不可得的条目如实标注，不阻塞其他工作。</li>
 <li><strong>两项待上级判断</strong>（不自行裁定，贡献范围已由用户选定、不再列入）：① 医疗任务的专业含义与合格参考标准由谁裁定；② 超出现有授权的动作（数据访问扩展、对外发送、新增付费调用预算、额外人工标注、计算资源、投稿承诺）。</li>
 <li><strong>模型身份未记录</strong>：三家的实际返回型号、提供方与版本未记录，因此不得声称模型无关性已证明。</li>
 <li><strong>本地未核项</strong>：受控端服务器运行目录、计划任务与服务状态未访问；<code>.local/</code> 只做本地清点，未提交、未公开、未删除。</li>
 </ol>
 <p><strong>下一步（唯一）</strong></p>
-<p>先向师兄发送一段短进度：AI-ready 是动机、Harness + Agent 是实现、JCM 提供准备维度但不提供已验证收益；附上 T1 主实验 / T3 诊断 / T2 后续扩展的 benchmark v0.1 一句话规划，并请他确认首轮任务口径、参考标准和预算范围。收到反馈后再做两个开发资料包的烟测，不直接扩大真实数据批量实验。</p>
+<p>在 2–3 个开发病例上冻结“页级采集/报告时间 → 记录/事件”任务和独立机械核对字段，先跑确定性时间/几何基线；随后让 Jev 只选择回查、重解析或 defer，并记录新增证据、未决变化、错误和成本。结果仍只回传匿名摘要，不扩全量、不进留出集。</p>
 </section>
 
 <section class="block" id="advisor">
 <h2>下一次给师兄</h2>
 <p class="hint">可以是阅读与设计进展，不强迫有新实验数字。</p>
-<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>文献判断</td><td>四篇各自的输入输出、对照、判定依据与对整体方向的共同启发</td><td>JCM 已读摘录；其余三篇辅助核验已完成，w 本人阅读状态逐篇补齐</td></tr><tr><td>推荐任务与对照</td><td>T1 主实验、T3 证据诊断、T2 后续小队列；B0/B1/B2/B3 条件</td><td>已写入 <code>paper/PROPOSAL.md</code> 的 benchmark v0.1 工作稿，尚未实测</td></tr><tr><td>需要他决定的问题</td><td>① 首轮 T1 的医疗语义和参考标准；② 100 美元工作预算是否适用；③ 是否允许在开发烟测后使用指定资料包</td><td>发送短反馈时一次提出，不自行扩展授权</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>问题调查</td><td>单位关联 / 时间角色绑定 / 动作策略的候选对照、真实案例与可行性边界</td><td>已写入 <code>results/2026-09-25_ehr_process_probe.md</code>；时间角色绑定获推荐，尚未完成有限回放</td></tr><tr><td>推荐下一步</td><td>2–3 个开发病例；确定性基线 → Jev 旁路动作选择；保留未决状态</td><td>未运行模型，待动作协议和独立核验字段冻结</td></tr><tr><td>需要他决定的问题</td><td>① 是否同意把“检验报告时间角色—记录/事件粒度绑定”作为首个具体流程问题；② 首轮动作回放可使用的病例/报告范围与预算</td><td>本轮不扩授权，不把推荐写成已批准主张</td></tr></tbody></table></div>
 <p>这一轮带的是<strong>阅读与设计进展</strong>，不强迫有新实验数字。</p>
 <h3>待上级判断</h3>
 <ol>
