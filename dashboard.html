@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-02</b></span><span class="chip">来源内容指纹 <b>17158eea5bc2</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>5d46fba</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-02</b></span><span class="chip">来源内容指纹 <b>eb2da409519a</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>5d46fba</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -253,7 +253,7 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <p>主指标候选为“预算内可核验任务成功率”：结果正确、来源确实支持、单位和时间角色正确、相关未知项没有被错误补全，并在预算内完成。同时分开报告内容正确率、证据错误、不当确定回答、技术失败、准备/索引/查询/修复成本和人工时间。JCM 的 0–2 维度用于定义准备产物检查项，不直接作为主结果分数。</p>
 <p><strong>本节要一起读的限定</strong>：多层级处理是<strong>候选消融</strong>，不预设每层正收益，层数不是贡献；主题是「整体方案 + 可复用性」，不是「逐层涨分」。目标架构、代码存在、接口可调用与端到端验证是四件不同的事。</p>
 <h3>组件与现有实现对照</h3>
-<p>「代码存在」「离线测试通过」「有历史运行」「新协议端到端验证」是四件不同的事，下表分别标注。本轮未运行任何真实数据实验。</p>
+<p>「代码存在」「离线测试通过」「有历史运行」「新协议端到端验证」是四件不同的事，下表分别标注。当前选题 pilot 已在两个开发包上完成 18 条诊断轨迹；完整主结果和独立验证尚未运行。</p>
 <div class="tw"><table><thead><tr><th>功能</th><th>实际路径 / 受控端位置引用</th><th>输入 → 输出</th><th>当前证据（日期）</th><th>与当前主线的关系</th><th>待验证点</th></tr></thead><tbody><tr><td>时间角色与观测绑定</td><td><code>src/prototype/temporal_roles.py</code></td><td>候选坐标 + 行链接 → 绑定结果</td><td>离线合成单测（2026-09-19 实跑，<code>src/prototype</code> 整包 37/37 OK）</td><td>候选组件：时间与来源关联</td><td>单候选只允许一个行链接，不支持表头共享日期；<code>api_ready=false</code> 保留，未改</td></tr><tr><td>时间证据核对与共同坐标旁表</td><td><code>src/prototype/temporal_rebase.py</code></td><td>病例目录 + 生产日期源码 → 私有旁表</td><td>离线合成单测（同上）</td><td>候选组件：时间归一</td><td>需已获准病例目录与来源哈希；扩展时受来源规则阻断保护</td></tr><tr><td>检验表几何适配</td><td><code>src/prototype/laboratory_bbox_adapter.py</code></td><td>版面块 → 表格行</td><td>离线合成单测（同上）</td><td>候选组件：版面 → 行</td><td>只覆盖同页规则表；续页与跨页未支持</td></tr><tr><td>观测级评分器</td><td><code>src/evaluation/scorer.py</code> + <code>tests/</code></td><td>参考答案 + 提交 → 匿名聚合指标</td><td>离线合成单测 <strong>45/45 OK</strong>（2026-09-19 实跑）</td><td>评测器旁路</td><td>真实参考集未建立；主指标口径待冻结</td></tr><tr><td>合成夹具与诊断演示</td><td><code>src/evaluation/fixtures.py</code>、<code>demo.py</code></td><td>合成观测 → 五种错误的诊断输出</td><td>开发材料，非证据</td><td>只做自检，不产生研究结论</td><td>不得当作模型结果</td></tr><tr><td>阶梯构建 / 驱动 / 出题 / 聚合 / 重打分</td><td>本地忽略目录 <code>.local/bench_ladder_*.py</code></td><td>整批文档 → 多层版本与聚合数字</td><td>有历史运行（2026-09-19，<code>results/2026-09-19_ladder.md</code>）</td><td>用于说明「分层归因可跑通」的探索</td><td>本轮未复跑；不进公开仓库</td></tr><tr><td>多消费者复现</td><td>本地忽略目录 <code>.local/bench_consumers.py</code></td><td>同一批题 → 多模型结果</td><td>有历史运行（2026-09-19）</td><td>探索性</td><td>真实返回型号未记录；家族独立性未证实</td></tr><tr><td>治理流水线与印章处理</td><td>受控端 <code>SCS-EHR-Governance/config/mvp.yaml</code></td><td>原始 PDF → OCR/版面产物</td><td>只读引用，<strong>本轮未访问</strong></td><td>数据基础，按需复用接口</td><td>只读复用，不改生产配置</td></tr><tr><td>历史抽取结果</td><td><code>results/*.md</code></td><td>—</td><td>前期预实验证据</td><td>不进主结果位置</td><td>见 §十二</td></tr></tbody></table></div>
 <h3>候选任务</h3>
 <div class="tw"><table><thead><tr><th>任务</th><th>输入</th><th>请求</th><th>输出</th><th>判定依据（草案）</th><th>现状</th></tr></thead><tbody><tr><td><strong>T1</strong> 单病例事实与时间整理</td><td>单病例全部文档（按条件给原文或准备产物）</td><td>某项目的极值 / 超阈值次数 / 某事件最早日期等</td><td>值或日期 + 引用 + 未决状态</td><td>L1 机械键（几何层零模型产出）+ 独立模型复核</td><td><code>NOT_RUN</code></td></tr><tr><td><strong>T3</strong> 证据核验</td><td>单病例资料包 + 候选事实 + 指定来源范围</td><td>判断事实是否被来源支持</td><td><code>supported</code> / <code>contradicted</code> / <code>insufficient</code> + 依据</td><td>独立来源核对 + 抽样人工核对</td><td><code>NOT_RUN</code></td></tr><tr><td><strong>T2</strong> 跨病例筛选与统计</td><td>一批病例</td><td>满足条件的病例计数</td><td>计数 + 口径 + 依据</td><td>独立于被测库的程序 / SQL 对照键</td><td><code>NOT_RUN</code></td></tr></tbody></table></div>
@@ -277,7 +277,7 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 
 <section class="block" id="evidence">
 <h2>当前证据</h2>
-<p class="hint">新方案尚未运行，成绩一律 NOT_RUN。已有实验是历史探索结果，不占主结果位置。</p>
+<p class="hint">完整主结果和独立验证尚未运行；当前选题 pilot 只提供诊断读数，参考键待核，不占主结果位置。已有旧实验仍按历史探索结果追溯。</p>
 <h3>指标、答案依据与成本</h3>
 <p><strong>主指标候选</strong>（草案）：<strong>给定预算内、通过预定核验的任务比例</strong>。正确性与接口完成分开；成本、人工介入、核对时间各自独立成维度，<strong>不合成任意总分</strong>。正式验证前冻结主指标与容差。</p>
 <div class="tw"><table><thead><tr><th>维度</th><th>定义</th><th>失败怎样记录</th></tr></thead><tbody><tr><td>接口成功</td><td>请求返回且符合输出接口</td><td><strong>接口/工具失败</strong>与<strong>格式失败</strong>分别记</td></tr><tr><td>内容正确</td><td>与答案依据在预定容差内一致</td><td><strong>答错</strong>与<strong>错否定</strong>分别记</td></tr><tr><td>适当拒答</td><td>依据不足时说明不知道</td><td>该说不知道却编 → 记为错答；不该拒答而拒答 → 记为覆盖缺口</td></tr><tr><td>运行失败</td><td>预算耗尽、超上下文、进程错误</td><td>与答错分开单列</td></tr><tr><td>成本</td><td><code>C_total(N) = C_prepare + C_index + Σ(C_query + C_retry/repair)</code></td><td>人工时间另报；未知成本标「未知」</td></tr><tr><td>核对便利</td><td>引用可解析率 + 走到原文的步数（<strong>代理指标</strong>）</td><td>真人计时的「医生核对时间」未做</td></tr></tbody></table></div>
@@ -289,8 +289,8 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <li><strong>无医生金标准</strong>：内容正确率与临床等价匹配做不了；指标全部落在「机械可判 + 可核对」这一层。</li>
 <li><strong>单人核对答案键</strong>：报不出标注者间一致性。</li>
 <li><strong>消费者模型</strong>：已有三家命名均为 Gemini 系，<strong>家族独立性未证实</strong>，真实返回型号 / 提供方 / 版本未记录；因此不得声称模型无关。</li>
-<li><strong>主表未填</strong>：主张、对照、指标、判定依据仍是草案，成绩一律 <code>NOT_RUN</code>。</li>
-<li><strong>两条对照未实测</strong>：B1 的分块 / 检索、无检索基线、输出预算扫描都还没做。</li>
+<li><strong>主表未填</strong>：完整主张、对照、指标和独立参考协议仍是草案；选题 pilot 的机械读数只作诊断，不能占主结果位置。</li>
+<li><strong>完整对照未冻结</strong>：当前只完成 B1/B1-V/B2 的两个开发包 pilot；12 个独立验证包和 B3/Jev 尚未运行。</li>
 <li><strong>队列级结论有适用条件</strong>：限定在「指定模型、指定配置、单次输入」；分块、检索、逐步访问、索引与计算工具<strong>均未被排除</strong>，不得写成「原文物理上做不了」。</li>
 <li><strong>组件未联通</strong>：现有原型是局部模块，不是完整的 Harness + Agent；接口可调用不等于端到端可用。</li>
 <li><strong>本地未核</strong>：受控端服务器运行目录、计划任务与服务状态本轮未访问。</li>

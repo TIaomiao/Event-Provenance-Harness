@@ -547,7 +547,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 
 <section class="block" id="evidence">
 <h2>当前证据</h2>
-<p class="hint">新方案尚未运行，成绩一律 NOT_RUN。已有实验是历史探索结果，不占主结果位置。</p>
+<p class="hint">完整主结果和独立验证尚未运行；当前选题 pilot 只提供诊断读数，参考键待核，不占主结果位置。已有旧实验仍按历史探索结果追溯。</p>
 <h3>指标、答案依据与成本</h3>
 {render("proposal:指标、答案依据与成本")}
 <h3>已有素材的定位</h3>
