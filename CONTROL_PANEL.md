@@ -1,7 +1,7 @@
 <!-- workspace-meta
 updated: 2026-10-02
 stage: 系统与验证
-verified_commit: 5d46fba
+verified_commit: 16fff74
 -->
 
 # EHR Harness 总控面板
@@ -16,14 +16,14 @@ verified_commit: 5d46fba
 | 主要写入会话 | 本地 Codex（2026-10-02）；本轮唯一写入者 |
 | 当前阶段 | 证据关联候选的初始基线与选题判别 |
 | 工作方向 | AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent |
-| 上一轮提交 | `main` @ `5d46fba`（真实 EHR 多步处理问题探针）；本轮在其之上继续，未覆盖现有未提交 AGENTS 改动 |
+| 上一轮提交 | `main` @ `16fff74`（pilot 状态与 dashboard 最终同步）；本轮在其之上继续 |
 | 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；运行驱动：本地 `.local/pilot_evidence_assoc.py`；生成页 schema `tools/workspace.py v1` |
 | 新一轮真实数据实验 | CASE-102/CASE-167 已完成 B1/B1-V/B2 共 18 条最终有效轨迹；18/18 HTTP 200，初步机械读数 9/18，参考键待核；本轮实际 $0.494167（含 6 条作废 B2 请求） |
 | 归档批次 | `archive/20260919_workspace_c14e4b2/`（48 条登记，逐份 SHA-256） |
 
 ## 当前任务
 
-1. **Codex 执行**：恢复 Larry SSH 后，核对 source snapshot/文件哈希/页范围，运行 2 个开发包的 B1/B1-V/B2 初始配对，共 18 条轨迹；结果按 `reference_pending` 管理。
+1. **Codex 执行**：已核对 source snapshot/文件哈希/页范围，完成 2 个开发包的 B1/B1-V/B2 初始配对，共 18 条最终有效轨迹；结果按 `reference_pending` 管理。
 2. **用户阅读**：DocETL（arXiv:2410.12189 v3）与 Sufficient Context（arXiv:2411.06037 v3）各完成定向阅读，记录其对证据范围、检索失败和验证设计的影响；当前本人阅读状态待回填。
 3. **下次师兄反馈**：带候选假设、最强反驳、pilot 当前阻塞/结果和继续/退出条件；不把“证据关联”写成已验证创新。
 
