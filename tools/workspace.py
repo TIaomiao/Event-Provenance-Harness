@@ -59,6 +59,7 @@ PANEL_SECTIONS = [
 ]
 PROPOSAL_SECTIONS = [
     "论文概览",
+    "当前选题判别 pilot（2026-10 工作稿）",
     "Benchmark v0.1 工作稿",
     "问题",
     "目标使用者与使用场景",
@@ -75,7 +76,7 @@ PROPOSAL_SECTIONS = [
     "当前局限",
     "待上级判断",
 ]
-MATRIX_SECTIONS = ["精选阅读", "阅读卡", "证据状态定义", "检索边界与待核缺口"]
+MATRIX_SECTIONS = ["精选阅读", "当前候选相关工作", "阅读卡", "证据状态定义", "检索边界与待核缺口"]
 ARCHIVE_SECTIONS = ["主题索引"]
 
 ALLOWED_STAGES = {"用户首轮阅读与研究反馈", "文献与任务/对照设计", "系统与验证", "成稿与投稿"}
@@ -507,6 +508,8 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <p class="hint">别人怎么定义 AI-ready、怎么设对照、怎么证明收益。DSH 核验进度与用户阅读进度分开记；
 摘要级条目不得引用数字。完整台账见 related_work/AI_READY_EVIDENCE_MATRIX.md。</p>
 {render("matrix:阅读卡")}
+<h3>当前候选相关工作</h3>
+{render("matrix:当前候选相关工作")}
 <h3>精选阅读</h3>
 {render("matrix:精选阅读")}
 <h3>证据状态定义</h3>
@@ -526,6 +529,8 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 {render("proposal:输入与输出")}
 <h3>整体架构</h3>
 {render("proposal:整体架构")}
+<h3>当前选题判别 pilot</h3>
+{render("proposal:当前选题判别 pilot（2026-10 工作稿）")}
 <h3>Benchmark v0.1 工作稿</h3>
 {render("proposal:Benchmark v0.1 工作稿")}
 <h3>组件与现有实现对照</h3>

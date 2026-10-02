@@ -20,6 +20,19 @@
 
 **修正引用**：S1 的结果方向曾在本表被写反，修正过程与一手定位见归档原件 `archive/20260919_workspace_c14e4b2/related_work/EVIDENCE_CORRECTION_LOG.md` 的**修正 1**（`correction_ref: EVIDENCE_CORRECTION_LOG#修正1`）。本表保留该引用以维持审计链。
 
+## 当前候选相关工作
+
+本节只服务当前“证据关联候选”选题判别。它不把用户重点阅读变成整张表的必读清单；用户阅读状态与 DSH 核验状态分开记录。新近 arXiv 条目按预印本处理，未核到正式录用信息就不写成已录用。
+
+| 用途 | 论文（官方出处/版本） | 发表状态与核验范围 | 已核到的相关机制 | 对当前实验设计的影响 | 用户阅读状态 |
+| --- | --- | --- | --- | --- | --- |
+| 用户重点 | **DocETL: Agentic Query Rewriting and Evaluation for Complex Document Processing**（[arXiv:2410.12189 v3](https://arxiv.org/abs/2410.12189)，2025-04-01 修订；[docetl.org](https://docetl.org/)） | arXiv v3；官方摘要与版本信息已核；未把它标为正式录用 | 声明式文档处理流水线、面向 LLM 局限的 rewrite directives、Agent 引导的计划评估与验证提示；摘要称在四类非结构化文档任务上优于精心设计基线 | B1/B1-V 的搜索与自检、B2 的固定准备、未来 B3 的有限补查都要把“计划/验证成本”和“证据是否新增”分开记录；不能把 Agent 编排本身当贡献 | 待读 |
+| 用户重点 | **Sufficient Context: A New Lens on Retrieval Augmented Generation Systems**（[arXiv:2411.06037 v3](https://arxiv.org/abs/2411.06037)，2025-04-22 修订） | arXiv v3；官方标题、版本和摘要已核；全文机制尚未复核；未核到正式录用信息 | 区分“检索到的上下文被模型利用失败”和“检索上下文本身不足以回答”；提出 sufficient context 视角 | B1-V 的判分必须分开检索/证据范围不足、关联失败和解释失败；任务 C 的 `insufficient` 不能和错误确定混为一类 | 待读 |
+| 直接近邻 | **EHR-RobustGym: Benchmarking and Training Agents for Robust Clinical Reasoning**（[arXiv:2609.39371 v1](https://arxiv.org/abs/2609.39371)，2026-09-30 提交） | 新预印本；官方摘要、提交日期和 v1 已核；未核到录用信息；不得写成已录用 | 在 MIMIC-IV 上构造 clean/noise 对，区分 record/value/query noise，提供 SQL/Python 交互和 outcome verification，并报告噪声下鲁棒性与 pass^k 一致性 | 直接提醒我们把“证据错接”定义成可扰动/可观测的错误类型，并记录重复运行一致性；其结构化 MIMIC 输入与真实扫描 PDF 上游不同 | 待读 |
+| 直接近邻 | **CliniCARE-Bench: Clinical Calibrated Audit of Medical Reasoning in EHR**（[arXiv:2608.07796 v1](https://arxiv.org/abs/2608.07796)，2026-08-07 提交） | 新预印本；官方摘要、提交日期和 v1 已核；未核到录用信息；不得写成已录用 | 四态 verdict（含缺资料与医学歧义）、证据 grounding、过程遵循、校准弃答、可回放轨迹；摘要称使用真实患者派生 MIMIC-IV 案例与临床校准 | 当前任务 C 的 `supported/contradicted/insufficient` 要保留缺资料态；主表增加过程/证据错误和不当确定回答；其数据已结构化且有临床校准，不能直接作为扫描准备基线 | 待读 |
+
+**当前设计吸收**：DocETL 约束计划改写与验证成本；Sufficient Context 约束证据不足与利用失败的区分；EHR-RobustGym 约束噪声类型与重复一致性；CliniCARE-Bench 约束多态弃答、证据 grounding 和轨迹可回放。上述是设计影响，不是对这些论文结果的复现。
+
 ## 阅读卡
 
 w 本人的第一轮阅读卡**已经备好**，是仓库外的本地阅读包 `26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/`：
