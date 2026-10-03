@@ -17,7 +17,7 @@ verified_commit: b43e883
 | 当前阶段 | 证据关联候选的初始基线与选题判别 |
 | 工作方向 | AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent |
 | 上一轮提交 | `main` @ `fa42a06`（24 条历史请求审计与 v2 收尾）；本轮在其之上继续 |
-| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；运行驱动：本地 `.local/pilot_evidence_assoc.py`；生成页 schema `tools/workspace.py v1` |
+| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；历史驱动：本地 `.local/pilot_evidence_assoc.py`（已默认禁用外发）；离线规则：`src/evaluation/evidence_assoc_rules.py`、`outbound_guard.py`；生成页 schema `tools/workspace.py v1` |
 | 新一轮真实数据实验 | 没有新增请求；历史范围为 18 条最终有效 + 6 条作废 B2，共 24 条 HTTP 200；本单元只做受控端离线审计与页面收尾 |
 | 归档批次 | `archive/20260919_workspace_c14e4b2/`（48 条登记，逐份 SHA-256） |
 
