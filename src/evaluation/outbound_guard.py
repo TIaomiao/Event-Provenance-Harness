@@ -17,6 +17,7 @@ RAW_MARKERS = re.compile(
     re.I,
 )
 REQUIRED_FIELDS = frozenset({"project_name", "value", "unit", "collection_time_role", "report_time_role", "source_anchor"})
+PAYLOAD_MODES = frozenset({"synthetic", "deidentified_test", "raw_test"})
 
 
 @dataclass(frozen=True)
@@ -41,14 +42,23 @@ class GuardResult:
     request_metadata: dict[str, Any] = field(default_factory=dict)
 
 
-def _body_bytes(messages: Sequence[Mapping[str, Any]], model: str, max_tokens: int) -> bytes:
-    body = {
+def build_request_body(messages: Sequence[Mapping[str, Any]], model: str, max_tokens: int) -> dict[str, Any]:
+    """Build the one request body used by both the guard and the client."""
+    return {
         "model": model,
         "temperature": 0,
         "max_tokens": max_tokens,
         "messages": list(messages),
     }
-    return json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def request_body_bytes(messages: Sequence[Mapping[str, Any]], model: str, max_tokens: int) -> bytes:
+    return json.dumps(
+        build_request_body(messages, model, max_tokens),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
 
 
 def inspect_request(
@@ -63,13 +73,20 @@ def inspect_request(
     config: GuardConfig,
 ) -> GuardResult:
     """Inspect a final request body without sending it."""
-    raw_body = _body_bytes(messages, model, max_tokens)
+    raw_body = request_body_bytes(messages, model, max_tokens)
     body_hash = hashlib.sha256(raw_body).hexdigest()
     reasons: list[str] = []
     if not config.allow_external:
         reasons.append("external_sending_disabled")
     if destination not in config.approved_destinations:
         reasons.append("destination_not_approved")
+    payload_mode = source.get("payload_mode")
+    if payload_mode not in PAYLOAD_MODES:
+        reasons.append("payload_mode_missing_or_invalid")
+    elif payload_mode == "raw_test" and source.get("raw_test_authorized") is not True:
+        reasons.append("raw_test_authorization_missing")
+    elif payload_mode == "deidentified_test" and source.get("api_ready") is not True:
+        reasons.append("deidentified_package_not_api_ready")
     if source.get("raw_ocr") or "RAW" in str(source.get("sensitivity", "")).upper():
         reasons.append("raw_ocr_source")
     if source.get("api_ready") is not True:
@@ -99,6 +116,7 @@ def inspect_request(
         "source_sha256": source.get("source_sha256"),
         "destination": destination,
         "purpose": purpose,
+        "payload_mode": payload_mode,
         "body_sha256": body_hash,
         "sent": False,
     }

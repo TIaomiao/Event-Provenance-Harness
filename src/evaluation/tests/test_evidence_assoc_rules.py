@@ -88,7 +88,7 @@ class OutboundGuardTests(unittest.TestCase):
     def setUp(self):
         self.config = GuardConfig(code_version="synthetic-code", config_version="synthetic-config", approved_destinations=frozenset({"synthetic-provider"}), allow_external=True)
         self.messages = [{"role": "system", "content": "JSON only"}, {"role": "user", "content": "redacted CASE-X observation"}]
-        self.source = {"source_version": "snapshot-v1", "source_sha256": "abc", "hash_matches": True, "api_ready": True, "raw_ocr": False, "sensitivity": "REDACTED_SYNTHETIC", "review_scope": "DOC-SYN page 1", "purpose": "synthetic-eval", "destination": "synthetic-provider"}
+        self.source = {"source_version": "snapshot-v1", "source_sha256": "abc", "hash_matches": True, "api_ready": True, "raw_ocr": False, "payload_mode": "synthetic", "sensitivity": "REDACTED_SYNTHETIC", "review_scope": "DOC-SYN page 1", "purpose": "synthetic-eval", "destination": "synthetic-provider"}
         self.fields = {"project_name": "HGB", "value": 119, "unit": "g/L", "collection_time_role": "explicit", "report_time_role": "explicit", "source_anchor": "DOC-SYN:L1"}
 
     def inspect(self, **overrides):
@@ -107,6 +107,16 @@ class OutboundGuardTests(unittest.TestCase):
         result = self.inspect(source={"api_ready": False})
         self.assertEqual(result.decision, "block")
         self.assertIn("api_ready_not_true", result.reasons)
+
+    def test_deidentified_test_requires_api_ready(self):
+        result = self.inspect(source={"payload_mode": "deidentified_test", "api_ready": False})
+        self.assertEqual(result.decision, "block")
+        self.assertIn("deidentified_package_not_api_ready", result.reasons)
+
+    def test_raw_test_requires_explicit_authorization(self):
+        result = self.inspect(source={"payload_mode": "raw_test", "raw_ocr": True, "api_ready": False})
+        self.assertEqual(result.decision, "block")
+        self.assertIn("raw_test_authorization_missing", result.reasons)
 
     def test_hash_mismatch_blocked(self):
         result = self.inspect(source={"hash_matches": False})

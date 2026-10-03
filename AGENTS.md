@@ -63,6 +63,13 @@
 - 复用已有 EHR 数据与处理基础，不把本地研究任务扩展为全量 OCR、数据外发、服务重启或生产修改。实验模型供应商、输入范围与费用遵守实际许可。
 - API 密钥、凭据和私有日志不入库。公开仓库中的文件即使不在 Pages 白名单内，也不能当作私密资料。
 
+### 模型请求输入模式
+
+- 未来模型请求必须显式标记 `payload_mode`：`synthetic`、`deidentified_test` 或 `raw_test`。
+- `synthetic` 只发送合成材料；`deidentified_test` 只使用已审版本和匹配的 source hash；`raw_test` 仅在负责人已授权的测试范围内使用，并记录用途、范围和目标服务方。
+- 默认路径拒绝 raw OCR。任何模式都禁止静默回退、生产发送或手动翻转 `api_ready` / `quarantine`。
+- 最终 request body 必须由同一个对象完成 guard、body hash、受控留存和发送。不要让 guard 重新构造另一份 body。
+
 ## 工作单元、验证与版本
 
 每个工作单元先核对分支、HEAD、未提交／未跟踪文件及其他写入任务。结束后只更新对应研究内容、必要证据和 `CONTROL_PANEL.md` 的当前快照，不再维护多份角色状态。
