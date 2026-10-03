@@ -254,7 +254,7 @@ v2 是修正层，不是正式参考冻结，也不是重新生成的模型分�
 - 503 记为服务失败，不进入内容错误分母。
 - `[j]gemini-3-flash` 的 6 个场景中有 4 个重复组保持一致；`[j]gpt-5.6-sol` 有 5 个重复组保持一致。`[j]gemini-3.1-flash-lite` 的重复结果都是服务不可用，不能解释为任务稳定性。
 - 该矩阵只验证“别名在当前时点是否可用、返回标签是否一致、固定合成任务是否稳定”。它不验证真实上游 provider、模型家族或供应商无关性。
-- 矩阵账本保存于受控本地 `.local`，不进入 GitHub。首次运行记录了响应哈希，但没有拿到服务端 request ID；缺失字段留空。未来运行器已预留服务端 request ID、response ID、body hash 和费用依据字段。
+- 矩阵账本保存于受控本地 `.local`，不进入 GitHub。首次运行记录了响应哈希，但没有拿到 `pool_profile_id`、服务端 request ID 或 response ID；这些字段已保留为空。未来运行器已预留服务端 request ID、response ID、body hash 和费用依据字段。
 - 费用状态为 `unknown`，不是 0。原因是 probe 没有返回账单，pricing 页面币种与历史账本币种尚未统一。
 
 ### 资料卡测试状态
