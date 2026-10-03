@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-03</b></span><span class="chip">来源内容指纹 <b>50829540707e</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>7a2ae08</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-03</b></span><span class="chip">来源内容指纹 <b>766001091a3f</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>51e3d57</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -123,7 +123,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>离线验收收尾：24 条历史请求脱敏链路审计、六题 v2 修正层与受控首页收敛（不新增外发）</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-02）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>fa42a06</code>（24 条历史请求审计与 v2 收尾）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；历史驱动：本地 <code>.local/pilot_evidence_assoc.py</code>（已默认禁用外发）；离线规则：<code>src/evaluation/evidence_assoc_rules.py</code>、<code>outbound_guard.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>没有新增请求；历史范围为 18 条最终有效 + 6 条作废 B2，共 24 条 HTTP 200；本单元只做受控端离线审计与页面收尾</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>离线验收收尾：24 条历史请求脱敏链路审计、六题 v2 修正层与受控首页收敛（不新增外发）</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-03）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>fa42a06</code>（24 条历史请求审计与 v2 收尾）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；历史驱动：本地 <code>.local/pilot_evidence_assoc.py</code>（已默认禁用外发）；离线规则：<code>src/evaluation/evidence_assoc_rules.py</code>、<code>outbound_guard.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>没有新增请求；历史范围为 18 条最终有效 + 6 条作废 B2，共 24 条 HTTP 200；本单元只做受控端离线审计与页面收尾</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
 <ol>
 <li><strong>Codex 执行</strong>：已核对 source snapshot/文件哈希/页范围，完成 2 个开发包的 B1/B1-V/B2 初始配对，共 18 条最终有效轨迹；本单元完成 24 条历史请求的脱敏链路审计、六题 v2 修正层和受控匿名首页，未重跑模型。</li>
