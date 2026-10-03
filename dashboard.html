@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-02</b></span><span class="chip">来源内容指纹 <b>02c3c122cdcb</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>16fff74</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-03</b></span><span class="chip">来源内容指纹 <b>61f85c8d1d1f</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>3934ce7</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -110,15 +110,23 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <p><strong>继续条件</strong>：18 条初始轨迹中出现可复核的关系错接，且 B1-V/B2 尚未稳定解决；其错误能由新增关联检查或有限补查动作定位。<strong>退出条件</strong>：强基线已解决，或残余错误主要来自 OCR/解析、任务歧义或输出接口，或 B3 没有新增证据收益。此时转为错误分析/评测协议资产，不强行实现大 Agent 系统。</p>
 <p><strong>阶段顺序</strong>：先做合成输入与评分自检；再运行 2 个开发包 × 3 题 × 3 条件 = 18 条轨迹；若有残余问题，完成其余 4 个开发包的同类比较；冻结后再用 B1/B1-V/B2/B3 在 12 个独立验证包上做完整配对。每包 3 题、2 次重复，预算不足时按预先规定的完整配对块减少。</p>
 <p><strong>当前 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
+<p><strong>C/B 开发口径（v0.2，2026-10-03；任务定义，不是人工金标准）</strong>：</p>
+<ul>
+<li><strong>C</strong> 只核验身份明确的记录—值—时间。<code>null</code> / <code>unresolved</code> 是处理状态，不自动构成矛盾；单位只在明确声明或数值换算要求中参与事实判定。候选必须带项目名和来源锚点；身份缺失返回 <code>invalid_task</code>，不强制归入 <code>supported</code> / <code>contradicted</code> / <code>insufficient</code>。CASE-102 旧题保持“候选构造错误”，不使用补齐后的候选反向给旧响应补分。</li>
+<li><strong>B</strong> 只在冻结检验报告内，按明确关联的采集时间排序。不扩展到全病历，不用报告时间代替，不增加未提供的 as-of 截止时刻。并列记录全部保留；日期精度不足或无法确定先后的记录返回未决；来源定位可以代替内部 <code>record_id</code>。</li>
+<li>以上口径只用于开发题、离线重评分解释和后续题卡。它们不冻结人工金标准，也不批准任何外发。</li>
+</ul>
+<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准服务方、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
+<p><strong>最小资料卡（受控、NOT_RUN 人工核对）</strong>：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，均只保留必要行定位。卡片不代表整份报告已查全；用户未查看前状态保持 <code>待人工核对</code>。</p>
 </section>
 
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>证据关联候选选题判别 pilot：同步现役状态，先做 2 个开发包 × 3 题 × 3 条件</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-02）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>16fff74</code>（pilot 状态与 dashboard 最终同步）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；运行驱动：本地 <code>.local/pilot_evidence_assoc.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>CASE-102/CASE-167 已完成 B1/B1-V/B2 共 18 条最终有效轨迹；18/18 HTTP 200，初步机械读数 9/18，参考键待核；本轮实际 $0.494167（含 6 条作废 B2 请求）</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>离线验收收尾：24 条历史请求脱敏链路审计、六题 v2 修正层与受控首页收敛（不新增外发）</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-02）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>fa42a06</code>（24 条历史请求审计与 v2 收尾）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；运行驱动：本地 <code>.local/pilot_evidence_assoc.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>没有新增请求；历史范围为 18 条最终有效 + 6 条作废 B2，共 24 条 HTTP 200；本单元只做受控端离线审计与页面收尾</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
 <ol>
-<li><strong>Codex 执行</strong>：已核对 source snapshot/文件哈希/页范围，完成 2 个开发包的 B1/B1-V/B2 初始配对，共 18 条最终有效轨迹；结果按 <code>reference_pending</code> 管理。</li>
+<li><strong>Codex 执行</strong>：已核对 source snapshot/文件哈希/页范围，完成 2 个开发包的 B1/B1-V/B2 初始配对，共 18 条最终有效轨迹；本单元完成 24 条历史请求的脱敏链路审计、六题 v2 修正层和受控匿名首页，未重跑模型。</li>
 <li><strong>用户阅读</strong>：DocETL（arXiv:2410.12189 v3）与 Sufficient Context（arXiv:2411.06037 v3）各完成定向阅读，记录其对证据范围、检索失败和验证设计的影响；当前本人阅读状态待回填。</li>
 <li><strong>下次师兄反馈</strong>：带候选假设、最强反驳、pilot 当前阻塞/结果和继续/退出条件；不把“证据关联”写成已验证创新。</li>
 </ol>
@@ -129,6 +137,10 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <li><strong>本轮方向与协议收敛（2026-09-23）</strong>：现役工作题目更新为 AI-Ready EHR；<code>paper/PROPOSAL.md</code> 补入任务相关的 AI-ready 定义、T1/T3/T2 顺序、B0/B1/B2/B3 条件、预算内可核验任务成功率和准备/使用隔离规则。该 benchmark 仍是工作稿，待师兄反馈与开发烟测后冻结。</li>
 <li><strong>本轮问题调查（2026-09-25）</strong>：<code>results/2026-09-25_ehr_process_probe.md</code> 记录 12 个开发包（113 份文档 / 453 页）与 4 个已知困难包（55 份文档 / 302 页）的匿名元数据探针；形成“证据关联候选”的问题基础。</li>
 <li><strong>本轮 pilot 驱动（2026-10-02）</strong>：<code>.local/pilot_evidence_assoc.py --self-test</code> 已通过；CASE-102/CASE-167 的 B1/B1-V/B2 共 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数 A=6/6、B=3/6、C=0/6，参考键为 <code>mechanical_pending_manual_review</code>。实际费用 $0.494167，其中 6 条初版 B2 请求因载荷与参考抽取耦合而作废并重跑；无生产写入。</li>
+<li><strong>逐题证据回放（2026-10-02）</strong>：六张任务卡已在受控阅卷页更新，分开显示 source snapshot 与模型实际可见的 laboratory_report 输入，并保留三组真实 JSON 响应。原页核验发现 CASE-102/C 的候选值抽取错把参考区间下限当观测值，CASE-167/C 的单位行被参考抽取漏掉；CASE-167/B 的 <code>record_id=null</code> 也是参考抽取错误。详见 <code>results/2026-10-02_evidence_association_pilot.md</code> 的 v1 覆盖层。</li>
+<li><strong>离线验收收尾（2026-10-03）</strong>：受控端核查 24 条历史请求，确认 29 份 source snapshot 与运行哈希一致、29 份 schema 0.9 脱敏产物存在但仍 <code>api_ready=false</code>；实际渲染读取 raw <code>ocr_layout.json</code>，请求 artifacts 没有保存 messages/body。18 条有效 prompt 可重构并匹配哈希，6 条作废 B2 旧 prompt 无法由当前 renderer 重构。外发路径已暂停，详见 pilot 报告 v2；完整内容只在受控详细入口。</li>
+<li><strong>C/B 开发修正（2026-10-03）</strong>：新增独立合成候选规则、出站 guard 和两张受控最小来源卡。评测测试共 60 项通过（含 15 项新规则/guard 测试）；dry-run 只验证阻止/放行决定，不发送网络请求。真实历史输入、参考和响应未重跑、未改写。</li>
+<li><strong>最小派生包草稿（2026-10-03）</strong>：受控端从现有 L2 只派生 <code>derived_evidence_card_v0.2</code> 的两份目标检验资料、24 条必要行；保持 <code>api_ready=false</code>、<code>external_send=blocked</code>、人工状态 <code>not_started</code>。不进入 GitHub。</li>
 <li><strong>近邻文献核对（2026-10-02）</strong>：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。</li>
 <li><strong>上一轮整理（2026-09-19，提交 <code>084305e</code>）</strong>：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 <code>manifest.json</code>（逐份 SHA-256）；Pages 白名单同步。</li>
 <li><strong>代码自检（2026-09-19 实跑）</strong>：<code>src/evaluation</code> → <strong>45/45 OK</strong>；<code>src/prototype</code> → <strong>37/37 OK</strong>。这是合成输入的离线自检，<strong>不是</strong>模型结果，也不代表端到端可用。</li>
@@ -235,6 +247,14 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <p><strong>继续条件</strong>：18 条初始轨迹中出现可复核的关系错接，且 B1-V/B2 尚未稳定解决；其错误能由新增关联检查或有限补查动作定位。<strong>退出条件</strong>：强基线已解决，或残余错误主要来自 OCR/解析、任务歧义或输出接口，或 B3 没有新增证据收益。此时转为错误分析/评测协议资产，不强行实现大 Agent 系统。</p>
 <p><strong>阶段顺序</strong>：先做合成输入与评分自检；再运行 2 个开发包 × 3 题 × 3 条件 = 18 条轨迹；若有残余问题，完成其余 4 个开发包的同类比较；冻结后再用 B1/B1-V/B2/B3 在 12 个独立验证包上做完整配对。每包 3 题、2 次重复，预算不足时按预先规定的完整配对块减少。</p>
 <p><strong>当前 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
+<p><strong>C/B 开发口径（v0.2，2026-10-03；任务定义，不是人工金标准）</strong>：</p>
+<ul>
+<li><strong>C</strong> 只核验身份明确的记录—值—时间。<code>null</code> / <code>unresolved</code> 是处理状态，不自动构成矛盾；单位只在明确声明或数值换算要求中参与事实判定。候选必须带项目名和来源锚点；身份缺失返回 <code>invalid_task</code>，不强制归入 <code>supported</code> / <code>contradicted</code> / <code>insufficient</code>。CASE-102 旧题保持“候选构造错误”，不使用补齐后的候选反向给旧响应补分。</li>
+<li><strong>B</strong> 只在冻结检验报告内，按明确关联的采集时间排序。不扩展到全病历，不用报告时间代替，不增加未提供的 as-of 截止时刻。并列记录全部保留；日期精度不足或无法确定先后的记录返回未决；来源定位可以代替内部 <code>record_id</code>。</li>
+<li>以上口径只用于开发题、离线重评分解释和后续题卡。它们不冻结人工金标准，也不批准任何外发。</li>
+</ul>
+<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准服务方、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
+<p><strong>最小资料卡（受控、NOT_RUN 人工核对）</strong>：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，均只保留必要行定位。卡片不代表整份报告已查全；用户未查看前状态保持 <code>待人工核对</code>。</p>
 <h3>Benchmark v0.1 工作稿</h3>
 <blockquote>本节保留为较宽的评测外框。当前具体实验以“当前选题判别 pilot”为准；预算、样本量、任务规则和最终主指标需在开发烟测后冻结。</blockquote>
 <h3 id="可执行的-AI-ready-定义">可执行的 AI-ready 定义</h3>
@@ -299,19 +319,19 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <h3>阻塞与下一步</h3>
 <p><strong>阻塞</strong></p>
 <ol>
-<li><strong>参考键待核</strong>：pilot 驱动先用独立机械抽取生成 <code>mechanical_pending_manual_review</code>，允许诊断性运行；人工/原页核验完成前不报告可信正确率。</li>
-<li><strong>C 任务候选需核对</strong>：两个开发包的候选均被参考侧标为 <code>insufficient</code>，消费者出现 <code>supported/contradicted</code>；需要确认这是资料关联错误还是候选构造/评分口径问题。</li>
-<li><strong>Jev 尚未进入动作实验</strong>：只有在参考核验后 B1/B1-V/B2 仍出现可复核的关联错误时才实现 B3；当前没有 Jev 请求。</li>
-<li><strong>用户阅读与师兄反馈待闭环</strong>：DocETL 与 Sufficient Context 已入台账并完成出处核对，用户本人阅读状态尚未回填；下一次汇报带 pilot 读数、评分器修复和继续/退出条件。</li>
+<li><strong>外发链路暂停</strong>：实际渲染读取 raw OCR；L2 脱敏产物仍 <code>api_ready=false</code>，且完整 messages/body 未保存，不能声称请求已脱敏。是否超出许可范围交负责人核对。</li>
+<li><strong>正式参考键尚未冻结</strong>：v2 只是统一修正层；旧机械键、旧响应和旧分数继续保留，不能把 v2 当正式准确率。</li>
+<li><strong>题意口径待用户核对</strong>：C 只判身份明确的记录—值—时间；B 只按冻结检验报告的明确采集时间排序。</li>
+<li><strong>Jev 尚未进入动作实验</strong>：本单元不实现 B3/Jev，也不恢复新外发；用户阅读与师兄反馈另行闭环。</li>
 </ol>
 <p><strong>下一步（唯一）</strong></p>
-<p>先核验 CASE-102/CASE-167 的机械参考与 C 候选，再决定是否继续其余 4 个开发包；只有残余关联错误在参考核验后成立，才实现 B3/Jev。</p>
+<p>请用户核对两个具体口径：① C 是否只判身份明确的记录—值—时间，null/unresolved 不自动构成矛盾，且候选必须有项目名和来源锚点；② B 是否只按冻结 laboratory_report 的明确采集时间排序。另请负责人确认 raw OCR 外发许可；确认前不恢复外发、不扩样本、不实现 B3/Jev、不冻结主结果。</p>
 </section>
 
 <section class="block" id="advisor">
 <h2>下一次给师兄</h2>
 <p class="hint">可以是阅读与设计进展，不强迫有新实验数字。</p>
-<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>Codex 执行</td><td>2 个开发包 × 3 题 × B1/B1-V/B2，共 18 条最终有效轨迹；另有 6 条作废 B2 请求计入费用</td><td>已完成；报告见 <code>results/2026-10-02_evidence_association_pilot.md</code></td></tr><tr><td>用户阅读</td><td>DocETL + Sufficient Context 的机制阅读；记录版本、官方出处、影响设计的具体点</td><td>出处已核，用户本人阅读待回填</td></tr><tr><td>需要他决定的问题</td><td>① 候选“证据关联”问题是否值得继续；② 12 个独立验证包的可用范围与参考核验方式；③ 若强基线已解决，是否转为错误分析/评测协议资产</td><td>先带 pilot 结果、C 候选待核项和继续/退出条件，不要求重新批准既有 100 美元范围</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>带什么</th><th>内容</th><th>现状</th></tr></thead><tbody><tr><td>Codex 执行</td><td>2 个开发包 × 3 题 × B1/B1-V/B2，共 18 条最终有效轨迹；另有 6 条作废 B2 请求计入费用</td><td>已完成；报告见 <code>results/2026-10-02_evidence_association_pilot.md</code></td></tr><tr><td>用户阅读</td><td>DocETL + Sufficient Context 的机制阅读；记录版本、官方出处、影响设计的具体点</td><td>出处已核，用户本人阅读待回填</td></tr><tr><td>需要他决定的问题</td><td>① raw OCR 外发是否在本批次许可范围内；② C/B 两个冻结口径；③ 外发栅栏修正与参考键修正后是否还值得继续候选问题</td><td>先带脱敏审计、逐题 v2 修正和暂停状态；不启动新调用</td></tr></tbody></table></div>
 <p>这一轮带的是<strong>阅读与设计进展</strong>，不强迫有新实验数字。</p>
 <h3>待上级判断</h3>
 <ol>

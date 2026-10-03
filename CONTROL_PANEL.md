@@ -16,7 +16,7 @@ verified_commit: 3934ce7
 | 主要写入会话 | 本地 Codex（2026-10-02）；本轮唯一写入者 |
 | 当前阶段 | 证据关联候选的初始基线与选题判别 |
 | 工作方向 | AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent |
-| 上一轮提交 | `main` @ `16fff74`（pilot 状态与 dashboard 最终同步）；本轮在其之上继续 |
+| 上一轮提交 | `main` @ `fa42a06`（24 条历史请求审计与 v2 收尾）；本轮在其之上继续 |
 | 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；运行驱动：本地 `.local/pilot_evidence_assoc.py`；生成页 schema `tools/workspace.py v1` |
 | 新一轮真实数据实验 | 没有新增请求；历史范围为 18 条最终有效 + 6 条作废 B2，共 24 条 HTTP 200；本单元只做受控端离线审计与页面收尾 |
 | 归档批次 | `archive/20260919_workspace_c14e4b2/`（48 条登记，逐份 SHA-256） |
@@ -37,6 +37,8 @@ verified_commit: 3934ce7
 - **本轮 pilot 驱动（2026-10-02）**：`.local/pilot_evidence_assoc.py --self-test` 已通过；CASE-102/CASE-167 的 B1/B1-V/B2 共 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数 A=6/6、B=3/6、C=0/6，参考键为 `mechanical_pending_manual_review`。实际费用 $0.494167，其中 6 条初版 B2 请求因载荷与参考抽取耦合而作废并重跑；无生产写入。
 - **逐题证据回放（2026-10-02）**：六张任务卡已在受控阅卷页更新，分开显示 source snapshot 与模型实际可见的 laboratory_report 输入，并保留三组真实 JSON 响应。原页核验发现 CASE-102/C 的候选值抽取错把参考区间下限当观测值，CASE-167/C 的单位行被参考抽取漏掉；CASE-167/B 的 `record_id=null` 也是参考抽取错误。详见 `results/2026-10-02_evidence_association_pilot.md` 的 v1 覆盖层。
 - **离线验收收尾（2026-10-03）**：受控端核查 24 条历史请求，确认 29 份 source snapshot 与运行哈希一致、29 份 schema 0.9 脱敏产物存在但仍 `api_ready=false`；实际渲染读取 raw `ocr_layout.json`，请求 artifacts 没有保存 messages/body。18 条有效 prompt 可重构并匹配哈希，6 条作废 B2 旧 prompt 无法由当前 renderer 重构。外发路径已暂停，详见 pilot 报告 v2；完整内容只在受控详细入口。
+- **C/B 开发修正（2026-10-03）**：新增独立合成候选规则、出站 guard 和两张受控最小来源卡。评测测试共 60 项通过（含 15 项新规则/guard 测试）；dry-run 只验证阻止/放行决定，不发送网络请求。真实历史输入、参考和响应未重跑、未改写。
+- **最小派生包草稿（2026-10-03）**：受控端从现有 L2 只派生 `derived_evidence_card_v0.2` 的两份目标检验资料、24 条必要行；保持 `api_ready=false`、`external_send=blocked`、人工状态 `not_started`。不进入 GitHub。
 - **近邻文献核对（2026-10-02）**：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。
 - **上一轮整理（2026-09-19，提交 `084305e`）**：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 `manifest.json`（逐份 SHA-256）；Pages 白名单同步。
 - **代码自检（2026-09-19 实跑）**：`src/evaluation` → **45/45 OK**；`src/prototype` → **37/37 OK**。这是合成输入的离线自检，**不是**模型结果，也不代表端到端可用。

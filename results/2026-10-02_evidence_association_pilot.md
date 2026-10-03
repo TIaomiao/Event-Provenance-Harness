@@ -178,6 +178,68 @@
 
 v2 是修正层，不是正式参考冻结，也不是重新生成的模型分数。公开验收首页只显示匿名结论；完整 OCR、JSON 和 request 元数据已移到受控详细入口，不能通过隐藏区块进入公开页。
 
+## 开发修正与 dry-run 放行测试（2026-10-03）
+
+本节只涉及本地合成输入和请求拦截。实际模型请求数：**0**。
+
+### C/B 规则测试
+
+新增 `src/evaluation/evidence_assoc_rules.py` 与合成测试 `src/evaluation/tests/test_evidence_assoc_rules.py`。候选规则现在分别保存项目名、结果、单位、参考区间、结果来源、单位来源、采集角色和报告角色。规则不会把参考区间下限当结果。身份缺失返回 `invalid_task`。单位缺失保持未决状态，不自动返回 `contradicted`。
+
+新增规则与 guard 合成测试共 15 项：
+
+| 类别 | 结果 |
+| --- | --- |
+| 参考区间不能变成结果 | PASS |
+| 单位单独占行 | PASS |
+| 共享报告时间不互换项目/结果 | PASS |
+| 采集时间排序不使用报告时间 | PASS |
+| 并列记录全部保留 | PASS |
+| 日期精度不足返回未决 | PASS |
+| 记录身份缺失返回 `invalid_task` | PASS |
+| `null` 单位不自动构成矛盾 | PASS |
+
+这些是纯合成测试，不是对历史病例重新解析，也不是人工金标准。
+
+### 出站 guard dry-run
+
+新增 `src/evaluation/outbound_guard.py`。它在最终 messages/body 构造后检查请求，但本轮只执行 dry-run。默认配置仍禁止外发。历史 `.local/pilot_evidence_assoc.py` 也改为默认退出；只有显式 `--dry-run` 才能进入构造路径，避免误用 raw OCR 驱动。
+
+| 合成场景 | 结果 | 网络调用 |
+| --- | --- | --- |
+| raw OCR 回退 | BLOCK `raw_ocr_source` | 0 |
+| `api_ready=false` | BLOCK `api_ready_not_true` | 0 |
+| source hash 不符 | BLOCK `source_hash_mismatch` | 0 |
+| 未批准服务方 | BLOCK `destination_not_approved` | 0 |
+| 缺少任务字段/未知状态 | BLOCK | 0 |
+| 完整、已批准的合成脱敏包 | `allow_dry_run` | 0，只有 body hash 和控制账本元数据 |
+
+未来获准运行前，必须完成以下检查：
+
+1. 绑定明确的脱敏资料版本和 source hash。
+2. 确认审核范围、用途和目标服务方一致。
+3. 确认最终 messages 不读取 raw OCR，也不混入未批准字段。
+4. 确认项目名、值、单位、采集/报告角色和来源锚点仍可核验。
+5. 记录代码版本、配置版本、source version、request ID、body hash 和费用依据。
+6. 将完整 body 只保存到受控存储，不写入 GitHub，不保存认证密钥。
+
+### 两张最小资料卡
+
+受控卡片入口：`http://127.0.0.1:8877/cards.html`。本轮只从现有 L2 产物派生 `derived_evidence_card_v0.2`（2 份目标检验资料、24 条必要行），不重新处理其余 29 份资料；派生包保持 `api_ready=false`、`external_send=blocked`。卡片只保留必要来源行，并遮盖无关身份字段：
+
+- CASE-167：两条 HGB 的项目、结果、单位和采集/报告时间，供核对 C 三元组和 B 排序。
+- CASE-102：两条 HGB 及各自时间依据，供核对 B 口径。
+
+核验者记录为“Codex 程序回放”；用户人工核对状态为 `待人工核对`，日期为 2026-10-03。卡片局部核对不代表整份报告已经人工查全。
+
+### 负责人还需明确的事项
+
+1. 本批次 raw OCR 是否允许发送到请求别名 `[j]gemini-3-flash` 对应的实际服务方。当前保存物无法独立确认服务方身份。
+2. 未来运行允许使用哪一个脱敏资料版本、source hash 和审核范围。`api_ready=false` 时默认不发送。
+3. 允许的用途、字段集合、保留期限和完整 request body 的受控存储位置。
+4. 请求 ID、费用账本和失败/重试记录由哪一方负责保存。
+5. C/B 口径和两张卡的人工核对者、日期与范围。
+
 ## 对抗式结论
 
 **最强反驳。** (1) C-102 的 `contradicted` 方向可能只是模型碰巧找到另一个不相等数值；(2) B-CASE-167 的“最近”仍依赖当前报告内可见的两条 HGB，不能外推到全病历首次事件；(3) A/B/C 只有两个开发包，且答案核验来自同一实验室文档，不能支持方法普适性。
