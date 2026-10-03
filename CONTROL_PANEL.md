@@ -1,7 +1,7 @@
 <!-- workspace-meta
 updated: 2026-10-03
 stage: 系统与验证
-verified_commit: 51e3d57
+verified_commit: dd75aed
 -->
 
 # EHR Harness 总控面板
