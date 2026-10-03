@@ -93,6 +93,15 @@ def _hash(value: str | bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def channel_marker(alias: str) -> str | None:
+    """Return the gateway channel marker, not a model-family claim."""
+    if alias.startswith("[j]c-"):
+        return "c"
+    if alias.startswith("[j]"):
+        return "j"
+    return None
+
+
 def _parse_json(text: str) -> dict[str, Any] | None:
     match = re.search(r"\{[\s\S]*\}", text or "")
     if not match:
@@ -244,6 +253,7 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
                     "task": scenario["task"],
                     "repeat": repeat,
                     "requested_alias": alias,
+                    "channel_marker": channel_marker(alias),
                     "actual_sent_model": alias,
                     "provider": None,
                     "provider_unknown": True,

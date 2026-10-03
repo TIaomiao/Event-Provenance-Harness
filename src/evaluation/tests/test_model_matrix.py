@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from model_matrix import ALIASES, REPEATS, SCENARIOS, prompt_for, summarize
+from model_matrix import ALIASES, REPEATS, SCENARIOS, channel_marker, prompt_for, summarize
 
 
 class ModelMatrixTests(unittest.TestCase):
@@ -18,6 +18,11 @@ class ModelMatrixTests(unittest.TestCase):
             self.assertNotIn("姓名", prompt)
             self.assertNotIn("病历号", prompt)
             self.assertNotIn("/home/", prompt)
+
+    def test_channel_marker_is_not_family_label(self):
+        self.assertEqual(channel_marker("[j]gemini-3-flash"), "j")
+        self.assertEqual(channel_marker("[j]c-gemini-3.8-flash-high"), "c")
+        self.assertIsNone(channel_marker("gemini-3-flash"))
 
     def test_summary_keeps_service_failure_out_of_content_score(self):
         rows = [

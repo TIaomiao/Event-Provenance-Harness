@@ -1,7 +1,7 @@
 <!-- workspace-meta
 updated: 2026-10-03
 stage: 系统与验证
-verified_commit: dd75aed
+verified_commit: a86cdaa
 -->
 
 # EHR Harness 总控面板
@@ -39,7 +39,7 @@ verified_commit: dd75aed
 - **离线验收收尾（2026-10-03）**：受控端核查 24 条历史请求，确认 29 份 source snapshot 与运行哈希一致、29 份 schema 0.9 脱敏产物存在但仍 `api_ready=false`；实际渲染读取 raw `ocr_layout.json`，请求 artifacts 没有保存 messages/body。18 条有效 prompt 可重构并匹配哈希，6 条作废 B2 旧 prompt 无法由当前 renderer 重构。外发路径已暂停，详见 pilot 报告 v2；完整内容只在受控详细入口。
 - **C/B 开发修正（2026-10-03）**：新增独立合成候选规则、出站 guard 和两张受控最小来源卡。评测测试共 60 项通过（含 15 项新规则/guard 测试）；dry-run 只验证阻止/放行决定，不发送网络请求。真实历史输入、参考和响应未重跑、未改写。
 - **最小派生包草稿（2026-10-03）**：受控端从现有 L2 只派生 `derived_evidence_card_v0.2` 的两份目标检验资料、24 条必要行；保持 `api_ready=false`、`external_send=blocked`、人工状态 `not_started`。不进入 GitHub。
-- **合成别名矩阵（2026-10-03）**：54 个逻辑请求、72 次尝试、36 个最终 HTTP 200、18 个最终 503；`[j]gemini-3-flash` 格式 18/18、正确 15；`[j]gpt-5.6-sol` 格式 18/18、正确 17；`[j]gemini-3.1-flash-lite` 全部服务失败。provider、pool_profile_id、服务端 request/response ID 未返回，费用币种/账单未知；结果仅作路由与合成任务稳定性诊断。
+- **合成别名矩阵（2026-10-03）**：54 个逻辑请求、72 次尝试、36 个最终 HTTP 200、18 个最终 503；`[j]gemini-3-flash` 格式 18/18、正确 15；`[j]gpt-5.6-sol` 格式 18/18、正确 17；`[j]gemini-3.1-flash-lite` 全部服务失败。号池反馈确认前缀是渠道标记，`c-` 渠道已撤下；503 只代表本次探针时点。provider、pool_profile_id、服务端 request/response ID 未返回；页面价格统一按人民币显示，但本次实际账单未知。结果仅作路由与合成任务稳定性诊断。
 - **近邻文献核对（2026-10-02）**：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。
 - **上一轮整理（2026-09-19，提交 `084305e`）**：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 `manifest.json`（逐份 SHA-256）；Pages 白名单同步。
 - **代码自检（2026-09-19 实跑）**：`src/evaluation` → **45/45 OK**；`src/prototype` → **37/37 OK**。这是合成输入的离线自检，**不是**模型结果，也不代表端到端可用。
@@ -79,14 +79,14 @@ verified_commit: dd75aed
 
 **阻塞**
 
-1. **外发默认关闭但测试许可已明确**：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 默认仍阻止 raw 回退，不能自动翻转 `api_ready`。provider 真实身份仍未确认。
+1. **外发默认关闭但测试许可已明确**：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 默认仍阻止 raw 回退，不能自动翻转 `api_ready`。provider 真实身份仍未确认，API 缺失字段保持未知。
 2. **正式参考键尚未冻结**：v2 只是统一修正层；旧机械键、旧响应和旧分数继续保留，不能把 v2 当正式准确率。
 3. **资料卡待人工核对**：两份 L2 派生卡保持 `api_ready=false`、人工 `not_started`；24 个卡片逻辑请求未运行。
 4. **Jev 尚未进入动作实验**：本单元不实现 B3/Jev；三别名矩阵不构成方法增益或供应商无关性证据。
 
 **下一步（唯一）**
 
-请用户查看两张资料卡并确认其人工核对范围；同时向号池负责人索取 alias→真实 provider/model/version、3.8 的 503 原因和账单/币种依据。确认前不运行卡片消费、不扩样本、不实现 B3/Jev、不冻结主结果。
+请用户查看两张资料卡并确认其人工核对范围；同时向号池负责人索取 alias→真实 model/version、渠道可用性、3.8/其他 503 的时间点原因和账单依据。确认前不运行卡片消费、不扩样本、不实现 B3/Jev、不冻结主结果。
 
 ## 下一次给师兄
 
@@ -94,7 +94,7 @@ verified_commit: dd75aed
 | --- | --- | --- |
 | Codex 执行 | 2 个开发包 × 3 题 × B1/B1-V/B2，共 18 条最终有效轨迹；另有 6 条作废 B2 请求计入费用 | 已完成；报告见 `results/2026-10-02_evidence_association_pilot.md` |
 | 用户阅读 | DocETL + Sufficient Context 的机制阅读；记录版本、官方出处、影响设计的具体点 | 出处已核，用户本人阅读待回填 |
-| 需要他决定的问题 | ① alias→provider/model/version 的可追溯记录；② 3.8 503 的路由/额度/上游原因；③ 账单币种与费用依据 | 带合成矩阵结果和资料卡 NOT_RUN 状态；不把服务失败当内容错误 |
+| 需要他决定的问题 | ① alias→model/version 与渠道标记的可追溯记录；② 3.8/其他 503 的时间点、路由或额度原因；③ 账单依据和人民币价格版本 | 带合成矩阵结果和资料卡 NOT_RUN 状态；不把服务失败当内容错误 |
 
 这一轮带的是**阅读与设计进展**，不强迫有新实验数字。
 
