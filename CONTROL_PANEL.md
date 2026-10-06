@@ -12,18 +12,18 @@ verified_commit: b62ee62
 
 | 项 | 值 |
 | --- | --- |
-| 当前工作单元 | 合成别名路由与任务判定稳定性矩阵、资料卡输入状态同步（不重审24条历史请求） |
+| 当前工作单元 | 发送前控制、C结构检查和两张资料卡交付验收（不重审24条历史请求、不新增模型请求） |
 | 主要写入会话 | 本地 Codex（2026-10-03）；本轮唯一写入者 |
 | 当前阶段 | 证据关联候选的初始基线与选题判别 |
 | 工作方向 | AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent |
 | 上一轮提交 | `main` @ `fa42a06`（24 条历史请求审计与 v2 收尾）；本轮在其之上继续 |
-| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；历史驱动：本地 `.local/pilot_evidence_assoc.py`（已默认禁用外发）；离线规则：`src/evaluation/evidence_assoc_rules.py`、`outbound_guard.py`；合成矩阵：`src/evaluation/model_matrix.py`；生成页 schema `tools/workspace.py v1` |
-| 新一轮真实数据实验 | 没有新增患者资料请求；合成矩阵 54 个逻辑请求、72 次尝试；两份资料卡 24 个逻辑请求保持 NOT_RUN；历史 24 条请求不重审 |
+| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；历史驱动：本地 `.local/pilot_evidence_assoc.py`（已默认禁用外发）；离线规则：`src/evaluation/evidence_assoc_rules.py`、`outbound_guard.py`、`model_matrix.py`；生成页 schema `tools/workspace.py v1` |
+| 新一轮真实数据实验 | 没有新增患者资料请求；本单元只验收发送前调用链和卡片状态；合成矩阵与历史24条请求不重跑 |
 | 归档批次 | `archive/20260919_workspace_c14e4b2/`（48 条登记，逐份 SHA-256） |
 
 ## 当前任务
 
-1. **Codex 执行**：已核对 source snapshot/文件哈希/页范围，完成历史 18 条最终有效轨迹；本单元运行 54 个纯合成矩阵逻辑请求，完成 guard/账本聚合和资料卡输入状态同步；没有重审历史 24 条请求。
+1. **Codex 执行**：已核对 source snapshot/文件哈希/页范围，完成历史 18 条最终有效轨迹；本单元完成发送前调用链拦截测试、C结构检查和两张受控卡片更新；没有重审历史 24 条请求。
 2. **用户阅读**：DocETL（arXiv:2410.12189 v3）与 Sufficient Context（arXiv:2411.06037 v3）各完成定向阅读，记录其对证据范围、检索失败和验证设计的影响；当前本人阅读状态待回填。
 3. **下次师兄反馈**：带候选假设、最强反驳、pilot 当前阻塞/结果和继续/退出条件；不把“证据关联”写成已验证创新。
 
@@ -40,6 +40,7 @@ verified_commit: b62ee62
 - **C/B 开发修正（2026-10-03）**：新增独立合成候选规则、出站 guard 和两张受控最小来源卡。评测测试共 60 项通过（含 15 项新规则/guard 测试）；dry-run 只验证阻止/放行决定，不发送网络请求。真实历史输入、参考和响应未重跑、未改写。
 - **最小派生包草稿（2026-10-03）**：受控端从现有 L2 只派生 `derived_evidence_card_v0.2` 的两份目标检验资料、24 条必要行；保持 `api_ready=false`、`external_send=blocked`、人工状态 `not_started`。不进入 GitHub。
 - **合成别名矩阵（2026-10-03）**：54 个逻辑请求、72 次尝试、36 个最终 HTTP 200、18 个最终 503；`[j]gemini-3-flash` 格式 18/18、正确 15；`[j]gpt-5.6-sol` 格式 18/18、正确 17；`[j]gemini-3.1-flash-lite` 全部服务失败。号池反馈确认前缀是渠道标记，`c-` 渠道已撤下；503 只代表本次探针时点。provider、pool_profile_id、服务端 request/response ID 未返回；页面价格统一按人民币显示，但本次实际账单未知。结果仅作路由与合成任务稳定性诊断。
+- **发送前控制与卡片验收（2026-10-04）**：`execute_request` 拦截测试覆盖 block/dry-run/guard异常/body变化/live/503重试，发送函数次数分别为 0、0、0、1、2；最终503分类为 `service_failure`。`classify_c_candidate` 只返回结构状态，不判断事实真假。两张卡仍待人工核对；卡片消费请求保持 NOT_RUN。评测测试 75 项、原型测试 37 项通过。
 - **近邻文献核对（2026-10-02）**：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。
 - **上一轮整理（2026-09-19，提交 `084305e`）**：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 `manifest.json`（逐份 SHA-256）；Pages 白名单同步。
 - **代码自检（2026-09-19 实跑）**：`src/evaluation` → **45/45 OK**；`src/prototype` → **37/37 OK**。这是合成输入的离线自检，**不是**模型结果，也不代表端到端可用。
@@ -79,14 +80,14 @@ verified_commit: b62ee62
 
 **阻塞**
 
-1. **外发默认关闭但测试许可已明确**：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 默认仍阻止 raw 回退，不能自动翻转 `api_ready`。provider 真实身份仍未确认，API 缺失字段保持未知。
+1. **外发默认关闭但测试许可已明确**：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 现在区分 synthetic/deidentified_test/raw_test，并绑定 endpoint 与 pool profile。provider 真实身份仍未确认，API 缺失字段保持未知。
 2. **正式参考键尚未冻结**：v2 只是统一修正层；旧机械键、旧响应和旧分数继续保留，不能把 v2 当正式准确率。
 3. **资料卡待人工核对**：两份 L2 派生卡保持 `api_ready=false`、人工 `not_started`；24 个卡片逻辑请求未运行。
 4. **Jev 尚未进入动作实验**：本单元不实现 B3/Jev；三别名矩阵不构成方法增益或供应商无关性证据。
 
 **下一步（唯一）**
 
-请用户查看两张资料卡并确认其人工核对范围；同时向号池负责人索取 alias→真实 model/version、渠道可用性、3.8/其他 503 的时间点原因和账单依据。确认前不运行卡片消费、不扩样本、不实现 B3/Jev、不冻结主结果。
+请用户查看两张资料卡并确认项目/结果/单位、采集/报告角色和脱敏影响；随后再决定是否按既有预算运行卡片消费。provider未知和历史503不阻塞卡片核对，但卡片人工状态未完成前不运行 deidentified_test。
 
 ## 下一次给师兄
 

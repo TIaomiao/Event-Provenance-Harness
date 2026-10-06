@@ -6,7 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from evidence_assoc_rules import classify_c_candidate, extract_hgb_candidates, latest_by_collection_time
-from outbound_guard import GuardConfig, dry_run_request, request_ledger_metadata
+from outbound_guard import GuardConfig, GuardResult, dry_run_request, execute_request, request_ledger_metadata, request_body_bytes
 
 
 def row(ref, text, page=1):
@@ -76,19 +76,26 @@ class CandidateRulesTests(unittest.TestCase):
         rows = [row("alias", "HGB"), row("value", "119"), row("unit", "g/L"), row("range", "115--150"), row("collection", "采集时间：2024-01-02 08:00:00"), row("report", "报告时间：2024-01-02 09:00:00")]
         candidate = extract_hgb_candidates(lab(rows))[0]
         self.assertEqual(candidate["identity_status"], "invalid_task")
-        self.assertEqual(classify_c_candidate(candidate), "invalid_task")
+        self.assertEqual(classify_c_candidate(candidate)["status"], "invalid_task")
 
     def test_null_unit_is_not_automatic_contradiction(self):
-        candidate = {"identity_status": "explicit", "value": 119, "collection_time": datetime(2024, 1, 2, 8), "unit": None}
-        self.assertEqual(classify_c_candidate(candidate), "supported")
-        self.assertEqual(classify_c_candidate(candidate, require_unit=True), "insufficient")
+        candidate = {"identity_status": "explicit", "value": 119, "collection_time": datetime(2024, 1, 2, 8), "unit": None, "source_refs": ["DOC-SYN:L1"]}
+        self.assertEqual(classify_c_candidate(candidate)["status"], "complete")
+        self.assertEqual(classify_c_candidate(candidate, require_unit=True)["status"], "incomplete")
+
+    def test_structure_does_not_judge_consistent_or_conflicting_facts(self):
+        base = {"identity_status": "explicit", "collection_time": datetime(2024, 1, 2, 8), "source_refs": ["DOC-SYN:L1"], "unit": "g/L"}
+        consistent = {**base, "value": 119}
+        conflicting = {**base, "value": 118}
+        self.assertEqual(classify_c_candidate(consistent)["status"], "complete")
+        self.assertEqual(classify_c_candidate(conflicting)["status"], "complete")
 
 
 class OutboundGuardTests(unittest.TestCase):
     def setUp(self):
-        self.config = GuardConfig(code_version="synthetic-code", config_version="synthetic-config", approved_destinations=frozenset({"synthetic-provider"}), allow_external=True)
+        self.config = GuardConfig(code_version="synthetic-code", config_version="synthetic-config", approved_destinations=frozenset({"synthetic-provider"}), approved_endpoints=frozenset({"synthetic-endpoint"}), approved_pool_profiles=frozenset({"synthetic-pool"}), allow_external=True)
         self.messages = [{"role": "system", "content": "JSON only"}, {"role": "user", "content": "redacted CASE-X observation"}]
-        self.source = {"source_version": "snapshot-v1", "source_sha256": "abc", "hash_matches": True, "api_ready": True, "raw_ocr": False, "payload_mode": "synthetic", "sensitivity": "REDACTED_SYNTHETIC", "review_scope": "DOC-SYN page 1", "purpose": "synthetic-eval", "destination": "synthetic-provider"}
+        self.source = {"source_version": "snapshot-v1", "source_sha256": "abc", "hash_matches": True, "api_ready": True, "raw_ocr": False, "payload_mode": "synthetic", "sensitivity": "REDACTED_SYNTHETIC", "review_scope": "DOC-SYN page 1", "purpose": "synthetic-eval", "destination": "synthetic-provider", "endpoint_config": "synthetic-endpoint", "pool_profile_id": "synthetic-pool"}
         self.fields = {"project_name": "HGB", "value": 119, "unit": "g/L", "collection_time_role": "explicit", "report_time_role": "explicit", "source_anchor": "DOC-SYN:L1"}
 
     def inspect(self, **overrides):
@@ -117,6 +124,14 @@ class OutboundGuardTests(unittest.TestCase):
         result = self.inspect(source={"payload_mode": "raw_test", "raw_ocr": True, "api_ready": False})
         self.assertEqual(result.decision, "block")
         self.assertIn("raw_test_authorization_missing", result.reasons)
+
+    def test_authorized_raw_test_can_pass_guard_without_api_ready(self):
+        result = self.inspect(source={"payload_mode": "raw_test", "raw_ocr": True, "api_ready": False, "raw_test_authorized": True, "sensitivity": "CONTAINS_RAW_OCR_TEXT_LOCAL_ONLY"})
+        self.assertEqual(result.decision, "allow")
+
+    def test_deidentified_test_with_reviewed_package_can_pass_guard(self):
+        result = self.inspect(source={"payload_mode": "deidentified_test", "api_ready": True, "raw_ocr": False, "sensitivity": "REDACTED_REVIEWED"})
+        self.assertEqual(result.decision, "allow")
 
     def test_hash_mismatch_blocked(self):
         result = self.inspect(source={"hash_matches": False})
@@ -150,11 +165,65 @@ class OutboundGuardTests(unittest.TestCase):
 
     def test_compliant_synthetic_request_is_dry_run_only(self):
         result = self.inspect()
-        self.assertEqual(result.decision, "allow_dry_run")
+        self.assertEqual(result.decision, "allow")
         self.assertFalse(result.request_metadata["sent"])
         ledger = request_ledger_metadata(result, request_id="synthetic-1", cost_basis={"currency": "USD", "amount": 0})
         self.assertEqual(ledger["full_body_storage"], "controlled_only_if_approved")
         self.assertEqual(ledger["request_id"], "synthetic-1")
+
+    def test_execute_block_calls_sender_zero_times(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        calls = []
+        result = execute_request(mode="live", guard_check=lambda: GuardResult("block", ["blocked"]), body=body, sender=lambda payload: calls.append(payload) or {"http": 200})
+        self.assertEqual(result["status"], "blocked_not_sent")
+        self.assertEqual(len(calls), 0)
+
+    def test_execute_dry_run_calls_sender_zero_times(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        checked = self.inspect()
+        calls = []
+        result = execute_request(mode="dry-run", guard_check=lambda: checked, body=body, sender=lambda payload: calls.append(payload) or {"http": 200})
+        self.assertEqual(result["status"], "dry_run_not_sent")
+        self.assertEqual(len(calls), 0)
+
+    def test_execute_guard_exception_unknown_and_body_change_block(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        calls = []
+        for guard in [lambda: (_ for _ in ()).throw(RuntimeError("guard")), lambda: GuardResult("mystery", []), lambda: GuardResult("allow", [], "wrong")]:
+            result = execute_request(mode="live", guard_check=guard, body=body, sender=lambda payload: calls.append(payload) or {"http": 200})
+            self.assertEqual(result["status"], "blocked_not_sent")
+        self.assertEqual(len(calls), 0)
+
+    def test_execute_allowed_live_calls_sender_once(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        checked = self.inspect()
+        calls = []
+        result = execute_request(mode="live", guard_check=lambda: checked, body=body, sender=lambda payload: calls.append(payload) or {"http": 200})
+        self.assertEqual(result["status"], "sent")
+        self.assertEqual(len(calls), 1)
+
+    def test_execute_503_retry_rechecks_guard(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        checked = self.inspect()
+        calls = []
+        checks = []
+        def guard():
+            checks.append(True)
+            return checked
+        def sender(payload):
+            calls.append(payload)
+            return {"http": 503 if len(calls) == 1 else 200}
+        result = execute_request(mode="live", guard_check=guard, body=body, sender=sender, max_retries=1)
+        self.assertEqual(result["status"], "sent")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(checks), 2)
+
+    def test_final_503_is_service_failure_not_content_or_format(self):
+        body = request_body_bytes(self.messages, "synthetic-model", 10)
+        checked = self.inspect()
+        result = execute_request(mode="live", guard_check=lambda: checked, body=body, sender=lambda payload: {"http": 503}, max_retries=1)
+        self.assertEqual(result["status"], "service_failure")
+        self.assertEqual(result["attempts"], 2)
 
 
 if __name__ == "__main__":

@@ -259,6 +259,36 @@ v2 是修正层，不是正式参考冻结，也不是重新生成的模型分�
 - 矩阵账本保存于受控本地 `.local`，不进入 GitHub。首次运行记录了响应哈希，但没有拿到 `pool_profile_id`、服务端 request ID 或 response ID；这些字段已保留为空。未来运行器已预留服务端 request ID、response ID、body hash 和费用依据字段。
 - 号池负责人确认页面价格统一按人民币显示。矩阵实际账单没有随响应返回，因此费用仍为未知；历史使用美元假设的账本需要另行对账，不能直接换算或填零。
 
+### 四个返回不一致项的离线判读
+
+原始矩阵账本保留不改。`matrix_v0.1_rescore_v0.2` 只修正服务失败分类，并对所有 54 条逻辑请求统一应用同一口径：最终非 200 为 `service_failure`，不进入内容分母；200 返回结果使用精确契约，不做 ID 或状态宽松归一化。
+
+| 逻辑请求 | 预期 | 实际 | finish_reason / HTTP | 判读 |
+| --- | --- | --- | --- | --- |
+| B1 / `[j]gemini-3-flash` / repeat 3 | `status=ok, record_ids=[A]` | `status=ok, record_ids=[B,A]` | `stop / 200` | 不只是顺序差异，增加了错误记录 B；任务判定不匹配 |
+| B2 / `[j]gemini-3-flash` / repeat 2 | `status=undetermined, record_ids=[A,B]` | `status=undetermined, record_ids=[record A,record B]` | `stop / 200` | 集合语义一致，但 ID 不是冻结契约中的 ID；保守记为标识格式/契约不一致，不自动补分 |
+| B2 / `[j]gemini-3-flash` / repeat 3 | `status=undetermined, record_ids=[A,B]` | `status=undetermined, record_ids=[record A,record B]` | `stop / 200` | 与上一行相同；不是截断，也不是顺序差异 |
+| B2 / `[j]gpt-5.6-sol` / repeat 2 | `status=undetermined, record_ids=[A,B]` | `status=ok, record_ids=[A,B]` | `stop / 200` | 记录集合正确，但状态错误；并列/精度不足被强行判为可选定 |
+
+重评分后：54 个逻辑请求、72 次尝试、18 个服务失败、36 个可评分返回、32 个精确匹配、4 个任务/契约不匹配。没有把四项预先归为评分器错误，也没有重新发请求。
+
+## 发送前调用链与 C 结构检查（2026-10-04；无真实联网）
+
+新增的 `execute_request` 现在把执行模式和 guard 决定分开。底层发送函数只有在 `mode=live`、guard 决定为 `allow`、最终 body hash 匹配时才会调用。`block`、`dry-run`、未知模式、guard 异常、未知决定和 body 变化都会在发送前结束。重试会重新执行同一个 guard，并保留同一份 body。
+
+| 场景 | 发送函数调用次数 | 结果 |
+| --- | ---: | --- |
+| block | 0 | `blocked_not_sent` |
+| dry-run | 0 | `dry_run_not_sent` |
+| guard 抛错 / 未知决定 / body hash 变化 | 0 | `blocked_not_sent` |
+| 明确获准的 live 合成请求 | 1 | `sent` |
+| 第一次 503，第二次成功 | 2 | 重新检查 guard 后发送；受控重试 |
+| 两次均 503 | 2 | `service_failure`，不记为格式或内容错误 |
+
+模式规则现在明确区分：`synthetic`、`deidentified_test`、`raw_test`。raw 测试必须带负责人许可、来源范围、用途、目标 endpoint 配置和 pool profile。deidentified 测试仍要求 `api_ready=true`。未知状态不自动发送。provider 未知不改变任务证据的 `unresolved` 状态。
+
+`classify_c_candidate` 现在只返回结构状态：`complete`、`incomplete` 或 `invalid_task`。它不返回 `supported` 或 `contradicted`。合成反例显示：结构完全相同的“一致候选”和“冲突候选”都可通过结构检查；事实判定必须由独立答案夹具和来源比较完成。
+
 ### 资料卡测试状态
 
 两份 `derived_evidence_card_v0.2` 仍为 `api_ready=false`、`external_send=blocked`、人工状态 `not_started`。因此：

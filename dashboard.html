@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-03</b></span><span class="chip">来源内容指纹 <b>fbfdf91d04d1</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>b62ee62</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：系统与验证</span><span class="chip">来源更新时间 <b>2026-10-03</b></span><span class="chip">来源内容指纹 <b>99d14fa79f8f</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>b62ee62</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -116,7 +116,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <li><strong>B</strong> 只在冻结检验报告内，按明确关联的采集时间排序。不扩展到全病历，不用报告时间代替，不增加未提供的 as-of 截止时刻。并列记录全部保留；日期精度不足或无法确定先后的记录返回未决；来源定位可以代替内部 <code>record_id</code>。</li>
 <li>以上口径只用于开发题、离线重评分解释和后续题卡。它们不冻结人工金标准，也不批准任何外发。</li>
 </ul>
-<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准服务方、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
+<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。<code>classify_c_candidate</code> 只检查结构、身份和缺失字段，不判断事实真假。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 区分 <code>synthetic</code>、<code>deidentified_test</code> 和 <code>raw_test</code>，默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准 endpoint/pool profile、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
 <p><strong>最小资料卡（受控、NOT_RUN 人工核对）</strong>：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，均只保留必要行定位。卡片不代表整份报告已查全；用户未查看前状态保持 <code>待人工核对</code>。</p>
 <p><strong>合成别名与任务判定矩阵（2026-10-03，NOT_RUN on patient data）</strong>：固定 6 个合成场景、3 个别名、3 次重复，共 54 个逻辑请求。矩阵只测当前路由可用性、返回模型标签和固定合成任务的重复一致性；503 是服务失败，不是内容错误；provider 未返回时标为 <code>provider_unknown=true</code>。本轮结果不验证真实模型身份，也不支持供应商无关结论。两份资料卡的 24 个卡片逻辑请求保持 <code>NOT_RUN</code>，不因 raw 测试许可自动放行 deidentified 草稿。</p>
 <p>号池反馈进一步确认：前缀是渠道标记，不是模型家族标记；<code>c-</code> 渠道已撤下。pricing 页面价格统一按人民币显示。合成矩阵中的 503 仅是探针时间点状态，不能写成永久不可用或模型能力失败。</p>
@@ -125,10 +125,10 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <section class="block" id="overview">
 <h2>当前概览</h2>
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>合成别名路由与任务判定稳定性矩阵、资料卡输入状态同步（不重审24条历史请求）</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-03）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>fa42a06</code>（24 条历史请求审计与 v2 收尾）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；历史驱动：本地 <code>.local/pilot_evidence_assoc.py</code>（已默认禁用外发）；离线规则：<code>src/evaluation/evidence_assoc_rules.py</code>、<code>outbound_guard.py</code>；合成矩阵：<code>src/evaluation/model_matrix.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>没有新增患者资料请求；合成矩阵 54 个逻辑请求、72 次尝试；两份资料卡 24 个逻辑请求保持 NOT_RUN；历史 24 条请求不重审</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>发送前控制、C结构检查和两张资料卡交付验收（不重审24条历史请求、不新增模型请求）</td></tr><tr><td>主要写入会话</td><td>本地 Codex（2026-10-03）；本轮唯一写入者</td></tr><tr><td>当前阶段</td><td>证据关联候选的初始基线与选题判别</td></tr><tr><td>工作方向</td><td>AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>fa42a06</code>（24 条历史请求审计与 v2 收尾）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役候选：<code>paper/PROPOSAL.md</code> 的“当前选题判别 pilot”；历史驱动：本地 <code>.local/pilot_evidence_assoc.py</code>（已默认禁用外发）；离线规则：<code>src/evaluation/evidence_assoc_rules.py</code>、<code>outbound_guard.py</code>、<code>model_matrix.py</code>；生成页 schema <code>tools/workspace.py v1</code></td></tr><tr><td>新一轮真实数据实验</td><td>没有新增患者资料请求；本单元只验收发送前调用链和卡片状态；合成矩阵与历史24条请求不重跑</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
 <ol>
-<li><strong>Codex 执行</strong>：已核对 source snapshot/文件哈希/页范围，完成历史 18 条最终有效轨迹；本单元运行 54 个纯合成矩阵逻辑请求，完成 guard/账本聚合和资料卡输入状态同步；没有重审历史 24 条请求。</li>
+<li><strong>Codex 执行</strong>：已核对 source snapshot/文件哈希/页范围，完成历史 18 条最终有效轨迹；本单元完成发送前调用链拦截测试、C结构检查和两张受控卡片更新；没有重审历史 24 条请求。</li>
 <li><strong>用户阅读</strong>：DocETL（arXiv:2410.12189 v3）与 Sufficient Context（arXiv:2411.06037 v3）各完成定向阅读，记录其对证据范围、检索失败和验证设计的影响；当前本人阅读状态待回填。</li>
 <li><strong>下次师兄反馈</strong>：带候选假设、最强反驳、pilot 当前阻塞/结果和继续/退出条件；不把“证据关联”写成已验证创新。</li>
 </ol>
@@ -144,6 +144,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <li><strong>C/B 开发修正（2026-10-03）</strong>：新增独立合成候选规则、出站 guard 和两张受控最小来源卡。评测测试共 60 项通过（含 15 项新规则/guard 测试）；dry-run 只验证阻止/放行决定，不发送网络请求。真实历史输入、参考和响应未重跑、未改写。</li>
 <li><strong>最小派生包草稿（2026-10-03）</strong>：受控端从现有 L2 只派生 <code>derived_evidence_card_v0.2</code> 的两份目标检验资料、24 条必要行；保持 <code>api_ready=false</code>、<code>external_send=blocked</code>、人工状态 <code>not_started</code>。不进入 GitHub。</li>
 <li><strong>合成别名矩阵（2026-10-03）</strong>：54 个逻辑请求、72 次尝试、36 个最终 HTTP 200、18 个最终 503；<code>[j]gemini-3-flash</code> 格式 18/18、正确 15；<code>[j]gpt-5.6-sol</code> 格式 18/18、正确 17；<code>[j]gemini-3.1-flash-lite</code> 全部服务失败。号池反馈确认前缀是渠道标记，<code>c-</code> 渠道已撤下；503 只代表本次探针时点。provider、pool_profile_id、服务端 request/response ID 未返回；页面价格统一按人民币显示，但本次实际账单未知。结果仅作路由与合成任务稳定性诊断。</li>
+<li><strong>发送前控制与卡片验收（2026-10-04）</strong>：<code>execute_request</code> 拦截测试覆盖 block/dry-run/guard异常/body变化/live/503重试，发送函数次数分别为 0、0、0、1、2；最终503分类为 <code>service_failure</code>。<code>classify_c_candidate</code> 只返回结构状态，不判断事实真假。两张卡仍待人工核对；卡片消费请求保持 NOT_RUN。评测测试 75 项、原型测试 37 项通过。</li>
 <li><strong>近邻文献核对（2026-10-02）</strong>：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。</li>
 <li><strong>上一轮整理（2026-09-19，提交 <code>084305e</code>）</strong>：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 <code>manifest.json</code>（逐份 SHA-256）；Pages 白名单同步。</li>
 <li><strong>代码自检（2026-09-19 实跑）</strong>：<code>src/evaluation</code> → <strong>45/45 OK</strong>；<code>src/prototype</code> → <strong>37/37 OK</strong>。这是合成输入的离线自检，<strong>不是</strong>模型结果，也不代表端到端可用。</li>
@@ -256,7 +257,7 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <li><strong>B</strong> 只在冻结检验报告内，按明确关联的采集时间排序。不扩展到全病历，不用报告时间代替，不增加未提供的 as-of 截止时刻。并列记录全部保留；日期精度不足或无法确定先后的记录返回未决；来源定位可以代替内部 <code>record_id</code>。</li>
 <li>以上口径只用于开发题、离线重评分解释和后续题卡。它们不冻结人工金标准，也不批准任何外发。</li>
 </ul>
-<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准服务方、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
+<p><strong>离线修正状态（NOT_RUN on real data）</strong>：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。<code>classify_c_candidate</code> 只检查结构、身份和缺失字段，不判断事实真假。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 区分 <code>synthetic</code>、<code>deidentified_test</code> 和 <code>raw_test</code>，默认阻止 raw OCR、<code>api_ready=false</code>、哈希不符、未批准 endpoint/pool profile、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。</p>
 <p><strong>最小资料卡（受控、NOT_RUN 人工核对）</strong>：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，均只保留必要行定位。卡片不代表整份报告已查全；用户未查看前状态保持 <code>待人工核对</code>。</p>
 <p><strong>合成别名与任务判定矩阵（2026-10-03，NOT_RUN on patient data）</strong>：固定 6 个合成场景、3 个别名、3 次重复，共 54 个逻辑请求。矩阵只测当前路由可用性、返回模型标签和固定合成任务的重复一致性；503 是服务失败，不是内容错误；provider 未返回时标为 <code>provider_unknown=true</code>。本轮结果不验证真实模型身份，也不支持供应商无关结论。两份资料卡的 24 个卡片逻辑请求保持 <code>NOT_RUN</code>，不因 raw 测试许可自动放行 deidentified 草稿。</p>
 <p>号池反馈进一步确认：前缀是渠道标记，不是模型家族标记；<code>c-</code> 渠道已撤下。pricing 页面价格统一按人民币显示。合成矩阵中的 503 仅是探针时间点状态，不能写成永久不可用或模型能力失败。</p>
@@ -324,13 +325,13 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <h3>阻塞与下一步</h3>
 <p><strong>阻塞</strong></p>
 <ol>
-<li><strong>外发默认关闭但测试许可已明确</strong>：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 默认仍阻止 raw 回退，不能自动翻转 <code>api_ready</code>。provider 真实身份仍未确认，API 缺失字段保持未知。</li>
+<li><strong>外发默认关闭但测试许可已明确</strong>：负责人允许测试阶段 raw OCR 外发，脱敏产物优先；guard 现在区分 synthetic/deidentified_test/raw_test，并绑定 endpoint 与 pool profile。provider 真实身份仍未确认，API 缺失字段保持未知。</li>
 <li><strong>正式参考键尚未冻结</strong>：v2 只是统一修正层；旧机械键、旧响应和旧分数继续保留，不能把 v2 当正式准确率。</li>
 <li><strong>资料卡待人工核对</strong>：两份 L2 派生卡保持 <code>api_ready=false</code>、人工 <code>not_started</code>；24 个卡片逻辑请求未运行。</li>
 <li><strong>Jev 尚未进入动作实验</strong>：本单元不实现 B3/Jev；三别名矩阵不构成方法增益或供应商无关性证据。</li>
 </ol>
 <p><strong>下一步（唯一）</strong></p>
-<p>请用户查看两张资料卡并确认其人工核对范围；同时向号池负责人索取 alias→真实 model/version、渠道可用性、3.8/其他 503 的时间点原因和账单依据。确认前不运行卡片消费、不扩样本、不实现 B3/Jev、不冻结主结果。</p>
+<p>请用户查看两张资料卡并确认项目/结果/单位、采集/报告角色和脱敏影响；随后再决定是否按既有预算运行卡片消费。provider未知和历史503不阻塞卡片核对，但卡片人工状态未完成前不运行 deidentified_test。</p>
 </section>
 
 <section class="block" id="advisor">

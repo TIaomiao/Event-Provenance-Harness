@@ -19,7 +19,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from outbound_guard import GuardConfig, build_request_body, inspect_request, request_body_bytes
+from outbound_guard import GuardConfig, execute_request, inspect_request, request_body_bytes
 
 
 ALIASES = [
@@ -162,6 +162,8 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
         code_version="model_matrix.py:v0.1",
         config_version="synthetic-matrix-v0.1",
         approved_destinations=frozenset({"synthetic-pool-probe"}),
+        approved_endpoints=frozenset({"synthetic-endpoint-v1"}),
+        approved_pool_profiles=frozenset({"synthetic-pool-profile-v1"}),
         allow_external=True,
     )
     rows: list[dict[str, Any]] = []
@@ -184,6 +186,8 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
                     "review_scope": scenario["id"],
                     "purpose": "model-family-synthetic-probe",
                     "destination": "synthetic-pool-probe",
+                    "endpoint_config": "synthetic-endpoint-v1",
+                    "pool_profile_id": "synthetic-pool-profile-v1",
                     "unknown_state": False,
                 }
                 task_fields = {
@@ -207,23 +211,46 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
                 body = request_body_bytes(messages, alias, MAX_TOKENS)
                 if guard.body_sha256 != _hash(body):
                     raise RuntimeError("BODY_HASH_MISMATCH_BEFORE_SEND")
+                def send(body_bytes: bytes) -> dict[str, Any]:
+                    return _post(endpoint, key, body_bytes)
+
+                execution = execute_request(
+                    mode="live",
+                    guard_check=lambda: inspect_request(
+                        messages=messages,
+                        model=alias,
+                        max_tokens=MAX_TOKENS,
+                        source=source,
+                        task_fields=task_fields,
+                        destination="synthetic-pool-probe",
+                        purpose="model-family-synthetic-probe",
+                        config=guard_config,
+                    ),
+                    body=body,
+                    sender=send,
+                    max_retries=1,
+                    transient_statuses=frozenset(TRANSIENT),
+                )
                 attempts: list[dict[str, Any]] = []
-                for attempt_number in range(1, 3):
-                    response = _post(endpoint, key, body)
+                final_obj = None
+                for attempt_number, response in enumerate(execution.get("responses", []), start=1):
                     raw = response.get("raw", "")
                     parsed = None
                     returned_model = None
                     usage: dict[str, Any] = {}
                     response_id_hash = None
+                    response_id = None
+                    finish_reason = None
                     try:
                         envelope = json.loads(raw) if raw else {}
                         parsed = _parse_json((envelope.get("choices") or [{}])[0].get("message", {}).get("content", ""))
                         returned_model = envelope.get("model")
                         usage = envelope.get("usage") or {}
                         response_id = envelope.get("id")
-                        response_id_hash = _hash(str(envelope.get("id") or ""))[:12] if envelope.get("id") else None
+                        response_id_hash = _hash(str(response_id or ""))[:12] if response_id else None
+                        finish_reason = (envelope.get("choices") or [{}])[0].get("finish_reason")
                     except (TypeError, json.JSONDecodeError):
-                        response_id = None
+                        pass
                     attempts.append({
                         "attempt_id": f"{logical_id}/a{attempt_number}",
                         "http": response.get("http"),
@@ -235,17 +262,18 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
                         "response_id": response_id,
                         "server_request_id": response.get("server_request_id"),
                         "usage": usage,
-                        "finish_reason": ((json.loads(raw).get("choices") or [{}])[0].get("finish_reason") if raw and raw.startswith("{") else None),
+                        "finish_reason": finish_reason,
                         "response_body_hash": _hash(raw),
                         "error_type": response.get("error_type"),
                     })
-                    if response.get("http") not in TRANSIENT:
-                        break
-                final = attempts[-1]
-                final_obj = parsed if attempts[-1].get("response_body_hash") == _hash(raw) else None
+                    final_obj = parsed
                 actual = _normal_answer(scenario["task"], final_obj)
                 format_ok = actual is not None
                 correct = _matches(scenario["expected"], actual)
+                failure_class = None if correct else (
+                    "service_failure" if execution.get("status") == "service_failure" else
+                    "format_failure" if not format_ok else "content_error"
+                )
                 rows.append({
                     "run_id": "model_matrix_v0.1",
                     "logical_request_id": logical_id,
@@ -264,7 +292,8 @@ def run_matrix(*, base_url: str, key: str, out: Path, aliases: list[str] | None 
                     "actual": actual,
                     "format_ok": format_ok,
                     "correct": correct,
-                    "failure_class": None if correct else ("format_failure" if not format_ok else "content_error"),
+                    "failure_class": failure_class,
+                    "execution_status": execution.get("status"),
                     "attempts": attempts,
                 })
     out.write_text("\n".join(json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows) + "\n", encoding="utf-8")
@@ -296,6 +325,7 @@ def summarize(rows: list[dict[str, Any]], aliases: list[str]) -> dict[str, Any]:
                 "returned_models": Counter(str(r["attempts"][-1].get("returned_model")) for r in items),
                 "content_failures": sum(r["failure_class"] == "content_error" for r in items),
                 "format_failures": sum(r["failure_class"] == "format_failure" for r in items),
+                "service_failures": sum(r["failure_class"] == "service_failure" for r in items),
             }
             for alias, items in by_alias.items()
         },

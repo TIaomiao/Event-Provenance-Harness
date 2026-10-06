@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 
 RAW_MARKERS = re.compile(
@@ -31,6 +31,8 @@ class GuardConfig:
     code_version: str
     config_version: str
     approved_destinations: frozenset[str] = frozenset()
+    approved_endpoints: frozenset[str] = frozenset()
+    approved_pool_profiles: frozenset[str] = frozenset()
     allow_external: bool = False
 
 
@@ -80,6 +82,12 @@ def inspect_request(
         reasons.append("external_sending_disabled")
     if destination not in config.approved_destinations:
         reasons.append("destination_not_approved")
+    endpoint = source.get("endpoint_config")
+    pool_profile = source.get("pool_profile_id")
+    if endpoint not in config.approved_endpoints:
+        reasons.append("endpoint_config_not_approved")
+    if pool_profile not in config.approved_pool_profiles:
+        reasons.append("pool_profile_not_approved")
     payload_mode = source.get("payload_mode")
     if payload_mode not in PAYLOAD_MODES:
         reasons.append("payload_mode_missing_or_invalid")
@@ -87,9 +95,9 @@ def inspect_request(
         reasons.append("raw_test_authorization_missing")
     elif payload_mode == "deidentified_test" and source.get("api_ready") is not True:
         reasons.append("deidentified_package_not_api_ready")
-    if source.get("raw_ocr") or "RAW" in str(source.get("sensitivity", "")).upper():
+    if payload_mode != "raw_test" and (source.get("raw_ocr") or "RAW" in str(source.get("sensitivity", "")).upper()):
         reasons.append("raw_ocr_source")
-    if source.get("api_ready") is not True:
+    if payload_mode != "raw_test" and source.get("api_ready") is not True:
         reasons.append("api_ready_not_true")
     if not source.get("source_version") or not source.get("source_sha256"):
         reasons.append("source_version_or_hash_missing")
@@ -107,7 +115,7 @@ def inspect_request(
     if missing:
         reasons.append("task_fields_missing:" + ",".join(missing))
     joined = "\n".join(str(m.get("content", "")) for m in messages)
-    if RAW_MARKERS.search(joined):
+    if payload_mode != "raw_test" and RAW_MARKERS.search(joined):
         reasons.append("raw_identifier_marker_in_messages")
     metadata = {
         "code_version": config.code_version,
@@ -115,13 +123,15 @@ def inspect_request(
         "source_version": source.get("source_version"),
         "source_sha256": source.get("source_sha256"),
         "destination": destination,
+        "endpoint_config": endpoint,
+        "pool_profile_id": pool_profile,
         "purpose": purpose,
         "payload_mode": payload_mode,
         "body_sha256": body_hash,
         "sent": False,
     }
     return GuardResult(
-        decision="allow_dry_run" if not reasons else "block",
+        decision="allow" if not reasons else "block",
         reasons=reasons,
         body_sha256=body_hash,
         request_metadata=metadata,
@@ -131,6 +141,48 @@ def inspect_request(
 def dry_run_request(**kwargs: Any) -> GuardResult:
     """Build and inspect a request.  It never calls a network client."""
     return inspect_request(**kwargs)
+
+
+def execute_request(
+    *,
+    mode: str,
+    guard_check: Callable[[], GuardResult],
+    body: bytes,
+    sender: Callable[[bytes], Mapping[str, Any]],
+    max_retries: int = 0,
+    transient_statuses: frozenset[int] = frozenset({429, 500, 502, 503, 504}),
+) -> dict[str, Any]:
+    """Run the full guard-to-sender chain without allowing bypasses.
+
+    ``sender`` is called only for an explicitly approved ``live`` mode.  The
+    tests pass an intercepting sender; production callers must pass the same
+    final body that was inspected.
+    """
+    if mode not in {"block", "dry-run", "live"}:
+        return {"status": "blocked_not_sent", "reason": "execution_mode_unknown", "attempts": 0}
+    if mode == "block":
+        return {"status": "blocked_not_sent", "reason": "execution_mode_block", "attempts": 0}
+    sent_attempts = []
+    for attempt in range(max_retries + 1):
+        try:
+            guard = guard_check()
+        except Exception as error:
+            return {"status": "blocked_not_sent", "reason": "guard_exception", "error_type": type(error).__name__, "attempts": len(sent_attempts)}
+        if not isinstance(guard, GuardResult) or guard.decision != "allow":
+            return {"status": "blocked_not_sent", "reason": "guard_decision_not_allow", "attempts": len(sent_attempts)}
+        if guard.body_sha256 != hashlib.sha256(body).hexdigest():
+            return {"status": "blocked_not_sent", "reason": "body_hash_mismatch", "attempts": len(sent_attempts)}
+        if mode == "dry-run":
+            return {"status": "dry_run_not_sent", "attempts": len(sent_attempts)}
+        try:
+            response = dict(sender(body))
+        except Exception as error:
+            return {"status": "service_failure", "reason": "sender_exception", "error_type": type(error).__name__, "attempts": len(sent_attempts)}
+        sent_attempts.append(response)
+        if response.get("http") not in transient_statuses or attempt >= max_retries:
+            status = "service_failure" if response.get("http") in transient_statuses else "sent"
+            return {"status": status, "attempts": len(sent_attempts), "responses": sent_attempts}
+    return {"status": "blocked_not_sent", "reason": "unreachable", "attempts": len(sent_attempts)}
 
 
 def request_ledger_metadata(result: GuardResult, *, request_id: str, cost_basis: Mapping[str, Any]) -> dict[str, Any]:
