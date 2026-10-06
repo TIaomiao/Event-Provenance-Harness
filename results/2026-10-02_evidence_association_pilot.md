@@ -451,6 +451,74 @@ v2 是修正层，不是正式参考冻结，也不是重新生成的模型分�
 - guard 仍为 `block`，**唯一**原因是 `card_api_ready=false`（等待用户审核）；去掉该项后无其他阻断原因。
 - 本轮不实现 B3/Jev、不重跑 24 条历史请求与合成矩阵、不扩大资料范围。
 
+## 卡片级真实消费 M1（2026-10-06；真实请求）
+
+本轮进入“真实卡片消费 → 自动报告处理基线”。真实模型请求按计划发出，结果与失败都如实记录。
+
+### 卡级审核登记（按实际产物哈希）
+
+用户查看两张 `derived_evidence_card_v0.3` 后反馈“脱敏没什么问题了，继续推进”。据此登记卡级审核，绑定实际文件哈希：
+
+| 卡片 | SHA-256（登记时） | card_review_status | card_api_ready |
+| --- | --- | --- | --- |
+| CASE-102 / DOC-013 | `43eb89db0941a7033bd3e22530a713a0b5e49fa066bbfd991ba9db605b841f0c` | accepted | true |
+| CASE-167 / DOC-012 | `d58f2c43f4b72a3d19b0de9f9baeee659dbb9d8fabb1b73eb1ae3de9df34974d` | accepted | true |
+
+- 审核范围**仅限**这两份卡及其被检查的派生表示；**不含**逐页原始 PDF 数值核对、人工金标准冻结、整份报告或 `deidentified_layout_NOT_SAFE` 的脱敏通过、以及其他任何病例或文档。
+- 请求构造带哈希门：卡文件哈希与登记值不一致时直接阻断、不发送（本轮该门被实际触发过一次并生效）。
+- **完整 L2 保持 `api_ready=false` / `NOT_SAFE`**；生产 `ehr_pipeline.py` 未修改，未重跑全量治理。
+
+### 16 条计划请求的实际结果
+
+计划：2 卡 × B/C × 2 别名（`[j]gemini-3-flash`、`[j]gpt-5.6-sol`）× raw/deidentified = 16。
+
+| 结果 | 条数 | 说明 |
+| --- | ---: | --- |
+| 完成（HTTP 200，格式可解析） | 10 | CASE-102 全部 8 条 + CASE-167/B 的 `[j]gemini-3-flash` 两条 |
+| auth_failure（HTTP 401 `Invalid token`） | 6 | CASE-167/B `[j]gpt-5.6-sol` 两条；CASE-167/C 四条 |
+| 未运行 | 0 | 计划已全部发出 |
+
+- 失败全部为服务端鉴权失败，**不是**内容错误、格式错误或模型能力失败；未静默换模型。
+- 逐条状态、HTTP、返回模型、token 与费用依据已落盘；完整正文与回答只留受控端。
+
+### 判读（参考层级：卡片 / OCR 层，非人工金标准）
+
+10 条完成请求**全部**与卡片级参考一致（`reference_level = card_ocr_based_pending_manual_review`）：B 题识别出采集时间较晚的那条记录，C 题候选判为 `supported`。
+
+| 单元 | raw | deidentified |
+| --- | --- | --- |
+| CASE-102 / B / `[j]gemini-3-flash` | correct | correct |
+| CASE-102 / B / `[j]gpt-5.6-sol` | correct | correct |
+| CASE-102 / C / `[j]gemini-3-flash` | correct | correct |
+| CASE-102 / C / `[j]gpt-5.6-sol` | correct | correct |
+| CASE-167 / B / `[j]gemini-3-flash` | correct | correct |
+
+- 两种模式成对完成的 5 个单元中，raw 与 deidentified **给出同一记录身份**；raw 回答里时间仍是原始绝对形态，deidentified 是相对日形态，任务语义一致。
+- 这只说明“卡片在两种输入模式下都能支撑该题”，**不构成方法增益证据**，也不代表 B1/B1-V/B2 的差异。
+
+### 一例完整可读案例（数值在仓库侧掩码；逐字版在受控页）
+
+- **题目**：CASE-167 / B（产物 `derived_evidence_card_v0.3`，sha256 `d58f2c43f4b72a3d…`，别名 `[j]gemini-3-flash`，模式 `deidentified_test`）。
+- **输入**：该卡 12 行（项目、HGB、值、单位、采集/报告，以及第二条记录），时间以 `[相对日+N] + 原始时钟` 表示。
+- **回答**：`status="ok"`、`record_id="DOC-012:L451"`、`value="###"`、`unit="g/L"`、`source_refs=["DOC-012:L450","DOC-012:L451","DOC-012:L452","DOC-012:L453","DOC-012:L501","DOC-012:L503"]`。
+- **参考**：`status=ok`，目标记录 = 采集锚点 `DOC-012:L501`（相对日 4）那条，而不是相对日 0 的另一条；来源锚点集合与回答完全一致。
+- **判读**：correct。模型在相对日表示下正确选出较晚的采集记录，证据锚点可回溯；这正是 v0.2 无法支撑、v0.3 重新派生后才成立的判定。
+
+### 费用与未知项
+
+| 项 | 值 |
+| --- | --- |
+| 输入 / 输出 token | 3,930 / 10,657 |
+| 已完成部分估算费用 | **USD 0.0154839**（仅 `[j]gemini-3-flash`，沿用既有本地价格表 0.3 / 1.5 每 1e6 token） |
+| 未知费用 | 10 条（`[j]gpt-5.6-sol` 无已批准本地价格 4 条 + 6 条 0 token 的鉴权失败），**不填 0** |
+| 整轮预算 | 沿用既有 100 美元范围、不因新会话重置；累计费用与本次估算分开记账 |
+| provider 身份 | **未知**（网关未返回）；本地可确定的配置标识 `pool_profile_id=gw-bf80ac8d40ba`、`endpoint_config=env:LLM_BASE_URL` 与上游身份分开记录 |
+| 服务端 request id | 401 响应只在受控端留存响应内嵌的 `Invalid token (... request id: …)`，未进入本次账本字段 |
+
+### 具体阻塞（只说明范围）
+
+网关凭据自 2026-10-06 09:42Z 起被拒：同一 key 在此之前完成 10 条请求，之后所有请求（含 B/C、两个别名、两种模式）返回 HTTP 401 `Invalid token`；另做一次**不含任何卡片内容**的合成连通性检查，同样 401。因此这是**凭据失效、需轮换**的具体配置阻塞，不是任务、内容或模型问题。受影响范围：CASE-167 的 6 条（B/`[j]gpt-5.6-sol` 两条、C 四条）。M2 的入口、三条件实现、开发包选取与版本冻结属离线工作，不受影响。
+
 ## 对抗式结论
 
 **最强反驳。** (1) C-102 的 `contradicted` 方向可能只是模型碰巧找到另一个不相等数值；(2) B-CASE-167 的“最近”仍依赖当前报告内可见的两条 HGB，不能外推到全病历首次事件；(3) A/B/C 只有两个开发包，且答案核验来自同一实验室文档，不能支持方法普适性。

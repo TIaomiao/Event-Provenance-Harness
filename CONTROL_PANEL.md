@@ -1,7 +1,7 @@
 <!-- workspace-meta
 updated: 2026-10-06
-stage: 接手与两张资料卡核对
-verified_commit: c2dec43
+stage: 卡片消费与自动报告处理基线
+verified_commit: c4a2c72
 -->
 
 # EHR Harness 总控面板
@@ -12,13 +12,13 @@ verified_commit: c2dec43
 
 | 项 | 值 |
 | --- | --- |
-| 当前工作单元 | 接手与卡片修正：姓名漏检归因、task-scoped 卡 v0.3 重派生与验收表（不重跑合成矩阵、不重审 24 条历史请求、不新增模型请求） |
-| 主要写入会话 | 本机 DSH 会话（2026-10-06 接手）；上一轮主要写入者为本地 Codex（2026-10-03） |
-| 当前阶段 | 接手与两张资料卡核对 |
+| 当前工作单元 | 卡片消费与自动报告处理基线：M1 卡片级真实消费已完成登记与结果判读；M2 自动报告处理入口、6 开发包与 B1/B1-V/B2 开发基线进行中 |
+| 主要写入会话 | 本机 DSH 会话（2026-10-06 接手并持续执行）；上一轮主要写入者为本地 Codex（2026-10-03） |
+| 当前阶段 | 卡片消费与自动报告处理基线 |
 | 工作方向 | AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent |
-| 上一轮提交 | `main` @ `15197c3`（结构 C 检查的页面刷新）；本轮在其之上继续 |
-| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；历史驱动：本地 `.local/pilot_evidence_assoc.py`（已默认禁用外发）；离线规则：`src/evaluation/evidence_assoc_rules.py`、`outbound_guard.py`、`model_matrix.py`；受控身份/请求检查：本地 `.local/build_identity_review.py`（不入库）；生成页 schema `tools/workspace.py v1` |
-| 新一轮真实数据实验 | 没有新增患者资料请求，本轮真实模型请求数为 0；只做受控身份对照展示与离线请求构建（未发送）；合成矩阵与历史 24 条请求不重跑 |
+| 上一轮提交 | `main` @ `c4a2c72`（姓名漏检归因与卡 v0.3）；本轮在其之上继续 |
+| 代码 / 协议版本 | 代码：`main`；现役候选：`paper/PROPOSAL.md` 的“当前选题判别 pilot”；受控卡与消费运行器：本地 `.local/build_card_v03.py`、`.local/card_consume_v1.py`、`.local/judge_card_run.py`（均不入库）；离线规则：`src/evaluation/evidence_assoc_rules.py`、`outbound_guard.py`；生成页 schema `tools/workspace.py v1` |
+| 新一轮真实数据实验 | M1 真实模型请求 16 条计划、10 条完成、6 条鉴权失败（HTTP 401）；未重跑历史 24 条与 54 条合成矩阵；卡级审核按实际哈希登记，完整 L2 未翻转 |
 | 未跟踪文件 | `JEV_ROUND2_HANDOFF/` 与 `paper/ten decision points.png` 保持原样，不纳入本轮提交 |
 | 归档批次 | `archive/20260919_workspace_c14e4b2/`（48 条登记，逐份 SHA-256） |
 
@@ -44,7 +44,8 @@ verified_commit: c2dec43
 - **发送前控制与卡片验收（2026-10-04）**：`execute_request` 拦截测试覆盖 block/dry-run/guard异常/body变化/live/503重试，发送函数次数分别为 0、0、0、1、2；最终503分类为 `service_failure`。`classify_c_candidate` 只返回结构状态，不判断事实真假。两张卡仍待人工核对；卡片消费请求保持 NOT_RUN。评测测试 75 项、原型测试 37 项通过。
 - **交接与卡片入口恢复（2026-10-06）**：核对 `main` @ `15197c3`、工作区无未提交改动、`JEV_ROUND2_HANDOFF/` 与 `paper/ten decision points.png` 两份未跟踪文件原样保留。受控端 `/tmp/evidence_assoc_review_20261002/` 的 `index.html`/`cards.html`/`detail.html` 与派生草稿均仍在；查看服务改为只监听受控端回环地址后，经 SSH 隧道恢复只读入口，`http://127.0.0.1:8877/cards.html` 本地实测 HTTP 200、含两张卡。本轮真实模型请求数 **0**，未新增患者资料请求，未重跑合成矩阵或历史 24 条请求。
 - **身份处理对照与离线最终请求检查（2026-10-06）**：受控页新增 `cards.html#identity` 身份信息区块，按五类列出派生层动作与是否进入卡片，附最小页眉/页脚/签名区原始与派生对照。结论：全部身份行均**未选入** 24 行卡片范围（“未选入”不等于“已正确处理”）；`CASE-102` 派生层为 `quarantined`、`CASE-167` 为 `manual_review_required`，两者 `api_ready` 仍为 false。离线构建 6 个卡片范围内 `deidentified_test` 请求、**0 个发送**：12/12 行来自 `derived_evidence_card_v0.2`，正文无文件名/报告头 token、无身份关键词命中，guard 的唯一阻断原因是卡片未完成人工审核。日期关系程序判定：`CASE-102` 相对日偏移与时钟均保留、采集先后与间隔保持；`CASE-167` 两个采集日期被替换为“日期已移除”、仅余时钟，**跨日排序无法核实**。详见 pilot 报告 2026-10-06 小节。
-- **姓名漏检归因与卡 v0.3（2026-10-06）**：用户查看受控身份对照页后确认**患者姓名行与申请医生行存在真实姓名值未替换**；据此完整 L2 继续保持 `NOT_SAFE`、不声明整份报告脱敏通过。代码归因（只读 `ehr_pipeline.py`，未改该文件）：① `person_name` 规则在标签与分隔符之间只允许 `（签名）`，遇到 `姓名(拼音)：值` 形式即失配；② 标签清单与跨行清单都缺少 `申请医生`/`审核医生` 等 `…医生` 形式。两处最小补丁合计替换 CASE-102 30 行、CASE-167 23 行，新增误替换 0。CASE-167 采集日期被整段删除的原因：OCR 把单小时位黏在日期后，四条日期模式全部失配，随后整段删除规则只替换了年月前缀。已按统一口径「病例内相对日 + 原始时钟/原有精度」重新派生，并生成 `derived_evidence_card_v0.3`（每卡 12 行、稳定 pseudonym、保留 DOC 锚点、无身份字段），附 6 项验收表（技术检查全部 PASS，附加精度检查亦 PASS）；`card_review_status=pending_user_review`、`card_api_ready=false`。整份 L2 的 `api_ready` 未被翻转。详见 pilot 报告同名小节。
+- **卡片级真实消费 M1（2026-10-06）**：用户确认 v0.3 卡后，按**实际文件哈希**登记卡级审核（CASE-102 `43eb89db0941a703…`、CASE-167 `d58f2c43f4b72a3d…`，`card_review_status=accepted`、`card_api_ready=true`），并带哈希门构造请求。计划 16 条（2 卡 × B/C × 2 别名 × raw/deidentified）：**10 条完成 HTTP 200、6 条 auth_failure（HTTP 401 `Invalid token`）、0 条未运行**；完成的 10 条全部与卡片级 OCR 参考一致，raw 与 deidentified 成对的 5 个单元给出同一记录身份。已完成部分估算 USD 0.0154839（仅 `[j]gemini-3-flash`，沿用既有本地价格表），`[j]gpt-5.6-sol` 无已批准价格、费用未知。provider 身份未知；本地配置标识 `pool_profile_id=gw-bf80ac8d40ba`。完整 L2 未翻转，生产 `ehr_pipeline.py` 未改。详见 pilot 报告 M1 小节。
+- **姓名漏检归因与卡 v0.3（2026-10-06）**：用户查看受控身份对照页后确认**患者姓名行与申请医生行存在真实姓名值未替换**；据此完整 L2 继续保持 `NOT_SAFE`、不声明整份报告脱敏通过。代码归因（只读 `ehr_pipeline.py`，未改该文件）：① `person_name` 规则在标签与分隔符之间只允许 `（签名）`，遇到 `姓名(拼音)：值` 形式即失配；② 标签清单与跨行清单都缺少 `申请医生`/`审核医生` 等 `…医生` 形式。两处最小补丁合计替换 CASE-102 30 行、CASE-167 23 行，新增误替换 0。CASE-167 采集日期被整段删除的原因：OCR 把单小时位黏在日期后，四条日期模式全部失配，随后整段删除规则只替换了年月前缀。已按统一口径「病例内相对日 + 原始时钟/原有精度」重新派生，并生成 `derived_evidence_card_v0.3`（每卡 12 行、稳定 pseudonym、保留 DOC 锚点、无身份字段），附 6 项验收表（技术检查全部 PASS，附加精度检查亦 PASS）。该轮结束时 `card_review_status=pending_user_review`、`card_api_ready=false`；随后用户确认，已按哈希登记为 accepted（见上一条）。整份 L2 的 `api_ready` 始终未被翻转。
 - **近邻文献核对（2026-10-02）**：DocETL、Sufficient Context、EHR-RobustGym、CliniCARE-Bench 的官方 arXiv 出处/版本已核；新近两篇仍标为预印本，用户阅读待回填。
 - **上一轮整理（2026-09-19，提交 `084305e`）**：活动文档收敛为四份 + 一份文献台账；33 份历史文档整字节归档并生成 `manifest.json`（逐份 SHA-256）；Pages 白名单同步。
 - **代码自检（2026-09-19 实跑）**：`src/evaluation` → **45/45 OK**；`src/prototype` → **37/37 OK**。这是合成输入的离线自检，**不是**模型结果，也不代表端到端可用。
@@ -84,18 +85,19 @@ verified_commit: c2dec43
 
 **阻塞**
 
-1. **外发默认关闭但测试许可已明确**：负责人已明确允许测试阶段的 raw OCR 外发，脱敏产物优先，属非生产授权。guard 区分 `synthetic`/`deidentified_test`/`raw_test`，并绑定 endpoint 与 pool profile；`raw_test` 必须显式携带许可、来源范围、用途、目标 endpoint 和号池配置。deidentified 草稿仍需人工核对与审核放行，未审脱敏卡不能自动放行。provider 真实身份仍未确认，API 缺失字段保持未知。
-2. **C/B 口径与两项冻结问题已确认（2026-10-06 交接基准）**：C 只核验身份明确的记录—值—时间，`null`/`unresolved` 不自动构成矛盾，单位只在明确声明或换算要求中参与，缺项目名或来源锚点返回 `invalid_task`；B 只按冻结检验报告内明确关联的采集时间排序，并列与精度不足保留未决，允许来源定位代替内部 `record_id`。这两项不再重复索取确认。
-3. **正式参考键尚未冻结**：v2 只是统一修正层；旧机械键、旧响应和旧分数继续保留，不能把 v2 当正式准确率。
-4. **卡片人工核对状态（分项记录）**：卡片目视查看**已完成**（用户本人）；原始 PDF 数值准确性**未核**；身份对照**已查看并确认 v0.2 有真实姓名漏检**；两张 v0.3 卡**待用户复核**。整份 L2 保持 `api_ready=false` / `NOT_SAFE`，`card_review_status=pending_user_review`、`card_api_ready=false`；24 个卡片逻辑请求仍 `NOT_RUN`。不代填审核者、日期或通过状态。
-5. **姓名漏检已修复但未回灌整库**：两处补丁只在 task-scoped 卡派生层生效；`ehr_pipeline.py` 未修改，整份 L2 仍含未替换姓名。是否把最小补丁回灌治理流水线并由负责人决定，需单独批准，本轮不做。
-6. **CASE-167 日期已按统一口径重派生**：v0.2 的“整段删除采集日期”形态**不接受**作为 B 题的 deidentified 输入；v0.3 已改为同一 anchor 的相对日，两条采集记录分处不同相对日、先后可恢复，程序判定不变量全部保持。
-7. **Jev 尚未进入动作实验**：本单元不实现 B3/Jev；三别名矩阵不构成方法增益或供应商无关性证据。
-8. **矩阵费用未对账**：实际上游 provider、服务端 request/response ID 与本次账单仍未知；未知项不填 0。
+1. **网关凭据被拒（具体阻塞，只影响模型调用）**：同一 key 在 2026-10-06 09:42Z 前完成 10 条卡片请求；此后所有请求（B/C、两个别名、raw/deidentified）返回 HTTP 401 `Invalid token`，另一次不含卡片内容的合成连通性检查同样 401。受影响范围：CASE-167 的 6 条（B/`[j]gpt-5.6-sol` 两条、C 四条）。需由负责人轮换/重发网关 token；本地 `.local/.env` 的 `LLM_API_KEY` 已不再被接受（值不入库、不打印）。离线工作不受影响。
+2. **外发默认关闭但测试许可已明确**：负责人已明确允许测试阶段的 raw OCR 外发，脱敏产物优先，属非生产授权。guard 区分 `synthetic`/`deidentified_test`/`raw_test`，并绑定 endpoint 与 pool profile；`raw_test` 必须显式携带许可、来源范围、用途、目标 endpoint 和号池配置。provider 真实身份仍未确认，API 缺失字段保持未知。
+3. **C/B 口径与两项冻结问题已确认（2026-10-06 交接基准）**：C 只核验身份明确的记录—值—时间，`null`/`unresolved` 不自动构成矛盾，单位只在明确声明或换算要求中参与，缺项目名或来源锚点返回 `invalid_task`；B 只按冻结检验报告内明确关联的采集时间排序，并列与精度不足保留未决，允许来源定位代替内部 `record_id`。这两项不再重复索取确认。
+4. **正式参考键尚未冻结**：v2 只是统一修正层；本轮 M1 参考为**卡片/OCR 层**（`card_ocr_based_pending_manual_review`），不是人工金标准，也不是 PDF 事实核验。
+5. **卡片核对状态（分项记录）**：卡片目视查看**已完成**；原始 PDF 数值准确性**未核**；v0.2 身份漏检**已由用户确认**；两张 v0.3 卡**已由用户确认并按实际哈希登记**（`card_review_status=accepted`、`card_api_ready=true`）。完整 L2 仍 `api_ready=false` / `NOT_SAFE`。
+6. **姓名漏检已修复但未回灌整库**：两处补丁只在 task-scoped 卡派生层生效；`ehr_pipeline.py` 未修改，整份 L2 仍含未替换姓名。是否回灌治理流水线需单独批准。
+7. **CASE-167 日期已按统一口径重派生**：v0.2 的“整段删除采集日期”形态不接受作为 B 题 deidentified 输入；v0.3 改为同一 anchor 的相对日，两条采集记录分处不同相对日、先后可恢复，不变量全部保持。
+8. **Jev 尚未进入动作实验**：本轮不实现 B3/Jev；三别名矩阵不构成方法增益或供应商无关性证据。
+9. **费用**：M1 已完成部分估算 USD 0.0154839（仅 `[j]gemini-3-flash`）；`[j]gpt-5.6-sol` 与失败条目费用未知，不填 0；整轮 100 美元范围不重置，未加阶段硬停。
 
 **下一步（唯一）**
 
-请 w 在受控入口 `http://127.0.0.1:8877/cards.html#card-v03` 复核两张 v0.3 卡：① 卡内 12 行是否只含 B/C 需要的项目/值/单位/时间/来源锚点，姓名、机构、真实编号与联系方式均不出现；② CASE-167 重新派生后的相对日表示是否可接受。复核通过后才把 `card_review_status` 记为已接受、`card_api_ready` 置 true，随后才可运行卡片级 `deidentified_test`。整份 L2 不因卡片通过而翻转。不重启合成矩阵、不重审历史请求、不实现 B3/Jev。
+继续 M2：在离线侧建立可中断续跑的自动报告处理入口、按预定规则补足 6 个开发包、实现并冻结 B1/B1-V/B2 三条件与 36 条开发基线的配置版本；模型调用一恢复即按既有 run_id 续跑。网关凭据轮换后，先补齐 CASE-167 的 6 条卡片请求，再运行 36 条开发轨迹。不重启合成矩阵、不重审历史请求、不实现 B3/Jev。
 
 ## 下一次给师兄
 
