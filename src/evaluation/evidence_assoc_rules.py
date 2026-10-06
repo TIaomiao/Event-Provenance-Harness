@@ -20,7 +20,15 @@ UNIT = re.compile(
     re.I,
 )
 HGB_ALIAS = re.compile(r"(?<![A-Za-z])HGB(?![A-Za-z])", re.I)
-HGB_NAME = re.compile(r"(?:血红蛋白(?:量)?|hemoglobin)", re.I)
+# The target analyte must be identified by its whole project name.  平均红细胞
+# 血红蛋白量/浓度 (MCH/MCHC), 糖化血红蛋白 (HbA1c), 氧合/碳氧/高铁/还原血红蛋白
+# and "Glycated Hemoglobin Report" all contain 血红蛋白 but are different
+# analytes; a bare substring search pulls them in as if they were the target.
+HGB_NAME = re.compile(
+    r"^[\s\*#·※]*(?:血红蛋白(?:量|浓度)?|hemoglobin)"
+    r"(?:[\s\*#·]*[（(]\s*(?:HGB|Hb)\s*[)）])?[\s\*#·]*$",
+    re.I,
+)
 ROLE = {
     "collection": re.compile(r"(?:采集时间|采样时间|采血时间|collection\s*time|collected)", re.I),
     "report": re.compile(r"(?:报告时间|报告日期|report\s*time|reported)", re.I),
@@ -221,19 +229,30 @@ def extract_hgb_candidates(docs: Iterable[dict[str, Any]]) -> list[dict[str, Any
 
 
 def latest_by_collection_time(candidates: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Latest explicit collection time, undecided only where it really is.
+
+    Date precision blocks the answer only when it can change the maximum:
+    a unique latest date wins whatever its own clock precision is, and a
+    day-precision clash inside the latest date stays undetermined.
+    """
     eligible = [
         c for c in candidates
         if c.get("identity_status") == "explicit" and c.get("collection_time") is not None
     ]
     if not eligible:
         return {"status": "insufficient", "candidates": [], "reason": "no_explicit_collection_time"}
-    if any(c.get("collection_precision") not in {"second", "minute"} for c in eligible):
-        return {"status": "insufficient", "candidates": eligible, "reason": "date_precision_insufficient"}
-    latest_time = max(c["collection_time"] for c in eligible)
-    latest = [c for c in eligible if c["collection_time"] == latest_time]
-    if len(latest) > 1:
-        return {"status": "undetermined", "candidates": latest, "reason": "collection_time_tie"}
-    return {"status": "ok", "candidates": latest, "reason": None}
+    latest_date = max(c["collection_time"].date() for c in eligible)
+    top = [c for c in eligible if c["collection_time"].date() == latest_date]
+    if len(top) == 1:
+        return {"status": "ok", "candidates": top, "reason": None}
+    if any(c.get("collection_precision") not in {"second", "minute"} for c in top):
+        return {"status": "undetermined", "candidates": top,
+                "reason": "same_day_overlap_precision_insufficient"}
+    latest_time = max(c["collection_time"] for c in top)
+    winners = [c for c in top if c["collection_time"] == latest_time]
+    if len(winners) > 1:
+        return {"status": "undetermined", "candidates": winners, "reason": "collection_time_tie"}
+    return {"status": "ok", "candidates": winners, "reason": None}
 
 
 def classify_c_candidate(candidate: dict[str, Any], *, require_unit: bool = False) -> dict[str, Any]:

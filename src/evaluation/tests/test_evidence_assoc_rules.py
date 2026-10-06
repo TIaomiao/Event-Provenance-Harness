@@ -66,11 +66,53 @@ class CandidateRulesTests(unittest.TestCase):
         self.assertEqual(result["status"], "undetermined")
         self.assertEqual({c["result_ref"] for c in result["candidates"]}, {"a:value", "b:value"})
 
-    def test_date_precision_is_unresolved(self):
+    def test_single_day_precision_candidate_is_the_latest(self):
+        # One record: nothing to order against, so its own clock precision
+        # cannot change the maximum.
         rows = hgb_block("a", "血红蛋白量", 110, "g/L", "100--160", "2024-01-02", "2024-01-02 09:00:00")
         result = latest_by_collection_time(extract_hgb_candidates(lab(rows)))
-        self.assertEqual(result["status"], "insufficient")
-        self.assertEqual(result["reason"], "date_precision_insufficient")
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["candidates"][0]["result_ref"], "a:value")
+
+    def test_day_precision_does_not_block_when_dates_differ(self):
+        rows = hgb_block("first", "血红蛋白量", 110, "g/L", "100--160", "2024-01-03", "2024-01-03 09:00:00")
+        rows += hgb_block("second", "血红蛋白量", 120, "g/L", "100--160", "2024-01-01 08:00:00", "2024-01-01 09:00:00")
+        result = latest_by_collection_time(extract_hgb_candidates(lab(rows)))
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["candidates"][0]["result_ref"], "first:value")
+
+    def test_same_day_day_precision_stays_undetermined(self):
+        rows = hgb_block("a", "血红蛋白量", 110, "g/L", "100--160", "2024-01-02", "2024-01-02 09:00:00")
+        rows += hgb_block("b", "血红蛋白量", 120, "g/L", "100--160", "2024-01-02", "2024-01-02 10:00:00")
+        result = latest_by_collection_time(extract_hgb_candidates(lab(rows)))
+        self.assertEqual(result["status"], "undetermined")
+        self.assertEqual(result["reason"], "same_day_overlap_precision_insufficient")
+
+    def test_same_day_resolved_by_clock(self):
+        rows = hgb_block("a", "血红蛋白量", 110, "g/L", "100--160", "2024-01-02 08:00:00", "2024-01-02 09:00:00")
+        rows += hgb_block("b", "血红蛋白量", 120, "g/L", "100--160", "2024-01-02 07:00:00", "2024-01-02 09:00:00")
+        result = latest_by_collection_time(extract_hgb_candidates(lab(rows)))
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["candidates"][0]["result_ref"], "a:value")
+
+    def test_related_hemoglobin_analytes_are_not_the_target(self):
+        # MCH/MCHC, HbA1c and blood-gas haemoglobins contain 血红蛋白 but are
+        # different analytes; they must not become anchored target records.
+        # A bare "HGB" on the following row has no project name of its own, so
+        # it may only surface as invalid_task, never as an explicit record.
+        for name in ("平均红细胞血红蛋白量", "红细胞平均血红蛋白浓度", "糖化血红蛋白",
+                     "氧合血红蛋白", "碳氧血红蛋白", "高铁血红蛋白", "还原血红蛋白",
+                     "Glycated Hemoglobin Report"):
+            rows = hgb_block("x", name, 110, "g/L", "100--160", "2024-01-02 08:00:00", "2024-01-02 09:00:00")
+            found = extract_hgb_candidates(lab(rows))
+            self.assertEqual([c for c in found if c["identity_status"] == "explicit"], [], name)
+
+    def test_whole_hemoglobin_project_names_are_still_the_target(self):
+        for name in ("血红蛋白", "血红蛋白量", "血红蛋白浓度", "*血红蛋白", "*#血红蛋白量"):
+            rows = hgb_block("x", name, 110, "g/L", "100--160", "2024-01-02 08:00:00", "2024-01-02 09:00:00")
+            found = extract_hgb_candidates(lab(rows))
+            self.assertEqual(len(found), 1, name)
+            self.assertEqual(found[0]["value"], 110, name)
 
     def test_identity_missing_is_invalid_task_not_contradicted(self):
         rows = [row("alias", "HGB"), row("value", "119"), row("unit", "g/L"), row("range", "115--150"), row("collection", "采集时间：2024-01-02 08:00:00"), row("report", "报告时间：2024-01-02 09:00:00")]
