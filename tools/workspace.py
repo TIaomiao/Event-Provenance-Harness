@@ -79,7 +79,7 @@ PROPOSAL_SECTIONS = [
 MATRIX_SECTIONS = ["精选阅读", "当前候选相关工作", "阅读卡", "证据状态定义", "检索边界与待核缺口"]
 ARCHIVE_SECTIONS = ["主题索引"]
 
-ALLOWED_STAGES = {"用户首轮阅读与研究反馈", "文献与任务/对照设计", "系统与验证", "成稿与投稿"}
+ALLOWED_STAGES = {"用户首轮阅读与研究反馈", "文献与任务/对照设计", "系统与验证", "接手与两张资料卡核对", "成稿与投稿"}
 REQUIRED_META = ["updated", "stage", "verified_commit"]
 
 # 论文概览里必须能被机器取到的字段：首屏要用它们做标题与副标题
