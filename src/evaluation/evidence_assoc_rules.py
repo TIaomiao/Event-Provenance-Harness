@@ -236,12 +236,17 @@ def latest_by_collection_time(candidates: Iterable[dict[str, Any]]) -> dict[str,
     return {"status": "ok", "candidates": latest, "reason": None}
 
 
-def classify_c_candidate(candidate: dict[str, Any], *, require_unit: bool = False) -> str:
-    """Classify only an identity-complete draft; never call null a contradiction."""
+def classify_c_candidate(candidate: dict[str, Any], *, require_unit: bool = False) -> dict[str, Any]:
+    """Check structure only.  This function never decides fact truth."""
     if candidate.get("identity_status") != "explicit":
-        return "invalid_task"
-    if candidate.get("value") is None or candidate.get("collection_time") is None:
-        return "insufficient"
+        return {"status": "invalid_task", "missing": ["identity"]}
+    missing = []
+    if candidate.get("value") is None:
+        missing.append("value")
+    if candidate.get("collection_time") is None:
+        missing.append("collection_time_role")
+    if not candidate.get("source_refs"):
+        missing.append("source_anchor")
     if require_unit and candidate.get("unit") is None:
-        return "insufficient"
-    return "supported"
+        missing.append("unit")
+    return {"status": "complete" if not missing else "incomplete", "missing": missing}
