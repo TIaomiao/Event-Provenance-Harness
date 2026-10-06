@@ -71,9 +71,11 @@
 
 **离线修正状态（NOT_RUN on real data）**：新增独立的合成候选规则和出站 guard。规则区分项目名、结果、单位和参考区间，支持单位单独占行；它不把参考区间下限当结果。`classify_c_candidate` 只检查结构、身份和缺失字段，不判断事实真假。合成测试覆盖参考区间、单位缺失、共享报告时间、采集/报告时间排序、并列、日期精度和身份缺失。出站 guard 区分 `synthetic`、`deidentified_test` 和 `raw_test`，默认阻止 raw OCR、`api_ready=false`、哈希不符、未批准 endpoint/pool profile、未知状态和缺少任务字段；合规合成样例只做 dry-run，不发网络请求。真实 pilot 旧输入、旧参考、旧响应和 v2 判读不变。
 
-**最小资料卡（受控、待人工核对）**：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，每卡 12 行，均只保留必要行定位并给出 raw 与 L2 脱敏草稿对照。卡片入口为受控只读页 `http://127.0.0.1:8877/cards.html`，身份处理对照在同页 `#identity`（依赖本机 SSH 隧道，不进入仓库与 Pages）。用户已于 2026-10-06 完成目视查看，但未回原始 PDF 比对数值，因此不构成人工 PDF 金标准；卡片不代表整份报告已查全，`api_ready` 仍为 false，不代填审核者、日期或通过状态。当前阶段即「接手与两张资料卡核对」。
+**最小资料卡（受控、待用户复核）**：CASE-167 的两条 HGB 项目—结果—单位—采集/报告时间卡，以及 CASE-102 的两条 HGB B 题时间卡，每卡 12 行，均只保留必要行定位。卡片入口为受控只读页 `http://127.0.0.1:8877/cards.html`，身份处理对照在同页 `#identity`，最终卡在同页 `#card-v03`（依赖本机 SSH 隧道，不进入仓库与 Pages）。用户已于 2026-10-06 完成目视查看，但未回原始 PDF 比对数值，因此不构成人工 PDF 金标准。用户在身份对照页确认 v0.2 卡路径上存在**真实姓名未替换**，因此完整 L2 继续保持 `NOT_SAFE`、不声明整份报告脱敏通过；`api_ready` 仍为 false，不代填审核者、日期或通过状态。
 
-**卡片用作 B 题输入时的已知边界**：在 `derived_evidence_card_v0.2` 的 deidentified 形态下，CASE-102 的采集日期以“相对日偏移 + 时钟”保留，采集先后与间隔经程序判定保持；CASE-167 的两个采集日期被替换为“日期已移除”、仅余时钟，跨日先后无法恢复，因此 B 题的“最近采集记录”在该卡片上不可判定。若要在该卡片上运行 B 题，必须回到派生层或改用 `raw_test`，不得因为“日期经过处理”就假定排序关系仍成立。
+**卡片日期口径（2026-10-06 统一）**：卡片使用「**病例内相对日 + 原始时钟／原有精度**」。同一病例的所有相关采集与报告时间必须共用同一 anchor 与同一变换，并保持：相等关系、时间先后、日期/时间间隔、以及「采集早于报告」的角色关系；**原始只有日期时不得创造时分秒**。CASE-102 的既有相对日表示保持并已程序复核；CASE-167 原先整段删除采集日期的形态**不接受**作为 B 题的 deidentified 输入，已按同一口径重新派生为 `derived_evidence_card_v0.3`，两条采集记录分处不同相对日、先后可恢复。程序判定两卡上述不变量全部保持，raw 历史材料与旧响应未被修改。
+
+**卡片级审核与放行（task-scoped）**：完整 L2 保持 `api_ready=false` / `NOT_SAFE`。卡片另有独立状态 `card_review_status` 与 `card_api_ready`，并在 `#card-v03` 给出六项验收表：`identity_leakage`、`task_fields_complete`、`time_order_preserved`、`time_interval_preserved`、`collection_report_relation_preserved`、`source_anchor_preserved`；取值只用 PASS / FAIL / NOT_APPLICABLE / UNKNOWN，且 **UNKNOWN 不自动当 PASS**。只有卡片自己的最终 body 满足「无不必要身份字段、必要项目/值/单位存在、B/C 所需时间关系保持、来源锚点仍可回溯、离线正文扫描通过」，并且用户复核通过后，才允许运行卡片级 `deidentified_test`。**卡片通过不翻转整份 L2 的 `api_ready` 状态。**
 
 **外发许可与输入模式（2026-10-06 确认）**：负责人已明确允许测试阶段的 raw OCR 外发，脱敏产物优先，属非生产授权。`raw_test` 必须显式绑定该许可、来源范围、用途、目标 endpoint 和号池配置；`deidentified_test` 仍要求 `api_ready=true` 与匹配 source hash；未审脱敏卡不能自动放行。任何模式都禁止静默 raw 回退、生产发送或手动翻转 `api_ready`/`quarantine`。
 
