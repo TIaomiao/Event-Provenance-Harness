@@ -87,7 +87,7 @@ verified_commit: c4a2c72
 
 **阻塞**
 
-1. **网关凭据被拒（具体阻塞，只影响模型调用）**：同一 key 在 2026-10-06 09:42Z 前完成 10 条卡片请求；此后所有请求（B/C、两个别名、raw/deidentified）返回 HTTP 401 `Invalid token`，另一次不含卡片内容的合成连通性检查同样 401。受影响范围：CASE-167 的 6 条（B/`[j]gpt-5.6-sol` 两条、C 四条）。需由负责人轮换/重发网关 token；本地 `.local/.env` 的 `LLM_API_KEY` 已不再被接受（值不入库、不打印）。离线工作不受影响。
+1. **网关凭据被拒（具体阻塞，只影响模型调用）**：同一 key 在 2026-10-06 09:42Z 前完成 10 条卡片请求；此后所有请求（B/C、两个别名、raw/deidentified）返回 HTTP 401 `Invalid token`，另一次不含卡片内容的合成连通性检查同样 401。该条件已连续跨 3 个工作轮次未变（截至本文件更新时间）。本地 `.local/.env` 只有 `LLM_BASE_URL` 与一个 `LLM_API_KEY`，无备用凭据。`.local/sanitize.py` 的脱敏规则里出现过**第二个历史网关主机名**，但它不在当前配置中；按 guard 的 destination 绑定，未经批准不得作为新目的地试探，因此**未测试**。受影响范围：M1 的 CASE-167 六条 + M2 的 30 个可运行槽位。恢复方式：轮换/重发该网关 token（或明确批准并指明新的 endpoint 与号池标识）。离线部分不受影响。
 2. **外发默认关闭但测试许可已明确**：负责人已明确允许测试阶段的 raw OCR 外发，脱敏产物优先，属非生产授权。guard 区分 `synthetic`/`deidentified_test`/`raw_test`，并绑定 endpoint 与 pool profile；`raw_test` 必须显式携带许可、来源范围、用途、目标 endpoint 和号池配置。provider 真实身份仍未确认，API 缺失字段保持未知。
 3. **C/B 口径与两项冻结问题已确认（2026-10-06 交接基准）**：C 只核验身份明确的记录—值—时间，`null`/`unresolved` 不自动构成矛盾，单位只在明确声明或换算要求中参与，缺项目名或来源锚点返回 `invalid_task`；B 只按冻结检验报告内明确关联的采集时间排序，并列与精度不足保留未决，允许来源定位代替内部 `record_id`。这两项不再重复索取确认。
 4. **正式参考键尚未冻结**：v2 只是统一修正层；本轮 M1 参考为**卡片/OCR 层**（`card_ocr_based_pending_manual_review`），不是人工金标准，也不是 PDF 事实核验。

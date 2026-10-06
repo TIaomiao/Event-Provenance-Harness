@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">AI-Ready EHR：面向真实临床病历准备的可复用 Harness–Agent<br><em>把扫描病历中的处理能力组织成可调用、可核验、可复用的系统，并检验准备后的资料是否更适合由独立 Agent 完成明确的整理与核验任务</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：卡片消费与自动报告处理基线</span><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>3466506c0f53</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>c4a2c72</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：卡片消费与自动报告处理基线</span><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>793d2423cb30</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>c4a2c72</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -337,7 +337,7 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <h3>阻塞与下一步</h3>
 <p><strong>阻塞</strong></p>
 <ol>
-<li><strong>网关凭据被拒（具体阻塞，只影响模型调用）</strong>：同一 key 在 2026-10-06 09:42Z 前完成 10 条卡片请求；此后所有请求（B/C、两个别名、raw/deidentified）返回 HTTP 401 <code>Invalid token</code>，另一次不含卡片内容的合成连通性检查同样 401。受影响范围：CASE-167 的 6 条（B/<code>[j]gpt-5.6-sol</code> 两条、C 四条）。需由负责人轮换/重发网关 token；本地 <code>.local/.env</code> 的 <code>LLM_API_KEY</code> 已不再被接受（值不入库、不打印）。离线工作不受影响。</li>
+<li><strong>网关凭据被拒（具体阻塞，只影响模型调用）</strong>：同一 key 在 2026-10-06 09:42Z 前完成 10 条卡片请求；此后所有请求（B/C、两个别名、raw/deidentified）返回 HTTP 401 <code>Invalid token</code>，另一次不含卡片内容的合成连通性检查同样 401。该条件已连续跨 3 个工作轮次未变（截至本文件更新时间）。本地 <code>.local/.env</code> 只有 <code>LLM_BASE_URL</code> 与一个 <code>LLM_API_KEY</code>，无备用凭据。<code>.local/sanitize.py</code> 的脱敏规则里出现过<strong>第二个历史网关主机名</strong>，但它不在当前配置中；按 guard 的 destination 绑定，未经批准不得作为新目的地试探，因此<strong>未测试</strong>。受影响范围：M1 的 CASE-167 六条 + M2 的 30 个可运行槽位。恢复方式：轮换/重发该网关 token（或明确批准并指明新的 endpoint 与号池标识）。离线部分不受影响。</li>
 <li><strong>外发默认关闭但测试许可已明确</strong>：负责人已明确允许测试阶段的 raw OCR 外发，脱敏产物优先，属非生产授权。guard 区分 <code>synthetic</code>/<code>deidentified_test</code>/<code>raw_test</code>，并绑定 endpoint 与 pool profile；<code>raw_test</code> 必须显式携带许可、来源范围、用途、目标 endpoint 和号池配置。provider 真实身份仍未确认，API 缺失字段保持未知。</li>
 <li><strong>C/B 口径与两项冻结问题已确认（2026-10-06 交接基准）</strong>：C 只核验身份明确的记录—值—时间，<code>null</code>/<code>unresolved</code> 不自动构成矛盾，单位只在明确声明或换算要求中参与，缺项目名或来源锚点返回 <code>invalid_task</code>；B 只按冻结检验报告内明确关联的采集时间排序，并列与精度不足保留未决，允许来源定位代替内部 <code>record_id</code>。这两项不再重复索取确认。</li>
 <li><strong>正式参考键尚未冻结</strong>：v2 只是统一修正层；本轮 M1 参考为<strong>卡片/OCR 层</strong>（<code>card_ocr_based_pending_manual_review</code>），不是人工金标准，也不是 PDF 事实核验。</li>
