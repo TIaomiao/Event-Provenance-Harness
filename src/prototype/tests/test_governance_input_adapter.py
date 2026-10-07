@@ -122,13 +122,6 @@ class AdapterTest(unittest.TestCase):
         self.assertNotIn("text", deid["lines"][0])
         self.assertEqual(deid["source_snapshot"]["input_mode"], "deidentified_test")
 
-    def test_candidate_scan_requires_text(self):
-        records = [row("血红蛋白", 0)]
-        root = self.build(l1(records), l2(records))
-        view = adapter.load_document(root, input_mode="deidentified_test")
-        with self.assertRaises(adapter.AdapterError):
-            adapter.candidate_records(view)
-
     def test_ids_do_not_leak_case_or_doc(self):
         records = [row("血红蛋白", 0), row("血红蛋白", 1)]
         root = self.build(l1(records), l2(records))
@@ -149,11 +142,70 @@ class AdapterTest(unittest.TestCase):
                    row("血红蛋白", 3)]
         root = self.build(l1(records), l2(records))
         view = adapter.load_document(root, input_mode="raw_test")
-        candidates = adapter.candidate_records(view)
+        candidates = adapter.candidate_records(view, mode="per-row")
         anchors = [candidate["anchor"] for candidate in candidates]
         self.assertEqual(anchors, ["L0", "L3"])
-        self.assertTrue(any("UNIT_NOT_FOUND" in candidate["quality_issues"]
+        self.assertTrue(all("UNIT_NOT_FOUND" in candidate["unresolved"]
                             for candidate in candidates))
+        self.assertTrue(all(candidate["extractor"] == "per-row" for candidate in candidates))
+
+    def test_rule_mode_normalizes_extractor_output(self):
+        records = [row("血红蛋白", 0)]
+        root = self.build(l1(records), l2(records))
+        view = adapter.load_document(root, input_mode="raw_test")
+        original = adapter._rules
+        adapter._rules = lambda: (lambda docs: [{
+            "project_name": "HGB", "value": 145.0, "unit": "g/L",
+            "identity_status": "explicit", "project_ref": "L0", "result_ref": "L0",
+            "unit_ref": "L2", "collection_ref": None, "report_ref": None,
+            "page": 1, "collection_time": None, "collection_precision": None}])
+        try:
+            candidates = adapter.candidate_records(view)
+        finally:
+            adapter._rules = original
+        self.assertEqual(len(candidates), 1)
+        candidate = candidates[0]
+        self.assertEqual(candidate["extractor"], "rule")
+        self.assertEqual(candidate["value"], 145.0)
+        self.assertEqual(candidate["unit"], "g/L")
+        self.assertEqual(candidate["anchor"], "L0")
+        self.assertEqual(candidate["identity_status"], "explicit")
+        self.assertIn("COLLECTION_TIME_MISSING", candidate["unresolved"])
+        self.assertIn("COLLECTION_ANCHOR_MISSING", candidate["unresolved"])
+        self.assertIn("REPORT_ANCHOR_MISSING", candidate["unresolved"])
+        self.assertNotIn("VALUE_MISSING", candidate["unresolved"])
+        self.assertNotIn("CASE-SYNTHETIC", candidate["record_id"])
+
+    def test_rule_mode_marks_missing_value_and_unit(self):
+        records = [row("血红蛋白", 0)]
+        root = self.build(l1(records), l2(records))
+        view = adapter.load_document(root, input_mode="raw_test")
+        original = adapter._rules
+        adapter._rules = lambda: (lambda docs: [{
+            "project_name": "HGB", "value": None, "unit": None,
+            "identity_status": "explicit", "project_ref": "L0", "result_ref": "L0",
+            "unit_ref": None, "collection_ref": None, "report_ref": None,
+            "page": 1, "collection_time": None, "collection_precision": None}])
+        try:
+            candidates = adapter.candidate_records(view)
+        finally:
+            adapter._rules = original
+        self.assertIn("VALUE_MISSING", candidates[0]["unresolved"])
+        self.assertIn("UNIT_MISSING", candidates[0]["unresolved"])
+
+    def test_unknown_candidate_mode_is_refused(self):
+        records = [row("血红蛋白", 0)]
+        root = self.build(l1(records), l2(records))
+        view = adapter.load_document(root, input_mode="raw_test")
+        with self.assertRaises(adapter.AdapterError):
+            adapter.candidate_records(view, mode="guessed")
+
+    def test_candidate_scan_requires_text(self):
+        records = [row("血红蛋白", 0)]
+        root = self.build(l1(records), l2(records))
+        view = adapter.load_document(root, input_mode="deidentified_test")
+        with self.assertRaises(adapter.AdapterError):
+            adapter.candidate_records(view)
 
     def test_quarantine_and_residual_surface_as_unresolved(self):
         records = [row("血红蛋白", 0)]

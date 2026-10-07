@@ -244,44 +244,85 @@ def load_document(doc_dir, *, input_mode, review_scope=None, case_category=None)
     }
 
 
-def candidate_records(view, *, role_labels=None):
-    """Return target-analyte candidate rows without any task-time selection.
+def _rules():
+    from evidence_assoc_rules import extract_hgb_candidates
+    return extract_hgb_candidates
 
-    Every target-like row is kept, including ones with a missing value or unit;
-    each carries its anchor, its unresolved reasons and its binding status.  No
-    clinical merging happens here, so two rows on one day stay two records.
+
+def candidate_records_per_row(view):
+    """Diagnostic only: the naive per-row extractor.
+
+    Kept so the comparison stays reproducible.  It is NOT the adapter's record
+    path: one laboratory row band is split across several OCR lines (project
+    name, alias, value, unit and reference range are separate lines), so a
+    per-line parse loses the value and the unit by construction.
     """
     matcher = _hgb_name()
-    rows = view["lines"]
-    by_anchor = {row["anchor"]: row for row in rows}
-    candidates = []
-    for row in rows:
-        text = row.get("text")
-        if text is None:
-            raise AdapterError("RAW_TEXT_UNAVAILABLE_FOR_CANDIDATE_SCAN")
-        if not matcher.match(text.strip()):
-            continue
-        candidates.append({
-            "anchor": row["anchor"],
-            "record_id": row["record_id"],
-            "page_number": row["page_number"],
-            "bbox": row["bbox"],
-            "value_state": MISSING if row.get("value") is None else PRESENT,
-            "unresolved": list(row.get("unresolved") or []),
-        })
-    if not candidates:
+    rows = [row for row in view["lines"] if matcher.match(str(row.get("text") or "").strip())]
+    if not rows:
         return []
     layout = {"case_token": view["source_snapshot"]["case_token"],
               "document_token": view["source_snapshot"]["document_token"],
-              "records": [{"text": by_anchor[c["anchor"]]["text"],
-                           "bbox": c["bbox"],
-                           "page_number": c["page_number"],
-                           "confidence": by_anchor[c["anchor"]]["confidence"]}
-                          for c in candidates]}
+              "records": [{"text": row["text"], "bbox": row["bbox"],
+                           "page_number": row["page_number"],
+                           "confidence": row["confidence"]} for row in rows]}
     adapted = adapt_layout(layout)
-    for candidate, record in zip(candidates, adapted["records"]):
-        candidate["value_text"] = record["value_text"]
-        candidate["unit"] = record["unit"]
-        candidate["column_reconstruction_status"] = record["column_reconstruction_status"]
-        candidate["quality_issues"] = record["quality_issues"]
-    return candidates
+    out = []
+    for row, record in zip(rows, adapted["records"]):
+        out.append({"anchor": row["anchor"], "record_id": row["record_id"],
+                    "value": record["value_text"], "unit": record["unit"],
+                    "identity_status": ("explicit" if record["validation_status"] == "valid"
+                                        else "unresolved"),
+                    "unresolved": list(record["quality_issues"]),
+                    "extractor": "per-row"})
+    return out
+
+
+def candidate_records(view, *, mode="rule"):
+    """Candidate target records from the frozen view, without task-time selection.
+
+    ``mode="rule"`` reuses the validated cross-row rule path, which associates
+    the cells of one visual row band through their geometry.  ``mode="per-row"``
+    is the diagnostic above.  Every candidate is kept, including ones with a
+    missing value or unit, and unresolved reasons are reported per record.  No
+    clinical merging happens here, so two rows on one day stay two records.
+    """
+    if mode == "per-row":
+        return candidate_records_per_row(view)
+    if mode != "rule":
+        raise AdapterError("UNKNOWN_CANDIDATE_MODE:%s" % mode)
+    case = view["source_snapshot"]["case_token"]
+    doc = view["source_snapshot"]["document_token"]
+    mapped = [{"text": line.get("text"), "line_ref": line["anchor"],
+               "page": line["page_number"]} for line in view["lines"]]
+    if any(item["text"] is None for item in mapped):
+        raise AdapterError("RAW_TEXT_UNAVAILABLE_FOR_CANDIDATE_SCAN")
+    extracted = _rules()([{"doc": doc, "category": "laboratory_report", "records": mapped}])
+    out = []
+    for record in extracted:
+        index = int(str(record.get("result_ref") or "L0")[1:])
+        unresolved = []
+        if record.get("value") is None:
+            unresolved.append("VALUE_MISSING")
+        if record.get("unit") is None:
+            unresolved.append("UNIT_MISSING")
+        if record.get("collection_time") is None:
+            unresolved.append("COLLECTION_TIME_MISSING")
+        if record.get("collection_ref") is None:
+            unresolved.append("COLLECTION_ANCHOR_MISSING")
+        if record.get("report_ref") is None:
+            unresolved.append("REPORT_ANCHOR_MISSING")
+        out.append({
+            "anchor": record.get("result_ref"),
+            "record_id": stable_record_id(case, doc, index),
+            "project_name": record.get("project_name"),
+            "value": record.get("value"), "unit": record.get("unit"),
+            "identity_status": record.get("identity_status"),
+            "project_ref": record.get("project_ref"), "result_ref": record.get("result_ref"),
+            "unit_ref": record.get("unit_ref"), "collection_ref": record.get("collection_ref"),
+            "report_ref": record.get("report_ref"), "page_number": record.get("page"),
+            "collection_time": record.get("collection_time"),
+            "collection_precision": record.get("collection_precision"),
+            "unresolved": unresolved, "extractor": "rule",
+        })
+    return out

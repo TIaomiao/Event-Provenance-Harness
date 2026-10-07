@@ -65,7 +65,7 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">面向任务的纵向 EHR 证据选择（Task-Conditioned Evidence Selection for Longitudinal EHR）<br><em>研究自然语言取数要求能否被正确解释并执行——在纵向 EHR 记录上选出任务真正需要的记录集合、时间点与来源，并如实交出未决状态</em></h1>
-<div class="stamp"><span class="chip stage">当前阶段：治理输入适配与任务选择 baseline</span><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>e2ea5e7b34d9</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>70750fe</b></span></div>
+<div class="stamp"><span class="chip stage">当前阶段：治理输入适配与任务选择 baseline</span><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>0e0342a0480b</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>70750fe</b></span></div>
 </header>
 <nav class="tabs">
 <a href="#paper">论文概览</a>
@@ -105,16 +105,16 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <li><strong>同一模型不是公平性充分条件</strong>：输入、任务、资源与修复规则都要记录；provider 与部分服务端标识未知时不作家族推断。</li>
 <li><strong>方法增益未证实</strong>：本阶段只跑通流程并给出可归因失败，不给方法排名。</li>
 </ol>
-<h3 id="当前选题判别-pilot-2026-10-工作稿">当前选题判别 pilot（2026-10 工作稿）</h3>
-<p><strong>最强反驳</strong>：如果 B1-V 或 B2 已能稳定保持记录—值—时间—来源关系，候选机制没有新增价值；如果失败主要来自 OCR、输出截断或 parser 尚未接入，不能把它写成证据路由问题；如果有限补查只增加请求和成本，B3 不成立。</p>
+<h3 id="历史-证据关联候选-pilot-2026-10-已停止续跑">历史：证据关联候选 pilot（2026-10，已停止续跑）</h3>
+<blockquote><strong>本小节是历史记录。</strong> 它描述的 B1/B1-V/B2/B3 条件与“证据关联”候选机制<strong>不再是现役方案</strong>，不再发布续跑安排。现役方案是本文件顶部的 R1/R2 任务选择 baseline；B1/B2/B3 的实测读数（含其参考与抽取器限制）保留在 <code>results/2026-10-02_evidence_association_pilot.md</code> 与 <code>results/2026-10-06_task_selection_baseline.md</code> 中作为历史证据与错误类型来源。</blockquote>
+<p><strong>最强反驳（历史）</strong>：如果 B1-V 或 B2 已能稳定保持记录—值—时间—来源关系，候选机制没有新增价值；如果失败主要来自 OCR、输出截断或 parser 尚未接入，不能把它写成证据路由问题；如果有限补查只增加请求和成本，B3 不成立。</p>
 <p><strong>候选机制</strong>：在准备产物中显式保存记录—值—时间角色—来源范围的关联；运行任务前检查该任务需要的关系是否齐全；缺口只触发有限、可记录的 <code>lookup</code>、<code>reparse</code> 或 <code>defer</code> 动作。Jev 是动作选择器的一个可替换后端，与规则和普通 LLM 共用状态、动作、执行器和后置检查；不凭置信度发布事实。</p>
 <p><strong>强基线与对照</strong>：</p>
 <div class="tw"><table><thead><tr><th>条件</th><th>定义</th><th>当前用途</th></tr></thead><tbody><tr><td>B1</td><td>原文 + 合理搜索、分页、通用计算；按统一任务契约回答并给证据</td><td>强基线</td></tr><tr><td>B1-V</td><td>B1 加明确的证据范围、时间角色、未决和一次有限修正检查</td><td>核验基线</td></tr><tr><td>B2</td><td>固定准备流水线，保留来源、时间角色、未决和可回查证据</td><td>准备基线</td></tr><tr><td>B3</td><td>在 B2 上增加候选关联检查与有限补查动作；Jev 仅作动作后端对照</td><td>只有在开发集发现残余问题时实现</td></tr></tbody></table></div>
 <p><strong>初始任务与样本</strong>：目标为 6 个开发包、12 个独立验证包；首轮取 2 个开发包，每包三题——A 指定采集窗口内符合数值条件的记录，B 截至某报告时点可获得的最近采集记录，C 候选“记录—值—时间”组合是否被资料支持。任务只针对冻结资料范围，不询问全病史首次事件；自然案例与人为构造核验命题分开统计。</p>
 <p><strong>判定依据</strong>：源记录字面事实先独立核对，任务答案由确定性程序计算；模型不能读取答案键。分别报告可核验任务成功率、内容正确率、可回答题的正确回答、不足资料上的错误确定回答、证据关联错误、技术失败和实际总成本。参考尚待核对时允许运行，但结果标为 <code>reference_pending</code>，不写成可信正确率。</p>
-<p><strong>继续条件</strong>：18 条初始轨迹中出现可复核的关系错接，且 B1-V/B2 尚未稳定解决；其错误能由新增关联检查或有限补查动作定位。<strong>退出条件</strong>：强基线已解决，或残余错误主要来自 OCR/解析、任务歧义或输出接口，或 B3 没有新增证据收益。此时转为错误分析/评测协议资产，不强行实现大 Agent 系统。</p>
-<p><strong>阶段顺序</strong>：先做合成输入与评分自检；再运行 2 个开发包 × 3 题 × 3 条件 = 18 条轨迹；若有残余问题，完成其余 4 个开发包的同类比较；冻结后再用 B1/B1-V/B2/B3 在 12 个独立验证包上做完整配对。每包 3 题、2 次重复，预算不足时按预先规定的完整配对块减少。</p>
-<p><strong>当前 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
+<p><strong>续跑安排（已停止）</strong>：原“继续条件／退出条件”和“阶段顺序”（2 开发包 × 3 题 × 3 条件 = 18 条轨迹、再扩 4 包、最后 12 个独立验证包）<strong>不再执行</strong>。停止原因是 2026-10-06 的两批实测：M2 那批的参考分布退化且参考与 B2 共用抽取器，本批任务集在 2 条记录的开发包上没有区分度。历史读数保留，不再据此推进 B 系列条件。</p>
+<p><strong>历史 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
 <p><strong>C/B 开发口径（v0.2，2026-10-03；任务定义，不是人工金标准）</strong>：</p>
 <ul>
 <li><strong>C</strong> 只核验身份明确的记录—值—时间。<code>null</code> / <code>unresolved</code> 是处理状态，不自动构成矛盾；单位只在明确声明或数值换算要求中参与事实判定。候选必须带项目名和来源锚点；身份缺失返回 <code>invalid_task</code>，不强制归入 <code>supported</code> / <code>contradicted</code> / <code>insufficient</code>。CASE-102 旧题保持“候选构造错误”，不使用补齐后的候选反向给旧响应补分。</li>
@@ -135,12 +135,13 @@ padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
 <p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
 <div class="tw"><table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>当前工作单元</td><td>治理输入适配与任务选择 baseline（含 A 输入兼容与覆盖测量、B 任务条件→记录选择→来源输出的最小闭环）</td></tr><tr><td>主要写入会话</td><td>本机 DSH 会话（2026-10-06 接手并持续执行）；上一轮主要写入者为本地 Codex（2026-10-03）</td></tr><tr><td>当前阶段</td><td>治理输入适配与任务选择 baseline</td></tr><tr><td>工作方向</td><td>面向任务的纵向 EHR 证据选择（Task-Conditioned Evidence Selection for Longitudinal EHR）</td></tr><tr><td>上一轮提交</td><td><code>main</code> @ <code>70750fe</code>（M2 离线判读与评分记录修正）；本轮在其之上继续</td></tr><tr><td>代码 / 协议版本</td><td>代码：<code>main</code>；现役规格：<code>paper/PROPOSAL.md</code> 的「论文概览」；新增入库模块：<code>src/prototype/governance_input_adapter.py</code>（v0.1）、<code>src/evaluation/task_selection.py</code>（v0.1）；受控运行器与产物在受控端 <code>/tmp/task_selection_v1/</code>、<code>/tmp/full01_coverage_v1/</code>（均不入库）</td></tr><tr><td>新一轮真实数据实验</td><td>本轮任务选择 baseline 真实请求 <strong>24 条逻辑轨迹 / 24 次实际请求</strong>（0 次协议修复），别名 <code>[j]gemini-3-flash</code>；未重跑历史 24 条、未重跑 54 条合成矩阵、未回灌生产 <code>ehr_pipeline.py</code></td></tr><tr><td>未跟踪文件</td><td><code>JEV_ROUND2_HANDOFF/</code> 与 <code>paper/ten decision points.png</code> 保持原样，不纳入本轮提交</td></tr><tr><td>归档批次</td><td><code>archive/20260919_workspace_c14e4b2/</code>（48 条登记，逐份 SHA-256）</td></tr></tbody></table></div>
 <h3>当前任务</h3>
+<p>现役工作单元是<strong>治理输入适配与任务选择 baseline</strong>，两支并行：</p>
 <ol>
-<li><strong>执行端</strong>：上一轮（本地 Codex）已核对 source snapshot/文件哈希/页范围、完成历史 18 条最终有效轨迹、发送前调用链拦截测试、C 结构检查和两张受控卡片更新。本轮 DSH 接手只恢复只读卡片入口、同步已确认口径并修正现役文字；没有重审历史 24 条请求，没有新增模型请求。</li>
-<li><strong>用户阅读</strong>：DocETL（arXiv:2410.12189 v3）与 Sufficient Context（arXiv:2411.06037 v3）各完成定向阅读，记录其对证据范围、检索失败和验证设计的影响；当前本人阅读状态待回填。</li>
-<li><strong>下次师兄反馈</strong>：带候选假设、最强反驳、pilot 当前阻塞/结果和继续/退出条件；不把“证据关联”写成已验证创新。</li>
+<li><strong>A 输入兼容与覆盖测量</strong>：适配层对 <code>schema 0.9/1.0</code> 逐字段核对并通过逐行对齐检查；<code>batch-full-01</code> 的元数据与记录层覆盖已实测（记录层只覆盖 <code>laboratory_report</code> 与单一目标项目）。</li>
+<li><strong>B 任务条件→记录选择→来源输出的最小闭环</strong>：R1（直接选择）与 R2（先计划再执行）在同一冻结记录视图、同一别名、同一预算与修复规则下各跑 2 次重复。<strong>R2 是 baseline，不是新方法。</strong></li>
 </ol>
-<p>三项都属阅读与设计；不需要审批即可推进。</p>
+<p>本轮真实请求 <strong>24 条逻辑轨迹 / 24 次实际请求</strong>（0 次结构修复）；未重跑历史 24 条、未重跑 54 条合成矩阵、未回灌生产 <code>ehr_pipeline.py</code>、未恢复全量 OCR。旧 <code>results/</code> 与旧台账记录保持原样。</p>
+<p>下一交付：把任务集做出区分度（多记录、跨多相对日、含并列与空集合），并补检验表格的 bbox 行列重建；参考的人工核对与 Jev 接入排在其后。</p>
 <h3>最新可核验交付</h3>
 <ul>
 <li><strong>首轮阅读包（2026-09-19/20，仓库外的本地阅读包 <code>26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/</code>）</strong>：四篇原文均已取得并落盘——JCM AI-Ready（Europe PMC 官方全文 XML 转出；MDPI PDF 被 Cloudflare 拦截未取得）、Infherno（arXiv 版 + EACL 2026 发表版，各 12 页）、FHIR-AgentBench（19 页 PDF）、HealthFlow（27 页）。四张阅读卡含逐节原文定位、术语解释与关键段落中译；另有一份两页反馈模板。</li>
@@ -265,16 +266,16 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <li><strong>自动实验驱动器</strong>：按协议跑条件、做自检、产出只含聚合数字的结果。</li>
 </ul>
 <p><strong>复用的含义必须可检验</strong>：跨病例、跨未见任务复用同一套组件，减少逐题定制；<strong>准备阶段不得读取留出题目或其答案</strong>。</p>
-<h3>当前选题判别 pilot</h3>
-<p><strong>最强反驳</strong>：如果 B1-V 或 B2 已能稳定保持记录—值—时间—来源关系，候选机制没有新增价值；如果失败主要来自 OCR、输出截断或 parser 尚未接入，不能把它写成证据路由问题；如果有限补查只增加请求和成本，B3 不成立。</p>
+<h3>历史：证据关联候选 pilot（已停止续跑）</h3>
+<blockquote><strong>本小节是历史记录。</strong> 它描述的 B1/B1-V/B2/B3 条件与“证据关联”候选机制<strong>不再是现役方案</strong>，不再发布续跑安排。现役方案是本文件顶部的 R1/R2 任务选择 baseline；B1/B2/B3 的实测读数（含其参考与抽取器限制）保留在 <code>results/2026-10-02_evidence_association_pilot.md</code> 与 <code>results/2026-10-06_task_selection_baseline.md</code> 中作为历史证据与错误类型来源。</blockquote>
+<p><strong>最强反驳（历史）</strong>：如果 B1-V 或 B2 已能稳定保持记录—值—时间—来源关系，候选机制没有新增价值；如果失败主要来自 OCR、输出截断或 parser 尚未接入，不能把它写成证据路由问题；如果有限补查只增加请求和成本，B3 不成立。</p>
 <p><strong>候选机制</strong>：在准备产物中显式保存记录—值—时间角色—来源范围的关联；运行任务前检查该任务需要的关系是否齐全；缺口只触发有限、可记录的 <code>lookup</code>、<code>reparse</code> 或 <code>defer</code> 动作。Jev 是动作选择器的一个可替换后端，与规则和普通 LLM 共用状态、动作、执行器和后置检查；不凭置信度发布事实。</p>
 <p><strong>强基线与对照</strong>：</p>
 <div class="tw"><table><thead><tr><th>条件</th><th>定义</th><th>当前用途</th></tr></thead><tbody><tr><td>B1</td><td>原文 + 合理搜索、分页、通用计算；按统一任务契约回答并给证据</td><td>强基线</td></tr><tr><td>B1-V</td><td>B1 加明确的证据范围、时间角色、未决和一次有限修正检查</td><td>核验基线</td></tr><tr><td>B2</td><td>固定准备流水线，保留来源、时间角色、未决和可回查证据</td><td>准备基线</td></tr><tr><td>B3</td><td>在 B2 上增加候选关联检查与有限补查动作；Jev 仅作动作后端对照</td><td>只有在开发集发现残余问题时实现</td></tr></tbody></table></div>
 <p><strong>初始任务与样本</strong>：目标为 6 个开发包、12 个独立验证包；首轮取 2 个开发包，每包三题——A 指定采集窗口内符合数值条件的记录，B 截至某报告时点可获得的最近采集记录，C 候选“记录—值—时间”组合是否被资料支持。任务只针对冻结资料范围，不询问全病史首次事件；自然案例与人为构造核验命题分开统计。</p>
 <p><strong>判定依据</strong>：源记录字面事实先独立核对，任务答案由确定性程序计算；模型不能读取答案键。分别报告可核验任务成功率、内容正确率、可回答题的正确回答、不足资料上的错误确定回答、证据关联错误、技术失败和实际总成本。参考尚待核对时允许运行，但结果标为 <code>reference_pending</code>，不写成可信正确率。</p>
-<p><strong>继续条件</strong>：18 条初始轨迹中出现可复核的关系错接，且 B1-V/B2 尚未稳定解决；其错误能由新增关联检查或有限补查动作定位。<strong>退出条件</strong>：强基线已解决，或残余错误主要来自 OCR/解析、任务歧义或输出接口，或 B3 没有新增证据收益。此时转为错误分析/评测协议资产，不强行实现大 Agent 系统。</p>
-<p><strong>阶段顺序</strong>：先做合成输入与评分自检；再运行 2 个开发包 × 3 题 × 3 条件 = 18 条轨迹；若有残余问题，完成其余 4 个开发包的同类比较；冻结后再用 B1/B1-V/B2/B3 在 12 个独立验证包上做完整配对。每包 3 题、2 次重复，预算不足时按预先规定的完整配对块减少。</p>
-<p><strong>当前 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
+<p><strong>续跑安排（已停止）</strong>：原“继续条件／退出条件”和“阶段顺序”（2 开发包 × 3 题 × 3 条件 = 18 条轨迹、再扩 4 包、最后 12 个独立验证包）<strong>不再执行</strong>。停止原因是 2026-10-06 的两批实测：M2 那批的参考分布退化且参考与 B2 共用抽取器，本批任务集在 2 条记录的开发包上没有区分度。历史读数保留，不再据此推进 B 系列条件。</p>
+<p><strong>历史 pilot 状态（2026-10-02）</strong>：CASE-102 与 CASE-167 的 18 条最终有效轨迹已完成，全部 HTTP 200；初步机械读数为 A 6/6、B 3/6、C 0/6。参考键仍待人工/原页核验，不能据此报告可信正确率。初版 B2 载荷曾复用参考抽取结果，已作废并用独立 line-level preparation 重跑；作废请求的费用保留在总账中，不进入比较表。</p>
 <p><strong>C/B 开发口径（v0.2，2026-10-03；任务定义，不是人工金标准）</strong>：</p>
 <ul>
 <li><strong>C</strong> 只核验身份明确的记录—值—时间。<code>null</code> / <code>unresolved</code> 是处理状态，不自动构成矛盾；单位只在明确声明或数值换算要求中参与事实判定。候选必须带项目名和来源锚点；身份缺失返回 <code>invalid_task</code>，不强制归入 <code>supported</code> / <code>contradicted</code> / <code>insufficient</code>。CASE-102 旧题保持“候选构造错误”，不使用补齐后的候选反向给旧响应补分。</li>
@@ -289,7 +290,7 @@ Harness：文档读取与定位、提取与规范化、时间与来源关联、
 <p><strong>合成别名与任务判定矩阵（2026-10-03，NOT_RUN on patient data）</strong>：固定 6 个合成场景、3 个别名、3 次重复，共 54 个逻辑请求。矩阵只测当前路由可用性、返回模型标签和固定合成任务的重复一致性；503 是服务失败，不是内容错误；provider 未返回时标为 <code>provider_unknown=true</code>。本轮结果不验证真实模型身份，也不支持供应商无关结论。两份资料卡的 24 个卡片逻辑请求保持 <code>NOT_RUN</code>，不因 raw 测试许可自动放行 deidentified 草稿。</p>
 <p>号池反馈进一步确认：前缀是渠道标记，不是模型家族标记；<code>c-</code> 渠道已撤下。pricing 页面价格统一按人民币显示。合成矩阵中的 503 仅是探针时间点状态，不能写成永久不可用或模型能力失败。</p>
 <h3>Benchmark v0.1 工作稿</h3>
-<blockquote>本节保留为较宽的评测外框。当前具体实验以“当前选题判别 pilot”为准；预算、样本量、任务规则和最终主指标需在开发烟测后冻结。</blockquote>
+<blockquote>本节保留为较宽的评测外框。当前具体实验以本文件顶部的 <strong>R1/R2 任务选择 baseline</strong> 为准；下面的 B1/B1-V/B2/B3 表格是历史条件定义，不再发布续跑安排。预算、样本量、任务规则和最终主指标需在开发烟测后冻结。</blockquote>
 <h3 id="可执行的-AI-ready-定义">可执行的 AI-ready 定义</h3>
 <p>针对明确的使用任务，资料包具备可理解的字段含义、可区分的时间和状态、可回溯的证据，以及可重复调用的访问方式，使未参与准备过程的消费者 Agent 能按约定完成任务，而不需要开发者逐题修改资料或代码。AI-ready 是任务和条件相关的使用性质，不预设某种准备方式必然胜出，也不把一个全局 readiness 分数作为本轮结论。</p>
 <h3 id="第一轮任务顺序">第一轮任务顺序</h3>

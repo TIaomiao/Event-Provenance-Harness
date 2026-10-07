@@ -59,7 +59,7 @@ PANEL_SECTIONS = [
 ]
 PROPOSAL_SECTIONS = [
     "论文概览",
-    "当前选题判别 pilot（2026-10 工作稿）",
+    "历史：证据关联候选 pilot（2026-10，已停止续跑）",
     "Benchmark v0.1 工作稿",
     "问题",
     "目标使用者与使用场景",
@@ -530,8 +530,8 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 {render("proposal:输入与输出")}
 <h3>整体架构</h3>
 {render("proposal:整体架构")}
-<h3>当前选题判别 pilot</h3>
-{render("proposal:当前选题判别 pilot（2026-10 工作稿）")}
+<h3>历史：证据关联候选 pilot（已停止续跑）</h3>
+{render("proposal:历史：证据关联候选 pilot（2026-10，已停止续跑）")}
 <h3>Benchmark v0.1 工作稿</h3>
 {render("proposal:Benchmark v0.1 工作稿")}
 <h3>组件与现有实现对照</h3>
