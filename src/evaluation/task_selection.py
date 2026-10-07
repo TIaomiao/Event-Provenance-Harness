@@ -64,6 +64,14 @@ class SelectionError(ValueError):
 
 
 def has_clock(record) -> bool:
+    """True only when the row carries an observed clock.
+
+    A row recorded at day precision has no usable clock: the ``00:00:00`` the rule
+    path attaches to it is an artifact, and comparing it with a real time would
+    invent an ordering.
+    """
+    if str(record.get("precision") or "").lower() in {"day", "date", ""}:
+        return False
     clock = record.get("clock")
     return isinstance(clock, str) and bool(CLOCK_RE.match(clock.strip()))
 
@@ -204,7 +212,8 @@ def eligible_records(records, plan):
 
     ``time_role`` is applied as a filter.  A role no record carries yields an
     empty eligible set and an explicit status, never a silent fallback to the
-    collection time.
+    collection time.  A record outside the window is not a candidate at all, so it
+    never turns an empty window into an undetermined one.
     """
     usable, incomplete, role_supported = [], [], False
     for record in records:
@@ -212,17 +221,16 @@ def eligible_records(records, plan):
             role_supported = True
         else:
             continue
+        day = record.get("day_offset")
+        if day is None or not _in_window(record, plan["window"]):
+            continue
         if record.get("identity_status") != "explicit":
             incomplete.append(record)
             continue
         if record.get("value") is None or record.get("unit") is None:
             incomplete.append(record)
             continue
-        if record.get("day_offset") is None:
-            incomplete.append(record)
-            continue
-        if _in_window(record, plan["window"]):
-            usable.append(record)
+        usable.append(record)
     return usable, incomplete, role_supported
 
 
