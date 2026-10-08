@@ -2,6 +2,14 @@
 
 本文件是**唯一现役研究规格**。当前状态与已定选择见 [CONTROL_PANEL.md](../CONTROL_PANEL.md)；文献判断见 [related_work/AI_READY_EVIDENCE_MATRIX.md](../related_work/AI_READY_EVIDENCE_MATRIX.md)。
 
+## 给读者的问题说明
+
+> 本节是**给读者（含师兄）的短说明**，由 `tools/workspace.py` 渲染到公开简报。执行规则与详细状态在 AGENTS、CONTROL_PANEL 与本文件其余章节。
+
+**中文一句话**：同一批纵向病历里，一句话的取数要求（要哪些字段、取哪个时间点、按什么范围）能不能被正确理解，并选出真正该用的那几条记录。
+
+**两条记录的说明性例子（合成，非实测失败）**：同一位患者有两条同一项目的记录，一次落在相对日 0、一次落在相对日 5。任务说“相对日 0 当天或之前、时间上最靠后的一条”，正确答案是相对日 0 那条；任务改成“相对日 0 之后最早的一条”，正确答案换成相对日 5 那条；任务改成“相对日 0 到 5 之间全部”，两条都要给。**记录表一个字没变，任务措辞一变，正确结果就变**——这正是要检验的东西。此例为**合成说明**，不代表任何实测运行的结果，也不是实测失败案例。
+
 ## 论文概览
 
 > **本节是当前工作稿：我们准备做什么、打算怎么验证。它是假设与方案，不是已验证结论。**
@@ -9,6 +17,8 @@
 **工作题目**：面向任务的纵向 EHR 证据选择（Task-Conditioned Evidence Selection for Longitudinal EHR）
 
 **一句话**：研究自然语言取数要求能否被正确解释并执行——在纵向 EHR 记录上选出任务真正需要的记录集合、时间点与来源，并如实交出未决状态。
+
+**英文题目**：Task-Conditioned Evidence Selection for Longitudinal EHR
 
 英文工作题目（未定稿）：*Task-Conditioned Evidence Selection for Longitudinal EHR*
 

@@ -39,6 +39,15 @@ PANEL = "CONTROL_PANEL.md"
 PROPOSAL = "paper/PROPOSAL.md"
 MATRIX = "related_work/AI_READY_EVIDENCE_MATRIX.md"
 ARCHIVE_INDEX = "archive/README.md"
+# 公开简报的唯一取数来源：机器汇总（不是手抄表）
+SUMMARY = "results/task_selection_summary.json"
+
+# 公开简报只看两个白名单摘要区块，不渲染整份总控或论文概览
+BRIEF_PANEL_SECTION = "对外进展摘要"
+BRIEF_PROPOSAL_SECTION = "给读者的问题说明"
+BRIEF_SECTION_IDS = ["question", "results", "limits", "next"]
+# 简报必须是短视图：超过这个体量说明又把长文塞回来了
+BRIEF_MAX_BYTES = 60_000
 
 # 生成页只发布这些路径；其余仓库文件走 GitHub 入口
 PAGES_ALLOWLIST = {
@@ -50,6 +59,7 @@ PAGES_ALLOWLIST = {
 }
 
 PANEL_SECTIONS = [
+    "对外进展摘要",
     "当前快照",
     "当前任务",
     "最新可核验交付",
@@ -58,6 +68,7 @@ PANEL_SECTIONS = [
     "下一次给师兄",
 ]
 PROPOSAL_SECTIONS = [
+    "给读者的问题说明",
     "论文概览",
     "历史：证据关联候选 pilot（2026-10，已停止续跑）",
     "Benchmark v0.1 工作稿",
@@ -83,8 +94,8 @@ ALLOWED_STAGES = {"用户首轮阅读与研究反馈", "文献与任务/对照�
                   "卡片消费与自动报告处理基线", "治理输入适配与任务选择 baseline", "成稿与投稿"}
 REQUIRED_META = ["updated", "stage", "verified_commit"]
 
-# 论文概览里必须能被机器取到的字段：首屏要用它们做标题与副标题
-OVERVIEW_FIELDS = ["工作题目", "一句话"]
+# 论文概览里必须能被机器取到的字段：简报标题与副标题要用它们
+OVERVIEW_FIELDS = ["工作题目", "一句话", "英文题目"]
 
 OUTPUTS = ["index.html", "dashboard.html", "attempts.html"]
 
@@ -375,17 +386,49 @@ a{color:var(--accent)}
 footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
 .note{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:0 8px 8px 0;
 padding:10px 14px;margin:12px 0;font-size:14.5px;color:#5c3d00}
+p.lead{font-size:17px;line-height:1.6;color:var(--ink);margin:4px 0 12px}
+.mark{color:var(--muted);font-size:12.5px;font-weight:600}
+p.tech{font-size:13px;color:var(--muted);margin:0 0 12px}
+footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
+@media (max-width:640px){
+ h1.title{font-size:24px}
+ section.block{padding:16px 15px}
+ table{font-size:13px;table-layout:fixed;width:100%}
+ th,td{padding:6px 7px;word-break:break-word}
+ th{white-space:normal}
+ h2{font-size:18px}
+ p.lead{font-size:16px}
+}
 @media print{
- body{background:#fff}
+ @page{margin:12mm}
+ body{background:#fff;font-size:11.5pt}
+ .wrap{max-width:none;padding:0}
+ h1.title{font-size:18pt;margin:4pt 0 2pt}
+ .eyebrow{display:none}
+ .sub{font-size:10pt}
+ .stamp{display:none}
  nav.tabs{display:none}
- section.block{border:none;padding:0;margin-bottom:16px;break-inside:avoid}
+ section.block{border:none;padding:0;margin:0 0 8pt;break-inside:avoid}
+ section.block>h2{font-size:13pt;margin:0 0 2pt}
+ section.block>.hint{font-size:9pt;margin:0 0 4pt}
+ h3{font-size:11pt;margin:6pt 0 2pt}
+ p{margin:3pt 0}
+ p.lead{font-size:11pt;margin:2pt 0 4pt}
+ ul,ol{margin:3pt 0;padding-left:16pt}
+ li{margin:2pt 0}
  .tw,table,pre{break-inside:avoid}
+ table{font-size:9.5pt}
+ th,td{padding:3pt 5pt}
+ .tw{overflow:visible}
+ footer{border-top:1px solid #ccc;padding-top:6pt;font-size:8.5pt}
+ footer .chip{display:none}
  a{color:var(--ink);text-decoration:none}
 }
 """
 
 
-def page(title: str, body: str, subtitle: str, header_note: str = "") -> str:
+def page(title: str, body: str, subtitle: str, header_note: str = "",
+         footer_note: str = "") -> str:
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -404,8 +447,9 @@ def page(title: str, body: str, subtitle: str, header_note: str = "") -> str:
 </header>
 {body}
 <footer>
-<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md、paper/PROPOSAL.md、
-related_work/AI_READY_EVIDENCE_MATRIX.md 与 archive/README.md 的具名段落。
+{footer_note}
+<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md 与 paper/PROPOSAL.md 的
+<b>白名单摘要区块</b>，数字取自 results/task_selection_summary.json。
 患者正文、受控参考答案、凭据与原始模型响应不在本页，也不在本仓库。</p>
 </footer>
 </div>
@@ -475,114 +519,95 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
         f'<span class="chip">核验基线 <b>{html.escape(meta["verified_commit"])}</b></span>'
     )
 
-    tabs = """<nav class="tabs">
-<a href="#paper">论文概览</a>
-<a href="#overview">当前概览</a>
-<a href="#reading">阅读与反馈</a>
-<a href="#system">系统与验证</a>
-<a href="#evidence">当前证据</a>
-<a href="#advisor">下一次给师兄</a>
-<a href="attempts.html">历史资料</a>
+    brief = json.loads((repo / SUMMARY).read_text(encoding="utf-8"))
+    latest = brief["latest_run"]
+    result = latest["results"]
+    direct = result["direct_selection"]
+    planned = result["plan_then_execute"]
+    next_step = brief["next_step"]
+    notrun = brief["not_run"]["time_role_comparison"]
+
+    def ratio(entry: dict[str, int]) -> str:
+        return "%d/%d" % (entry["numerator"], entry["denominator"])
+
+    tabs = f"""<nav class="tabs">
+<a href="#question">研究问题</a>
+<a href="#results">结果与比较</a>
+<a href="#limits">关键边界</a>
+<a href="#next">下一步</a>
 </nav>"""
 
+    boundary_items = "".join(f"<li>{html.escape(item)}</li>" for item in brief["boundaries"])
+    decision_items = "".join(
+        f"<li>{html.escape(item)}</li>" for item in next_step["decision_for_advisor"])
+
+    links = f"""<p class="tech">详细实验依据：
+<a href="https://github.com/{REPO_SLUG}/blob/{link_base}/{brief['source_of_record']}">{
+    html.escape(brief['source_of_record'])}</a>
+· 执行总控：<a href="https://github.com/{REPO_SLUG}/blob/{link_base}/{PANEL}">{PANEL}</a>
+· 历史目录：<a href="attempts.html">attempts.html</a></p>"""
+    tech = (
+        f'<span class="chip stage">当前阶段：{html.escape(stage)}</span>'
+        f'<span class="chip">来源更新时间 <b>{html.escape(meta["updated"])}</b></span>'
+        f'<span class="chip">本次运行日期 <b>{html.escape(latest["experiment_date"])}</b></span>'
+        f'<span class="chip">来源内容指纹 <b>{combined}</b></span>'
+        f'<span class="chip">构建版本 <b>{GENERATOR_VERSION}</b></span>'
+        f'<span class="chip">核验基线 <b>{html.escape(meta["verified_commit"])}</b></span>'
+    )
+
     dash = f"""{tabs}
-<section class="block" id="paper">
-<h2>论文题目与研究概览</h2>
-<p class="hint">题目与下面这段概览取自 paper/PROPOSAL.md 的「论文概览」：它是当前假设与方案的工作稿，不是已验证结论。</p>
-{render("proposal:论文概览")}
+<section class="block" id="question">
+<h2>1. 研究问题</h2>
+<p class="lead">{html.escape(fields["一句话"])}</p>
+{render(f"proposal:{BRIEF_PROPOSAL_SECTION}")}
 </section>
 
-<section class="block" id="overview">
-<h2>当前概览</h2>
-<p class="hint">方向、阶段、当前任务与最近一项有证据的交付。数字与状态都取自总控面板。</p>
-{render("panel:当前快照")}
-<h3>当前任务</h3>
-{render("panel:当前任务")}
-<h3>最新可核验交付</h3>
-{render("panel:最新可核验交付")}
-<h3>已定选择与来源</h3>
-{render("panel:已定选择与来源")}
+<section class="block" id="results">
+<h2>2. 实际比较与结果</h2>
+<p><b>直接选择</b>：模型直接读任务和记录表，返回它认为该用的那几条记录。
+<b>先计划再执行</b>：模型只把任务翻译成明确条件（时间角色、时间窗、取最近/最早/全部），再由同一个固定程序按条件取数。</p>
+<p>本次运行：<b>{latest['packages']} 个开发包</b>、<b>{latest['distinct_tasks']} 个不同任务</b>、
+每任务每条件重复 <b>{latest['repeats']} 次</b>，共 <b>{latest['logical_trajectories']} 条</b>逻辑轨迹
+（运行日期 {html.escape(latest['experiment_date'])}；输入范围：{html.escape(latest['input_scope'])}）。</p>
+<div class="tw"><table>
+<thead><tr><th>条件</th><th>记录集合正确</th><th>这个数字是怎么来的</th></tr></thead>
+<tbody>
+<tr><td>直接选择 <span class="mark">{html.escape(direct['marker'])}</span></td>
+<td><b>{ratio(direct)}</b></td><td>{html.escape(direct['basis'])}</td></tr>
+<tr><td>先计划再执行 <span class="mark">{html.escape(planned['marker'])}·当时执行</span></td>
+<td><b>{ratio(planned['as_run_under_corrected_semantics'])}</b></td>
+<td>当时执行结果，按修正后的语义评分（当时参考有两个缺陷，见边界）</td></tr>
+<tr><td>先计划再执行 <span class="mark">{html.escape(planned['marker'])}·修正后离线重放</span></td>
+<td><b>{ratio(planned['corrected_offline_replay'])}</b></td>
+<td>修正程序后重新执行同一批计划；<b>不是新的模型运行</b>，不能与上面一行合并</td></tr>
+</tbody></table></div>
+<p><b>研究结论</b>：{html.escape(latest['conclusion'])}
+{html.escape(latest['capability_boundary_note'])}</p>
 </section>
 
-<section class="block" id="reading">
-<h2>阅读与反馈</h2>
-<p class="hint">别人怎么定义 AI-ready、怎么设对照、怎么证明收益。DSH 核验进度与用户阅读进度分开记；
-摘要级条目不得引用数字。完整台账见 related_work/AI_READY_EVIDENCE_MATRIX.md。</p>
-{render("matrix:阅读卡")}
-<h3>当前候选相关工作</h3>
-{render("matrix:当前候选相关工作")}
-<h3>精选阅读</h3>
-{render("matrix:精选阅读")}
-<h3>证据状态定义</h3>
-{render("matrix:证据状态定义")}
-<h3>检索边界与待核缺口</h3>
-{render("matrix:检索边界与待核缺口")}
+<section class="block" id="limits">
+<h2>3. 关键边界</h2>
+<ul>{boundary_items}</ul>
+<p class="hint">参考等级：{html.escape(latest['reference_level'])}。</p>
 </section>
 
-<section class="block" id="system">
-<h2>系统与验证</h2>
-<p class="hint">下面是目标结构，不等于已实现。组件状态分成「代码存在 / 离线测试通过 / 有历史运行 / 端到端验证」四件事。</p>
-<h3>问题</h3>
-{render("proposal:问题")}
-<h3>目标使用者与使用场景</h3>
-{render("proposal:目标使用者与使用场景")}
-<h3>输入与输出</h3>
-{render("proposal:输入与输出")}
-<h3>整体架构</h3>
-{render("proposal:整体架构")}
-<h3>历史：证据关联候选 pilot（已停止续跑）</h3>
-{render("proposal:历史：证据关联候选 pilot（2026-10，已停止续跑）")}
-<h3>Benchmark v0.1 工作稿</h3>
-{render("proposal:Benchmark v0.1 工作稿")}
-<h3>组件与现有实现对照</h3>
-{render("proposal:组件与现有实现对照")}
-<h3>候选任务</h3>
-{render("proposal:候选任务")}
-<h3>方法与对照</h3>
-{render("proposal:方法与对照")}
-<h3>公平性</h3>
-{render("proposal:公平性")}
-<h3>候选消融：多层级处理</h3>
-{render("proposal:候选消融")}
-</section>
-
-<section class="block" id="evidence">
-<h2>当前证据</h2>
-<p class="hint">完整主结果和独立验证尚未运行；当前选题 pilot 只提供诊断读数，参考键待核，不占主结果位置。已有旧实验仍按历史探索结果追溯。</p>
-<h3>指标、答案依据与成本</h3>
-{render("proposal:指标、答案依据与成本")}
-<h3>已有素材的定位</h3>
-{render("proposal:已有素材的定位")}
-<h3>当前局限</h3>
-{render("proposal:当前局限")}
-<h3>阻塞与下一步</h3>
-{render("panel:阻塞与下一步")}
-</section>
-
-<section class="block" id="advisor">
-<h2>下一次给师兄</h2>
-<p class="hint">可以是阅读与设计进展，不强迫有新实验数字。</p>
-{render("panel:下一次给师兄")}
-<h3>待上级判断</h3>
-{render("proposal:待上级判断")}
-</section>
-
-<section class="block" id="history">
-<h2>历史资料</h2>
-<p class="hint">历史只经索引追溯，不在本页展开。旧规划、旧结果与旧命令不产生待办。</p>
-<ul>
-<li><a href="attempts.html">历史目录视图（attempts.html）</a>：按主题分的历史探索、会议决策、文献纠错与整理快照。</li>
-<li><a href="https://github.com/{REPO_SLUG}/blob/{link_base}/archive/README.md">唯一历史索引（archive/README.md）</a></li>
-<li><a href="https://github.com/{REPO_SLUG}/blob/{link_base}/results/">证据库 results/</a>：允许回传的匿名聚合结果与运行记录。</li>
-</ul>
+<section class="block" id="next">
+<h2>4. 下一步与师兄判断</h2>
+<p><b>当前检验问题</b>：{html.escape(next_step['question'])}</p>
+<p><b>真实执行状态</b>：{html.escape(next_step['status'])}（{notrun['packages']} 包 × {
+    notrun['frozen_tasks'] // notrun['packages']} 题，至多 {notrun['max_logical_trajectories']} 条）。
+<b>未运行的部分标未运行，不填预期成绩。</b></p>
+<p><b>需要师兄判断</b>：</p>
+<ol>{decision_items}</ol>
 </section>
 """
 
     dashboard = page(
-        f'{fields["工作题目"]} · 研究总览',
+        f'{fields["工作题目"]} · 研究简报',
         dash,
-        f'{html.escape(fields["工作题目"])}<br><em>{html.escape(fields["一句话"])}</em>',
-        stamp,
+        f'{html.escape(fields["工作题目"])}<br><em>{html.escape(fields["英文题目"])}</em>',
+        "",
+        links + tech,
     )
 
     attempts_body = f"""<nav class="tabs"><a href="dashboard.html">← 回到当前总览</a></nav>
@@ -765,12 +790,26 @@ def check(repo: Path) -> tuple[list[str], list[str]]:
         errors.append("dashboard.html 缺少「生成文件」说明")
     for name, value in built["fields"].items():
         if value not in dash:
-            errors.append(f"dashboard.html 首屏未显示论文概览字段 {name}={value!r}")
-    paper_at, overview_at = dash.find('id="paper"'), dash.find('id="overview"')
-    if paper_at < 0:
-        errors.append("dashboard.html 缺少论文概览区块（id=\"paper\"）")
-    elif overview_at >= 0 and paper_at > overview_at:
-        errors.append("dashboard.html 首屏顺序错：论文概览必须在当前概览之前")
+            errors.append(f"dashboard.html 未显示论文概览字段 {name}={value!r}")
+    # 简报只允许四个部分；旧协议与历史全文不得以隐藏或折叠方式塞回同一页
+    for anchor in ("question", "results", "limits", "next"):
+        if f'id="{anchor}"' not in dash:
+            errors.append(f"dashboard.html 缺少简报区块 id=\"{anchor}\"")
+    for forbidden_id in ("paper", "overview", "reading", "system", "evidence", "advisor"):
+        if f'id="{forbidden_id}"' not in dash:
+            continue
+        errors.append(f"dashboard.html 仍包含执行总控区块 id=\"{forbidden_id}\"")
+    for marker in ("**Motivation**", "精选阅读", "最新可核验交付", "阅读卡", "候选消融"):
+        if marker in dash:
+            errors.append(f"dashboard.html 仍渲染长文/台账内容：{marker!r}")
+    if 'style="display:none' in dash or "<details" in dash:
+        errors.append("dashboard.html 用隐藏或折叠方式夹带长文")
+    if len(dash.encode("utf-8")) > BRIEF_MAX_BYTES:
+        errors.append(
+            f"dashboard.html 体量 {len(dash.encode('utf-8'))} 字节超过简报上限 {BRIEF_MAX_BYTES}")
+    for brief_id in BRIEF_SECTION_IDS:
+        if f'id="{brief_id}"' not in dash:
+            errors.append(f"dashboard.html 缺少简报章节 id=\"{brief_id}\"")
 
     # 4b. 单文件可用性：页内锚点必须存在，且不得引用外部资源
     for name in OUTPUTS:
