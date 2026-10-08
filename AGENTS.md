@@ -8,7 +8,7 @@
 
 ## 研究目标与推进原则
 
-**工作方向是“可复用的医疗数据准备 Harness + Agent 整体方案”，这是用户已选定的方向，不再作为待二选一的问题。当前研究单元与候选问题以 `paper/PROPOSAL.md` 与 `CONTROL_PANEL.md` 为准：现阶段是“面向任务的纵向 EHR 证据选择”（Task-Conditioned Evidence Selection for Longitudinal EHR）下的“治理输入适配与任务选择 baseline”。**
+**当前研究主线是“面向任务的纵向 EHR 证据选择”（Task-Conditioned Evidence Selection for Longitudinal EHR）：给定自然语言取数要求与一批冻结的纵向记录，系统能否被正确解释为明确的选择条件，并选出正确的记录集合、时间点与来源，同时如实交出未决状态。** 长期方向仍是可复用的医疗数据准备 Harness + Agent 整体方案，但它是长期方向，不是本阶段已测得的优势；当前单元与阶段以 `paper/PROPOSAL.md` 与 `CONTROL_PANEL.md` 为准。
 
 - 换执行工具不改变研究方向、工作题目、实验消费者或别名/提示/参数配置。
 - **问题先行，baseline 先通再迭代。** 先说清“自然语言取数要求能否被正确解释并执行”，再用最小闭环取得真实读数，最后才谈扩展。不预设 LLM 必然失败，不宣称方法增益已证实，也不把传统数据库/SQL 与 AI 对立。

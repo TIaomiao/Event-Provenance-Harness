@@ -362,6 +362,72 @@ class ExecutionTest(unittest.TestCase):
         self.assertEqual(ts.execute_plan(plan_for(task), records)["selected"], ["b"])
 
 
+class TimeRoleDimensionTest(unittest.TestCase):
+    """One source record, two time roles, no duplicated observations."""
+
+    def dual(self, record_id="dual", collection_day=0, report_day=3,
+             collection_clock="06:20:00", report_clock="09:10:00",
+             collection_precision="second", report_precision="second"):
+        return {"record_id": record_id, "case_token": "CASE-SYNTHETIC",
+                "value": 10, "unit": "g/L", "identity_status": "explicit",
+                "collection_day_offset": collection_day, "collection_clock": collection_clock,
+                "collection_precision": collection_precision,
+                "report_day_offset": report_day, "report_clock": report_clock,
+                "report_precision": report_precision}
+
+    def plan(self, role, window, selection="latest"):
+        return {"project": "HGB", "time_role": role, "window": window, "selection": selection,
+                "scope": "test", "tie_policy": "undetermined", "missing_policy": "undetermined"}
+
+    def test_requested_role_selects_that_roles_time(self):
+        records = [self.dual()]
+        collection_window = {"from": 0, "to": 0, "include_from": True, "include_to": True}
+        report_window = {"from": 3, "to": 3, "include_from": True, "include_to": True}
+        as_collection = ts.execute_plan(self.plan("collection", collection_window), records)
+        as_report = ts.execute_plan(self.plan("report", report_window), records)
+        self.assertEqual(as_collection["selected"], ["dual"])
+        self.assertEqual(as_report["selected"], ["dual"])
+        # The same record answers both roles, and the id is not duplicated.
+        self.assertEqual(as_collection["selected"], as_report["selected"])
+        self.assertEqual(len({r["record_id"] for r in records}), 1)
+
+    def test_a_role_window_does_not_pick_up_the_other_roles_time(self):
+        records = [self.dual()]
+        collection_window = {"from": 0, "to": 0, "include_from": True, "include_to": True}
+        # The report time is day 3, so a collection-day window must not match it.
+        wrong = ts.execute_plan(self.plan("report", collection_window), records)
+        self.assertEqual(wrong["status"], "empty")
+        self.assertEqual(wrong["selected"], [])
+
+    def test_unsupported_role_is_refused_per_record(self):
+        records = [{"record_id": "collection-only", "case_token": "CASE-SYNTHETIC",
+                    "value": 10, "unit": "g/L", "identity_status": "explicit",
+                    "time_role": "collection", "day_offset": 1, "clock": "06:20:00",
+                    "precision": "second"}]
+        result = ts.execute_plan(self.plan("report",
+                                           {"from": None, "to": 5, "include_from": False,
+                                            "include_to": True}), records)
+        self.assertEqual(result["status"], "unsupported_time_role")
+
+    def test_available_roles_reports_both_roles(self):
+        self.assertEqual(sorted(ts.available_roles(self.dual())), ["collection", "report"])
+
+    def test_day_precision_report_time_has_no_clock(self):
+        records = [self.dual("a", report_day=3, report_clock="00:00:00", report_precision="day"),
+                   self.dual("b", report_day=3, report_clock="09:10:00",
+                             report_precision="second")]
+        result = ts.execute_plan(self.plan("report",
+                                           {"from": 3, "to": 3, "include_from": True,
+                                            "include_to": True}), records)
+        self.assertEqual(result["status"], "undetermined")
+        self.assertEqual(sorted(result["candidates"]), ["a", "b"])
+
+    def test_legacy_single_role_records_still_work(self):
+        records = [record("legacy", 1)]
+        task = ts.build_task("Q1", 1)
+        self.assertEqual(ts.execute_plan(plan_for(task), records)["selected"], ["legacy"])
+
+
 class DayCoordinateTest(unittest.TestCase):
     def test_offsets_are_relative_to_the_case_origin(self):
         records = [{"record_id": "a", "collection_day": 100}, {"record_id": "b", "collection_day": 103}]

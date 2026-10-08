@@ -23,23 +23,50 @@ from __future__ import annotations
 VERSION = "selection-reference-v0.1"
 
 
-def _day(record):
-    value = record.get("day_offset")
+ROLE_FIELDS = ("collection", "report", "sampling")
+
+
+def role_time(record, role):
+    """``(day_offset, clock, precision)`` for the requested role, or all None.
+
+    Per-role fields are authoritative when present, so one source record answers
+    both a collection-time task and a report-time task without duplication.
+    """
+    prefixed = "%s_day_offset" % role
+    if prefixed in record:
+        return (record.get(prefixed), record.get("%s_clock" % role),
+                record.get("%s_precision" % role))
+    if record.get("time_role") == role:
+        return (record.get("day_offset"), record.get("clock"), record.get("precision"))
+    return (None, None, None)
+
+
+def available_roles(record):
+    roles = [role for role in ROLE_FIELDS if "%s_day_offset" % role in record]
+    if roles:
+        return roles
+    role = record.get("time_role")
+    return [role] if role else []
+
+
+def _day(record, role=None):
+    value = role_time(record, role)[0] if role else record.get("day_offset")
     return int(value) if isinstance(value, int) else None
 
 
-def _clock_parts(record):
+def _clock_parts(record, role=None):
     """Return (h, m, s) or None.
 
-    A row whose precision is only a day has no usable clock: the ``00:00:00`` that
-    the rule path attaches to it is an artifact, not an observation.  Comparing it
-    with a real time would invent an ordering, so it returns None here.
+    A row whose precision for this role is only a day has no usable clock: the
+    ``00:00:00`` the rule path attaches is an artifact, not an observation.
     """
-    if str(record.get("precision") or "").lower() in {"day", "date", ""}:
+    _, clock, precision = role_time(record, role) if role else (
+        None, record.get("clock"), record.get("precision"))
+    if str(precision or "").lower() in {"day", "date", ""}:
         return None
-    if not isinstance(record.get("clock"), str):
+    if not isinstance(clock, str):
         return None
-    parts = record["clock"].strip().split(":")
+    parts = clock.strip().split(":")
     if len(parts) not in (2, 3):
         return None
     try:
@@ -63,7 +90,7 @@ def in_window(day, window):
 
 
 def eligible(records, *, time_role, window):
-    """Split by window and completeness.
+    """Split by window and completeness for the requested role.
 
     A record is only *withheld for missing data* when it is already a candidate by
     role and by window.  A record outside the window is not a candidate at all, so
@@ -71,9 +98,9 @@ def eligible(records, *, time_role, window):
     """
     keep, withheld = [], 0
     for record in records:
-        if record.get("time_role") != time_role:
+        if time_role not in available_roles(record):
             continue
-        day = _day(record)
+        day = _day(record, time_role)
         if day is None or not in_window(day, window):
             continue
         if (record.get("identity_status") != "explicit"
@@ -92,7 +119,7 @@ def expected(*, records, time_role, window, selection, missing_policy="undetermi
     surfaced by the first cross-check against the executor and is now part of the
     definition on both paths.
     """
-    if not any(record.get("time_role") == time_role for record in records):
+    if not any(time_role in available_roles(record) for record in records):
         return {"status": "unsupported_time_role", "selected": [], "candidates": [],
                 "reason": "NO_RECORD_CARRIES_TIME_ROLE"}
     keep, withheld = eligible(records, time_role=time_role, window=window)
@@ -101,16 +128,17 @@ def expected(*, records, time_role, window, selection, missing_policy="undetermi
         return {"status": status, "selected": [], "candidates": [],
                 "reason": "NOTHING_ELIGIBLE" if not withheld else "ONLY_INCOMPLETE_RECORDS"}
     if selection == "all":
-        ordered = sorted(keep, key=lambda r: (_day(r), _clock_parts(r) or (99, 99, 99),
+        ordered = sorted(keep, key=lambda r: (_day(r, time_role),
+                                              _clock_parts(r, time_role) or (99, 99, 99),
                                               str(r.get("record_id"))))
         return {"status": "ok", "selected": [r["record_id"] for r in ordered],
                 "candidates": [], "reason": None}
-    days = [_day(r) for r in keep]
+    days = [_day(r, time_role) for r in keep]
     extreme = max(days) if selection == "latest" else min(days)
-    pool = [r for r in keep if _day(r) == extreme]
+    pool = [r for r in keep if _day(r, time_role) == extreme]
     if len(pool) == 1:
         return {"status": "ok", "selected": [pool[0]["record_id"]], "candidates": [], "reason": None}
-    clocks = [_clock_parts(r) for r in pool]
+    clocks = [_clock_parts(r, time_role) for r in pool]
     if any(clock is None for clock in clocks):
         return {"status": "undetermined", "selected": [],
                 "candidates": [r["record_id"] for r in pool],
@@ -119,7 +147,7 @@ def expected(*, records, time_role, window, selection, missing_policy="undetermi
         return {"status": "undetermined", "selected": [],
                 "candidates": [r["record_id"] for r in pool],
                 "reason": "IDENTICAL_CLOCKS_ON_DECIDING_DAY"}
-    chosen = (max if selection == "latest" else min)(pool, key=_clock_parts)
+    chosen = (max if selection == "latest" else min)(pool, key=lambda r: _clock_parts(r, time_role))
     return {"status": "ok", "selected": [chosen["record_id"]], "candidates": [], "reason": None}
 
 

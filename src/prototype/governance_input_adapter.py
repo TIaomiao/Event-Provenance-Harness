@@ -323,6 +323,8 @@ def candidate_records(view, *, mode="rule"):
             "report_ref": record.get("report_ref"), "page_number": record.get("page"),
             "collection_time": record.get("collection_time"),
             "collection_precision": record.get("collection_precision"),
+            "report_time": record.get("report_time"),
+            "report_precision": record.get("report_precision"),
             "unresolved": unresolved, "extractor": "rule",
         })
     return out

@@ -33,6 +33,7 @@ TASKS = {
 }
 
 TIME_ROLES = ("sampling", "collection", "report")
+ROLE_FIELDS = ("collection", "report", "sampling")
 SELECTIONS = ("first", "latest", "all")
 TIE_POLICIES = ("undetermined", "all_ties")
 MISSING_POLICIES = ("undetermined", "skip")
@@ -63,22 +64,54 @@ class SelectionError(ValueError):
     """Raised when the caller hands the executor something unusable."""
 
 
-def has_clock(record) -> bool:
-    """True only when the row carries an observed clock.
+def role_time(record, role):
+    """Return ``(day_offset, clock, precision)`` for the requested time role.
 
-    A row recorded at day precision has no usable clock: the ``00:00:00`` the rule
-    path attaches to it is an artifact, and comparing it with a real time would
-    invent an ordering.
+    A record may carry several roles at once.  When the per-role fields are
+    present they are authoritative, so one source record can answer both a
+    collection-time task and a report-time task without being duplicated.  When
+    they are absent the legacy single-role fields are used, which keeps the
+    earlier development runs reproducible.
     """
-    if str(record.get("precision") or "").lower() in {"day", "date", ""}:
+    prefixed = "%s_day_offset" % role
+    if prefixed in record:
+        return (record.get(prefixed), record.get("%s_clock" % role),
+                record.get("%s_precision" % role))
+    if record.get("time_role") == role:
+        return (record.get("day_offset"), record.get("clock"), record.get("precision"))
+    return (None, None, None)
+
+
+def available_roles(record):
+    """Roles this record can answer for.  No role is ever synthesised."""
+    roles = [role for role in ROLE_FIELDS if "%s_day_offset" % role in record]
+    if roles:
+        return roles
+    role = record.get("time_role")
+    return [role] if role else []
+
+
+def has_clock(record, role=None) -> bool:
+    """True only when the requested role carries an observed clock.
+
+    A row recorded at day precision has no usable clock for that role: the
+    ``00:00:00`` the rule path attaches to it is an artifact, and comparing it
+    with a real time would invent an ordering.
+    """
+    if role is None:
+        role = record.get("time_role")
+    _, clock, precision = role_time(record, role)
+    if str(precision or "").lower() in {"day", "date", ""}:
         return False
-    clock = record.get("clock")
     return isinstance(clock, str) and bool(CLOCK_RE.match(clock.strip()))
 
 
-def clock_key(record):
-    """Absolute clock key.  Only meaningful together with :func:`has_clock`."""
-    match = CLOCK_RE.match(record["clock"].strip())
+def clock_key(record, role=None):
+    """Absolute clock key for the requested role.  Pair with :func:`has_clock`."""
+    if role is None:
+        role = record.get("time_role")
+    _, clock, _ = role_time(record, role)
+    match = CLOCK_RE.match(clock.strip())
     return (int(match.group("h")), int(match.group("m")), int(match.group("s") or 0))
 
 
@@ -193,8 +226,10 @@ def validate_plan(plan) -> tuple[bool, list[str]]:
     return (not problems), problems
 
 
-def _in_window(record, window):
-    day = record.get("day_offset")
+def _in_window(record, window, role=None):
+    if role is None:
+        role = record.get("time_role")
+    day, _, _ = role_time(record, role)
     if day is None:
         return False
     low, high = window.get("from"), window.get("to")
@@ -216,13 +251,14 @@ def eligible_records(records, plan):
     never turns an empty window into an undetermined one.
     """
     usable, incomplete, role_supported = [], [], False
+    role = plan.get("time_role")
     for record in records:
-        if record.get("time_role") == plan.get("time_role"):
+        if role in available_roles(record):
             role_supported = True
         else:
             continue
-        day = record.get("day_offset")
-        if day is None or not _in_window(record, plan["window"]):
+        day, _, _ = role_time(record, role)
+        if day is None or not _in_window(record, plan["window"], role):
             continue
         if record.get("identity_status") != "explicit":
             incomplete.append(record)
@@ -234,27 +270,27 @@ def eligible_records(records, plan):
     return usable, incomplete, role_supported
 
 
-def _resolve_position(usable, selection):
+def _resolve_position(usable, selection, role):
     """Return (status, winners, reason) for a single-record selection.
 
     Ordering never invents a clock, and identical timestamps are a real tie.
     """
-    days = [record["day_offset"] for record in usable]
+    days = [role_time(record, role)[0] for record in usable]
     target_day = max(days) if selection == "latest" else min(days)
-    same_day = [record for record in usable if record["day_offset"] == target_day]
+    same_day = [record for record in usable if role_time(record, role)[0] == target_day]
     if len(same_day) == 1:
         return STATUS_OK, same_day, None
-    unknown = [record for record in same_day if not has_clock(record)]
-    known = [record for record in same_day if has_clock(record)]
+    unknown = [record for record in same_day if not has_clock(record, role)]
+    known = [record for record in same_day if has_clock(record, role)]
     if unknown and known:
         return STATUS_UNDETERMINED, same_day, "SAME_DAY_CLOCK_UNKNOWN_FOR_SOME_RECORDS"
     if unknown and not known:
         return STATUS_UNDETERMINED, same_day, "SAME_DAY_CLOCK_UNKNOWN_FOR_ALL_RECORDS"
-    keys = {clock_key(record) for record in known}
+    keys = {clock_key(record, role) for record in known}
     if len(keys) == 1:
         return STATUS_UNDETERMINED, same_day, "SAME_DAY_IDENTICAL_TIMESTAMP"
     extreme = (max if selection == "latest" else min)(keys)
-    winners = [record for record in known if clock_key(record) == extreme]
+    winners = [record for record in known if clock_key(record, role) == extreme]
     if len(winners) > 1:
         return STATUS_UNDETERMINED, same_day, "SAME_DAY_IDENTICAL_TIMESTAMP"
     return STATUS_OK, winners, None
@@ -277,11 +313,13 @@ def execute_plan(plan, records) -> dict[str, Any]:
         return {"status": status, "selected": [], "candidates": [],
                 "reason": "NO_ELIGIBLE_RECORD", "incomplete_considered": len(incomplete)}
     if plan["selection"] == "all":
-        ordered = sorted(usable, key=lambda r: (r["day_offset"],
-                                                clock_key(r) if has_clock(r) else (99, 99, 99)))
+        ordered = sorted(usable, key=lambda r: (role_time(r, plan["time_role"])[0],
+                                                clock_key(r, plan["time_role"])
+                                                if has_clock(r, plan["time_role"])
+                                                else (99, 99, 99)))
         return {"status": STATUS_OK, "selected": [r["record_id"] for r in ordered],
                 "candidates": [], "count": len(ordered), "reason": None}
-    status, winners, reason = _resolve_position(usable, plan["selection"])
+    status, winners, reason = _resolve_position(usable, plan["selection"], plan["time_role"])
     if status != STATUS_OK:
         if plan["tie_policy"] == "all_ties":
             return {"status": STATUS_OK, "selected": [r["record_id"] for r in winners],
@@ -423,17 +461,18 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
         1.0 if not selected_set else 0.0)
 
     window = task["spec"]["window"]
+    role = task.get("time_role")
     for identifier in ids:
         record = by_id.get(identifier)
         if record is None:
             result["scope_violation"] += 1
             continue
-        if not _in_window(record, window):
+        if not _in_window(record, window, role):
             result["window_violation"] += 1
         if task.get("case_token") and record.get("case_token") != task["case_token"]:
             result["scope_violation"] += 1
     if len(ids) > 1 and task["spec"]["selection"] in {"first", "latest"}:
-        days = [by_id[i]["day_offset"] for i in ids if i in by_id]
+        days = [role_time(by_id[i], role)[0] for i in ids if i in by_id]
         if len(set(days)) > 1:
             result["order_violation"] = len(days) - 1
 
@@ -445,7 +484,8 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
         if fields_expanded_by_host:
             result["joint_fields_ok"] = all(
                 by_id[i].get("value") is not None and by_id[i].get("unit") is not None
-                and by_id[i].get("day_offset") is not None and by_id[i].get("time_role")
+                and role_time(by_id[i], role)[0] is not None
+                and role in available_roles(by_id[i])
                 for i in selected_set)
         elif not (supplied["value"] and supplied["unit"]):
             result["joint_fields_ok"] = None
@@ -453,7 +493,8 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
         else:
             result["joint_fields_ok"] = all(
                 by_id[i].get("value") is not None and by_id[i].get("unit") is not None
-                and by_id[i].get("day_offset") is not None and by_id[i].get("time_role")
+                and role_time(by_id[i], role)[0] is not None
+                and role in available_roles(by_id[i])
                 for i in selected_set)
     result["equivalent_answer"] = bool(result["set_exact_match"] and result["status_ok"])
     return result
