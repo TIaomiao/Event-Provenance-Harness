@@ -33,15 +33,12 @@ jobs:
       - name: Stage site (allowlist)
         run: |
           set -euo pipefail
-          mkdir -p _site/paper _site/related_work
+          mkdir -p _site
 
           missing=0
           for f in \
             dashboard.html \
-            attempts.html \
-            CONTROL_PANEL.md \
-            paper/PROPOSAL.md \
-            related_work/AI_READY_EVIDENCE_MATRIX.md
+            attempts.html
           do
             if [ ! -f "$f" ]; then
               echo "::error::allowlisted file missing from the repository: $f"
@@ -54,13 +51,14 @@ jobs:
           cp dashboard.html _site/dashboard.html
           cp attempts.html _site/attempts.html
 
-          # 白名单发布：只放明确不含患者内容的当前页面与研究摘要。
+          # 公开站点只放给人看的短简报与历史目录视图。
+          # 执行规则、当前总控、现役规格与文献台账不再复制到这里：它们在仓库里，
+          # 简报页脚只给固定基线上的 GitHub 链接。避免同域名下再出现长文档页面。
           # results/ 下的实测记录一律不上公开站点（其中含病例时间戳等派生信息）；
           # 它们留在仓库里供导师侧 AI 读取，仓库可见性由人工确认。
-          # 生成页里指向白名单外文件的链接已经写成固定基线上的 GitHub 入口。
-          cp CONTROL_PANEL.md _site/
-          cp paper/PROPOSAL.md _site/paper/
-          cp related_work/AI_READY_EVIDENCE_MATRIX.md _site/related_work/
+
+          echo "--- staged files ---"
+          find _site -type f | sort
 
           echo "--- staged files ---"
           find _site -type f | sort

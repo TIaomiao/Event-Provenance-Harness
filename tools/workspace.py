@@ -49,13 +49,10 @@ BRIEF_SECTION_IDS = ["question", "results", "limits", "next"]
 # 简报必须是短视图：超过这个体量说明又把长文塞回来了
 BRIEF_MAX_BYTES = 60_000
 
-# 生成页只发布这些路径；其余仓库文件走 GitHub 入口
+# 公开站点只发布这两个页面；其余仓库文件（含长文档）走 GitHub 入口
 PAGES_ALLOWLIST = {
     "dashboard.html",
     "attempts.html",
-    "CONTROL_PANEL.md",
-    "paper/PROPOSAL.md",
-    "related_work/AI_READY_EVIDENCE_MATRIX.md",
 }
 
 PANEL_SECTIONS = [
@@ -848,6 +845,12 @@ def check(repo: Path) -> tuple[list[str], list[str]]:
         for src in sorted(cp_set):
             if not (repo / src).is_file():
                 errors.append(f"pages.yml 白名单指向不存在的文件：{src}")
+        # 公开站点只放给人看的短简报与历史目录视图：长文档不得再复制进站点
+        for src in sorted(cp_set):
+            if src.endswith(".md"):
+                errors.append(
+                    f"pages.yml 仍在发布长文档 {src}；公开站点只允许简报与历史目录视图，"
+                    "长文档请改用 GitHub 链接")
         site_paths = set()
         for src, dest in cpairs:
             site_paths.add(
