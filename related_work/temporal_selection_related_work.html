@@ -45,11 +45,11 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 <p class="sub">核查日期 2026-10-08 · 核查者 DSH · 只收公开文献，不含任何患者材料 · 每条的核验程度分别标注</p>
 
 <section class="verdict">
-<h2>结论（先说最要紧的）</h2>
-<p><strong>这个问题不新。它已经被明确提出、系统标注，并在旗舰基准上评测过 —— 至少从 2022 年起。</strong></p>
-<p><span class="tag red">决定性证据</span> <strong>EHRSQL</strong>（NeurIPS 2022 Datasets &amp; Benchmarks）里有第三类时间过滤器 <code>[time_filter_exact]</code>，原文定义就是「指出一个确切时间，例如 <em>last</em> measurement」；它的 <strong>Option</strong> 参数「从过滤后的事件中<strong>选出一个确切事件（例如 first、last）</strong>」。该数据集 <strong>24,411</strong> 个问答对，<strong>93.2%</strong> 的查询至少用到一列时间，题目由 <strong>222 名医院工作人员</strong>在<strong>没有看过数据库 schema</strong> 的情况下提出。</p>
-<p>也就是说：<strong>「从自然语言推断该取哪个时间点（first / last / 窗口）」是这条线的既有任务设定，不是我们发现的空白。</strong></p>
-<p>但结论不是「方向死了」，而是<strong>我们的任务设计把这道题做没了</strong>：EHRSQL 要求模型<strong>推断</strong>时间条件，而我们的 baseline 把时间条件<strong>声明</strong>给了模型——这就是 120/120 的来源。</p>
+<h2>结论（分两段，别只读第一段）</h2>
+<p><span class="tag">第一段</span><strong>这个「任务」不新。</strong>EHRSQL（NeurIPS 2022 Datasets &amp; Benchmarks）里有第三类时间过滤器 <code>[time_filter_exact]</code>，原文定义就是「指出一个确切时间，例如 <em>last</em> measurement」；它的 <strong>Option</strong>「从过滤后的事件中选出一个确切事件」，附录 Table 8 直接给出四种 SQL 写法：<strong>first / second / second to last / last</strong>。该数据集 <strong>24,411</strong> 个问答对、<strong>93.2%</strong> 的查询至少用到一列时间，题目由 <strong>222 名医院工作人员</strong>在未见 schema 的情况下提出。<br>
+<strong>所以「让模型从自然语言推断取哪个时间点」不能写成我们发现的空白。</strong></p>
+<p><span class="tag amber">第二段（这才是我们的位置）</span><strong>它的「测量」是空的。</strong>核查确认：EHRSQL <strong>从不单独报告</strong> first/last 这类题目的准确率——全文只给聚合的 <code>F1_ans</code> 与 <code>F1_exe</code>，附录 H.2 对时间表达式只有定性举例、<strong>没有数字</strong>；也没有任何消融把「时间选择谓词」单独拿出来。<strong>更关键的是它自己的错误分析写着：错误「不是来自生成复杂的长嵌套查询，而是来自 schema linking 失败」</strong>——也就是说，<strong>连作者都没有把困难归因到时间谓词上</strong>。</p>
+<p><strong>合成一句：任务已被要求，但「模型在 first/last 这类题上到底错多少、错在哪」没人测过。</strong>这是一个真实且可辩护的<strong>测量空白</strong>，而不是「我们发现了新问题」。</p>
 </section>
 
 <section>
@@ -71,9 +71,23 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 <li>Tell me the <strong>last</strong> specimen test given to patient 51177 in 10/2105?</li>
 <li>Tell me the medication that patient 3929 has been prescribed for the <strong>first</strong> time in 05/this year?</li>
 </ul>
-<h3>它的评测口径</h3>
-<p>两个指标：<code>F1_ans</code>（判断问题可答 / 不可答）与 <code>F1_exe</code>（<strong>执行准确率</strong>——只有数据库返回的答案正确才算对）。含**不可答问题**（需要外部知识或超出 schema），只在验证/测试集出现。</p>
-<div class="note"><strong>对我们的直接影响</strong>：<span class="tag red">不能声称</span>「自然语言里的时间选择条件需要被推断」是新的问题；<span class="tag red">不能声称</span>「first/last 选择」是新的任务类型。审稿人只要知道 EHRSQL，这两句话就会被直接打回。</div>
+<h3>它的评测口径，以及**没有**报告的东西</h3>
+<p>指标只有两个：<code>F1_ans</code>（判断问题可答 / 不可答）与 <code>F1_exe</code>（<strong>执行准确率</strong>——只有数据库返回的答案正确才算对）。含<strong>不可答问题</strong>（230 个模板中 174 个可答、56 个不可答）。</p>
+<p><strong>核查到的缺口（这是第二段结论的依据）</strong>：</p>
+<ul>
+<li>论文与附录<strong>都没有按时间槽位或题型分类报数</strong>；与时间相关的唯一统计是 Table 4 的「<strong>% Time Used/Q = 93.2%</strong>」（用到至少一列时间的查询占比）。</li>
+<li>附录 H.2 讨论「使用不同时间表达式时的 SQL 生成」时<strong>只给定性例子，没有数字</strong>。</li>
+<li>没有消融实验把「时间选择谓词」单独分离出来。</li>
+<li>论文 H.1 明确写：错误「<strong>不是来自生成复杂、长的嵌套查询，而是来自 schema linking 的失败</strong>」——<span class="tag amber">作者自己没有把困难归因到时间</span>。</li>
+</ul>
+<div class="note"><strong>对我们的直接影响</strong>：<span class="tag red">不能声称</span>「时间条件需要被推断」或「first/last 选择」是新问题（EHRSQL 2022 已标注并评测）；<span class="tag">可以声称</span><strong>「这类题目上的错误分布没有被测量过」</strong>——但必须同时承认 EHRSQL 已把该任务纳入基准，我们补的是<strong>测量</strong>，不是问题本身。</div>
+<h3>它的后续工作（都不是 EHRSQL 2.0）</h3>
+<ul>
+<li><strong>EHRSQL 2024 Shared Task</strong>（Lee, Kweon, Bae, Choi；ClinicalNLP 2024, pp. 644–654，<a href="https://aclanthology.org/2024.clinicalnlp-1.62/">ACL Anthology</a>，已发表）——换到 MIMIC-IV，5,124/1,163/1,167 条，指标改为<strong>可靠性分数</strong> <code>RS(c)</code>（正确 SQL + 恰当弃答）。它继承了时间模板并称「大量使用时间表达式的题目」是关键挑战，<strong>但仍未按时间类型分别报数</strong>。</li>
+<li><strong>TrustSQL</strong>（<a href="https://arxiv.org/abs/2403.15879">arXiv:2403.15879</a>）——惩罚式可靠性基准，是 2024 共享任务 RS 指标的来源；<strong>同行评审状态未核实</strong>（v6 标注 under review）。</li>
+<li><strong>MIMICSQL</strong>（WWW 2020，<a href="https://doi.org/10.1145/3366423.3380120">DOI</a>，已发表）——模板生成，时间列使用率 26.6%，<strong>不涉及选哪个时间点</strong>。</li>
+<li><strong>OMOP 开放文本转 SQL 基准</strong>（ClinicalNLP @ LREC 2026，<a href="https://aclanthology.org/2026.clinicalnlp-1.40/">ACL Anthology</a>，已发表）——6,690 条改写 / 75 模板，含 last-visit / last-month 模板，但只报<strong>聚合</strong>执行准确率（93.55%）与可靠性分数。</li>
+</ul>
 </section>
 
 <section>
@@ -104,8 +118,9 @@ footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);paddin
 </section>
 
 <section class="key">
-<h2>三、还空着的四个位置（我们的机会所在）</h2>
+<h2>三、还空着的五个位置（我们的机会所在）</h2>
 <ol>
+<li><strong>「时间选择谓词」的错误分布从未被单独测量过。</strong>EHRSQL 把 first/last 纳入基准，却<strong>不按题型报数、不做谓词消融</strong>，其错误分析还把失败归因于 schema linking。<strong>没有人回答过：模型在 first / last / Nth / 窗口这几类题上各错多少、错在解释还是错在执行。</strong>这是我们最直接、最容易用一轮实验补上的位置。</li>
 <li><strong>输入是结构化 MIMIC-III / eICU，不是扫描病历。</strong>EHRSQL 直接在关系库上生成 SQL；<strong>没有人处理「记录在表格重建之前根本不存在」这一层</strong>。我们在 <code>batch-full-01</code> 实测：一行化验结果在 OCR 里是好几条独立行（项目名、别名、结果、单位、参考区间），只把项目名行交给抽取器 → <strong>值+单位完整 0 条</strong>；按行带跨行重建 → <strong>2,303 条明确记录</strong>。</li>
 <li><strong>「给选中的集合打分」也已经有人做了——但粒度和时间维度都还不够。</strong> <strong>FHIR-AgentBench</strong>（ML4H 2025，<a href="https://arxiv.org/abs/2509.19319">arXiv:2509.19319</a>）的官方评测脚本<strong>同时</strong>打两件事：① 金标准选中集合 <code>true_fhir_ids</code>（{FHIR 资源类型 → 资源 ID 列表}）上的 retrieval precision / recall / F1；② 用 LLM judge 判答案正确率。它的题目也<strong>确实要求</strong>在多个时间点之间消歧（例如「第一次住院当天第二次测量 vs 第一次测量」）。<br>
 <span class="tag amber">但两处不够</span> 第一，选中集合的粒度只到 <strong>FHIR 资源 ID</strong>，没有「观测 ID + 显式时间点」这一级；第二，它<strong>没有时间角色标签</strong>（采集 vs 报告）。更有意思的是它的 judge 明确写了 <em>「忽略单位（1850 = 1850 mL）」</em>、日期<em>「除非题目明确要求，可忽略时间与时区差异」</em> —— 也就是说<strong>单位错与时刻错在答案指标里根本不扣分</strong>。</li>
