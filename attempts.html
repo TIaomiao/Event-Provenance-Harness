@@ -65,27 +65,27 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
  p.lead{font-size:16px}
 }
 @media print{
- @page{margin:12mm}
- body{background:#fff;font-size:11.5pt}
+ @page{margin:10mm}
+ body{background:#fff;font-size:9.8pt;line-height:1.45}
  .wrap{max-width:none;padding:0}
- h1.title{font-size:18pt;margin:4pt 0 2pt}
+ h1.title{font-size:15pt;line-height:1.2;margin:2pt 0}
  .eyebrow{display:none}
- .sub{font-size:10pt}
+ .sub{font-size:8.5pt}
  .stamp{display:none}
  nav.tabs{display:none}
- section.block{border:none;padding:0;margin:0 0 8pt;break-inside:avoid}
- section.block>h2{font-size:13pt;margin:0 0 2pt}
- section.block>.hint{font-size:9pt;margin:0 0 4pt}
- h3{font-size:11pt;margin:6pt 0 2pt}
- p{margin:3pt 0}
- p.lead{font-size:11pt;margin:2pt 0 4pt}
- ul,ol{margin:3pt 0;padding-left:16pt}
- li{margin:2pt 0}
+ section.block{border:none;padding:0;margin:0 0 5pt;break-inside:avoid}
+ section.block>h2{font-size:11.5pt;margin:0 0 1pt}
+ section.block>.hint{font-size:8pt;margin:0 0 2pt}
+ h3{font-size:10pt;margin:4pt 0 1pt}
+ p{margin:2pt 0}
+ p.lead{font-size:9.8pt;margin:1pt 0 3pt}
+ ul,ol{margin:2pt 0;padding-left:14pt}
+ li{margin:1pt 0}
  .tw,table,pre{break-inside:avoid}
- table{font-size:9.5pt}
- th,td{padding:3pt 5pt}
+ table{font-size:8.5pt}
+ th,td{padding:2pt 4pt}
  .tw{overflow:visible}
- footer{border-top:1px solid #ccc;padding-top:6pt;font-size:8.5pt}
+ footer{border-top:1px solid #ccc;padding-top:4pt;font-size:7.5pt}
  footer .chip{display:none}
  a{color:var(--ink);text-decoration:none}
 }
@@ -96,7 +96,7 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
 <header class="top">
 <div class="eyebrow">EHR Harness / Research</div>
 <h1 class="title">历史资料<em>按主题索引追溯</em></h1>
-<div class="stamp"><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>0bb21907e555</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span></div>
+<div class="stamp"><span class="chip">来源更新时间 <b>2026-10-10</b></span><span class="chip">来源内容指纹 <b>a2de741ee34c</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span></div>
 </header>
 <nav class="tabs"><a href="dashboard.html">← 回到当前总览</a></nav>
 <section class="block">
@@ -128,9 +128,8 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
 
 <footer>
 
-<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md 与 paper/PROPOSAL.md 的
-<b>白名单摘要区块</b>，数字取自 results/task_selection_summary.json。
-患者正文、受控参考答案、凭据与原始模型响应不在本页，也不在本仓库。</p>
+<p>本页由 <code>tools/workspace.py build</code> 从 CONTROL_PANEL 与 PROPOSAL 的<b>白名单摘要区块</b>生成，
+数字取自 results 的机器汇总。患者正文、受控参考答案、凭据与原始模型响应不在本页。</p>
 </footer>
 </div>
 </body>

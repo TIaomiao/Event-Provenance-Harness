@@ -65,27 +65,27 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
  p.lead{font-size:16px}
 }
 @media print{
- @page{margin:12mm}
- body{background:#fff;font-size:11.5pt}
+ @page{margin:10mm}
+ body{background:#fff;font-size:9.8pt;line-height:1.45}
  .wrap{max-width:none;padding:0}
- h1.title{font-size:18pt;margin:4pt 0 2pt}
+ h1.title{font-size:15pt;line-height:1.2;margin:2pt 0}
  .eyebrow{display:none}
- .sub{font-size:10pt}
+ .sub{font-size:8.5pt}
  .stamp{display:none}
  nav.tabs{display:none}
- section.block{border:none;padding:0;margin:0 0 8pt;break-inside:avoid}
- section.block>h2{font-size:13pt;margin:0 0 2pt}
- section.block>.hint{font-size:9pt;margin:0 0 4pt}
- h3{font-size:11pt;margin:6pt 0 2pt}
- p{margin:3pt 0}
- p.lead{font-size:11pt;margin:2pt 0 4pt}
- ul,ol{margin:3pt 0;padding-left:16pt}
- li{margin:2pt 0}
+ section.block{border:none;padding:0;margin:0 0 5pt;break-inside:avoid}
+ section.block>h2{font-size:11.5pt;margin:0 0 1pt}
+ section.block>.hint{font-size:8pt;margin:0 0 2pt}
+ h3{font-size:10pt;margin:4pt 0 1pt}
+ p{margin:2pt 0}
+ p.lead{font-size:9.8pt;margin:1pt 0 3pt}
+ ul,ol{margin:2pt 0;padding-left:14pt}
+ li{margin:1pt 0}
  .tw,table,pre{break-inside:avoid}
- table{font-size:9.5pt}
- th,td{padding:3pt 5pt}
+ table{font-size:8.5pt}
+ th,td{padding:2pt 4pt}
  .tw{overflow:visible}
- footer{border-top:1px solid #ccc;padding-top:6pt;font-size:8.5pt}
+ footer{border-top:1px solid #ccc;padding-top:4pt;font-size:7.5pt}
  footer .chip{display:none}
  a{color:var(--ink);text-decoration:none}
 }
@@ -107,57 +107,50 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
 <section class="block" id="question">
 <h2>1. 研究问题</h2>
 <p class="lead">研究自然语言取数要求能否被正确解释并执行——在纵向 EHR 记录上选出任务真正需要的记录集合、时间点与来源，并如实交出未决状态</p>
-<blockquote>本节是<strong>给读者（含师兄）的短说明</strong>，由 <code>tools/workspace.py</code> 渲染到公开简报。执行规则与详细状态在 AGENTS、CONTROL_PANEL 与本文件其余章节。</blockquote>
-<p><strong>中文一句话</strong>：同一批纵向病历里，一句话的取数要求（要哪些字段、取哪个时间点、按什么范围）能不能被正确理解，并选出真正该用的那几条记录。</p>
-<p><strong>两条记录的说明性例子（合成，非实测失败）</strong>：同一位患者有两条同一项目的记录，一次落在相对日 0、一次落在相对日 5。任务说“相对日 0 当天或之前、时间上最靠后的一条”，正确答案是相对日 0 那条；任务改成“相对日 0 之后最早的一条”，正确答案换成相对日 5 那条；任务改成“相对日 0 到 5 之间全部”，两条都要给。<strong>记录表一个字没变，任务措辞一变，正确结果就变</strong>——这正是要检验的东西。此例为<strong>合成说明</strong>，不代表任何实测运行的结果，也不是实测失败案例。</p>
+<blockquote>本节是<strong>给读者（含师兄）的短说明</strong>；执行规则与详细状态见 AGENTS 与 CONTROL_PANEL。</blockquote>
+<p><strong>两条记录的说明性例子（合成，非实测失败）</strong>：同一位患者有两条同一项目的记录，一次落在相对日 0、一次落在相对日 5。问「相对日 0 当天或之前、时间上最靠后的一条」，答案是相对日 0 那条；问「相对日 0 之后最早的一条」，答案换成相对日 5 那条；问「相对日 0 到 5 之间全部」，两条都要给。<strong>记录表一个字没变，问法一变，正确答案就变。</strong> 此例为<strong>合成说明</strong>，不代表任何实测结果。</p>
 </section>
 
 <section class="block" id="results">
 <h2>2. 实际比较与结果</h2>
-<p><b>直接选择</b>：模型直接读任务和记录表，返回它认为该用的那几条记录。
-<b>先计划再执行</b>：模型只把任务翻译成明确条件（时间角色、时间窗、取最近/最早/全部），再由同一个固定程序按条件取数。</p>
-<p>本次运行：<b>10 个开发包</b>、<b>60 个不同任务</b>、
-每任务每条件重复 <b>2 次</b>，共 <b>240 条</b>逻辑轨迹
-（运行日期 2026-10-06；输入范围：batch-full-01 的检验报告（复用既有覆盖扫描清单）+ 2 个已冻结 pilot 包；只取检验报告类别、只取目标项目与采集角色）。</p>
+<p><b>逐行原文</b>：只给相关页面的逐行文字，没有按化验记录成组。<b>记录表</b>：同样页面，已整理成一条条记录（含值、单位、两个时间）。
+<b>直接选择</b>：模型自己挑记录。<b>先给条件再执行</b>：模型只翻译出条件（时间角色、时间窗、取最近/最早/全部），由同一个固定程序取数。</p>
+<p>本次运行：<b>10 个开发患者包</b>、<b>60 个任务</b> × 两种形态 × 两种解法 = <b>240 条</b>（2026-10-10）。题面只用院内词汇暗示时间角色，<b>从不点名字段</b>。</p>
 <div class="tw"><table>
-<thead><tr><th>条件</th><th>记录集合正确</th><th>这个数字是怎么来的</th></tr></thead>
+<thead><tr><th>解法</th><th>输入：逐行原文</th><th>输入：记录表</th></tr></thead>
 <tbody>
-<tr><td>直接选择 <span class="mark">R1</span></td>
-<td><b>120/120</b></td><td>原始模型输出，按修正后的参考评分</td></tr>
-<tr><td>先计划再执行 <span class="mark">R2·当时执行</span></td>
-<td><b>110/120</b></td>
-<td>当时执行结果，按修正后的语义评分（当时参考有两个缺陷，见边界）</td></tr>
-<tr><td>先计划再执行 <span class="mark">R2·修正后离线重放</span></td>
-<td><b>120/120</b></td>
-<td>修正程序后重新执行同一批计划；<b>不是新的模型运行</b>，不能与上面一行合并</td></tr>
+<tr><td>直接选择</td><td><b>58/60</b></td><td><b>54/60</b></td></tr>
+<tr><td>先给条件再执行</td><td><b>60/60</b></td><td><b>60/60</b></td></tr>
 </tbody></table></div>
-<p><b>研究结论</b>：在条件已由宿主声明（项目、时间角色、范围、并列与缺失策略都明确给出）的范围内，没有观察到增加计划层带来的选择正确性收益。
-当前满分是能力边界结果，不是方法增益；不能读作基线无用，也不能读作可发表保证。</p>
+<p class="hint">同一病人、同一题，只换形态或解法。状态正确只在「直接选择」口径下报。</p>
+<p><b>四句话读完</b>：① <b>整理成表没有让选择更准</b>——配对比较里逐行原文反而多对 4 题。② <b>整理成表让输入 token 降到约 1/48、费用降到约 1/13</b>，这是唯一有证据的整理收益。③ <b>先给条件再执行把残余失误全消掉</b>（两种形态都满分，配对里多对 8 题、从未更差）；它的记录集合由固定程序执行得出。④ <b>失误集中在「枚举一个集合」</b>：8 处里 7 处在窗口题。</p>
+<p><b>研究结论</b>：把逐行原文整理成记录表之后，选择正确性没有提升（配对里未整理那端反而多对 4 题）；整理的价值在成本上——同为直接选择，记录表的输入 token 约 1/48、费用约 1/11。让模型先说出条件、再由固定程序执行，两种形态都 60/60，消掉了直接选择的全部残余失误。
+条件改为必须从自然语言推断后，两端正确率仍接近上限（54–60/60），题目对当前模型依然偏浅：本轮拿到的是「整理更省」的证据，不是「整理更准」的证据。</p>
+<p class="hint"><b>上一轮（2026-10-06，条件由宿主显式声明）要分开读</b>：直接选择 <b>120/120</b>；
+先计划再执行 <b>当时 110/120</b>、<b>修正后离线重放 120/120</b>（重放<b>不是</b>新的模型运行）。</p>
 </section>
 
 <section class="block" id="limits">
 <h2>3. 关键边界</h2>
-<ul><li>记录来自整理后的记录表（规则/OCR 抽取并经评分器校验），不是人工逐条核对的原文事实。</li><li>全部包都是开发集，用于定位与诊断，不是留出验证集。</li><li>来源审核范围：3 个代表包已备原页裁片与问题，人工核对尚未完成；未核部分只标待核。</li><li>参考与执行器曾共用同一假设，因此两者一致只证明实现一致，不证明语义正确。</li><li>方法增益尚未被证明；未证明供应商无关或多模型家族独立。</li></ul>
-<p class="hint">参考等级：规则/OCR 选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成。</p>
+<ul><li>记录来自整理后的记录表（规则/OCR 抽取并经校验），不是人工核对的原文事实；10 个包全是开发集，患者级统计功效很弱。</li><li>本轮 60 个参考全为「有答案」，未覆盖「该说未决时说未决」；方法与供应商无关性均未被证明。</li><li>逐行原文远长于记录表，形态差异混了结构与长度；本轮无准确率差异，削弱但不消除该担心。</li><li>时间角色（采集 vs 报告）不可观测：60 题里 0 题在两种角色下答案不同，故不对角色推断下结论。</li><li>来源事实人工核对尚未完成。</li></ul>
+<p class="hint">参考等级：规则/OCR 派生的选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成。</p>
 </section>
 
 <section class="block" id="next">
 <h2>4. 下一步与师兄判断</h2>
-<p><b>当前检验问题</b>：把时间角色交回自然语言之后，直接选择与先计划再执行是否出现差异？</p>
-<p><b>真实执行状态</b>：设计已冻结（3 包 × 4 题），真实轨迹尚未运行（3 包 × 4 题，至多 96 条）。
-<b>未运行的部分标未运行，不填预期成绩。</b></p>
+<p><b>当前检验问题</b>：换成真正会拉开差距的任务类型之后，整理与不整理、直接选择与先给条件再执行，会不会出现正确性差异？</p>
+<p><b>真实执行状态</b>：条件推断这一轮已跑完（240 条）；残余失误集中在「枚举集合、判断空集」。<b>仍未运行</b>：更难的题型（两端仍接近上限，需要它才可能拉开差异）；空集与未决的参考用例（本轮参考全为有答案）——<b>不填预期成绩</b>。</p>
 <p><b>需要师兄判断</b>：</p>
-<ol><li>是否值得投入这一轮有限的时间角色对照（至多 96 条），还是直接转向条件需要推断的场景。</li><li>是否先完成 3 个代表包的人工来源核对，再解释任何选择差异。</li></ol>
+<ol><li>下一轮是否把重点放在集合枚举与空集判断（本轮 8 处失误里 7 处在此），而不是继续加时间点题型。</li><li>「整理更省」这条成本结论是否足以支撑 AI-Ready 的主表，还是必须先拿到正确性上的差异。</li></ol>
 </section>
 
 <footer>
 <p class="tech">详细实验依据：
 <a href="https://github.com/TIaomiao/Event-Provenance-Harness/blob/main/results/2026-10-06_task_selection_baseline.md">results/2026-10-06_task_selection_baseline.md</a>
 · 执行总控：<a href="https://github.com/TIaomiao/Event-Provenance-Harness/blob/main/CONTROL_PANEL.md">CONTROL_PANEL.md</a>
-· 历史目录：<a href="attempts.html">attempts.html</a></p><span class="chip stage">当前阶段：治理输入适配与任务选择 baseline</span><span class="chip">来源更新时间 <b>2026-10-06</b></span><span class="chip">本次运行日期 <b>2026-10-06</b></span><span class="chip">来源内容指纹 <b>0bb21907e555</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>70750fe</b></span>
-<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md 与 paper/PROPOSAL.md 的
-<b>白名单摘要区块</b>，数字取自 results/task_selection_summary.json。
-患者正文、受控参考答案、凭据与原始模型响应不在本页，也不在本仓库。</p>
+· 历史目录：<a href="attempts.html">attempts.html</a></p><span class="chip stage">当前阶段：治理输入适配与任务选择 baseline</span><span class="chip">来源更新时间 <b>2026-10-10</b></span><span class="chip">本次运行日期 <b>2026-10-10</b></span><span class="chip">来源内容指纹 <b>a2de741ee34c</b></span><span class="chip">构建版本 <b>workspace.py v1</b></span><span class="chip">核验基线 <b>9ee3652</b></span>
+<p>本页由 <code>tools/workspace.py build</code> 从 CONTROL_PANEL 与 PROPOSAL 的<b>白名单摘要区块</b>生成，
+数字取自 results 的机器汇总。患者正文、受控参考答案、凭据与原始模型响应不在本页。</p>
 </footer>
 </div>
 </body>

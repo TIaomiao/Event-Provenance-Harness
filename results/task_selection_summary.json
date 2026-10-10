@@ -1,64 +1,82 @@
 {
-  "schema": "research-brief-summary-v1",
+  "schema": "research-brief-summary-v2",
   "purpose": "dashboard.html 与研究结论唯一取数的机器汇总；正文与表格都由这里生成，不在多个文件手抄完整表。",
   "source_of_record": "results/2026-10-06_task_selection_baseline.md",
   "latest_run": {
-    "run_id": "task_selection_v3_20261006",
-    "experiment_date": "2026-10-06",
-    "code_version": "task_selection_run_v3",
+    "run_id": "task_selection_v5_20261010",
+    "experiment_date": "2026-10-10",
+    "code_version": "task_selection_run_v5",
     "consumer_alias": "[j]gemini-3-flash",
-    "input_scope": "batch-full-01 的检验报告（复用既有覆盖扫描清单）+ 2 个已冻结 pilot 包；只取检验报告类别、只取目标项目与采集角色",
-    "reference_level": "规则/OCR 选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成",
     "packages": 10,
     "distinct_tasks": 60,
-    "conditions": 2,
+    "forms": 2,
+    "solutions": 2,
+    "logical_trajectories": 240,
+    "blocked": 0,
+    "parse_failures": 0,
+    "repairs": 0,
+    "input_scope": "10 个开发患者包；含目标项目的页面；逐行原文与重建记录表两种形态；题面只用院内词汇暗示时间角色，从不点名字段",
+    "reference_level": "规则/OCR 派生的选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成",
+    "cost_usd": 2.0788911,
+    "cells": {
+      "U_R1": {"label": "逐行原文 + 直接选择", "exact": 58, "denominator": 60, "tokens_in": 2672084, "cost_usd": 1.0403, "mean_latency_s": 10.6},
+      "U_R2": {"label": "逐行原文 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 2671784, "cost_usd": 0.8888, "mean_latency_s": 9.1},
+      "R_R1": {"label": "记录表 + 直接选择", "exact": 54, "denominator": 60, "tokens_in": 55532, "cost_usd": 0.0975, "mean_latency_s": 8.0},
+      "R_R2": {"label": "记录表 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 55232, "cost_usd": 0.0523, "mean_latency_s": 7.1}
+    },
+    "paired_form": {"note": "同一病人同一题，逐行原文 vs 记录表", "only_raw_right": 5, "only_table_right": 1, "both_right": 53, "both_wrong": 1},
+    "paired_solution": {"note": "同一病人同一题，直接选择 vs 先给条件再执行", "only_direct_right": 0, "only_plan_right": 8, "both_right": 112, "both_wrong": 0, "pairs": 120},
+    "by_shape": {
+      "U_R1": {"before": [20, 20], "after": [20, 20], "window": [18, 20]},
+      "R_R1": {"before": [20, 20], "after": [19, 20], "window": [15, 20]},
+      "U_R2": {"before": [20, 20], "after": [20, 20], "window": [20, 20]},
+      "R_R2": {"before": [20, 20], "after": [20, 20], "window": [20, 20]}
+    },
+    "input_token_ratio": 48.1,
+    "conclusion": "把逐行原文整理成记录表之后，选择正确性没有提升（配对里未整理那端反而多对 4 题）；整理的价值在成本上——同为直接选择，记录表的输入 token 约 1/48、费用约 1/11。让模型先说出条件、再由固定程序执行，两种形态都 60/60，消掉了直接选择的全部残余失误。",
+    "capability_boundary_note": "条件改为必须从自然语言推断后，两端正确率仍接近上限（54–60/60），题目对当前模型依然偏浅：本轮拿到的是「整理更省」的证据，不是「整理更准」的证据。"
+  },
+  "earlier_run": {
+    "experiment_date": "2026-10-06",
+    "run_id": "task_selection_v3_20261006",
+    "condition": "取数条件由宿主显式声明",
+    "distinct_tasks": 60,
     "repeats": 2,
     "logical_trajectories": 240,
-    "results": {
-      "direct_selection": {
-        "label": "直接选择",
-        "marker": "R1",
-        "numerator": 120,
-        "denominator": 120,
-        "basis": "原始模型输出，按修正后的参考评分",
-        "kind": "as_run"
-      },
-      "plan_then_execute": {
-        "label": "先计划再执行",
-        "marker": "R2",
-        "as_run_under_corrected_semantics": {"numerator": 110, "denominator": 120},
-        "corrected_offline_replay": {"numerator": 120, "denominator": 120},
-        "basis": "计划由模型给出，记录集合由同一个固定程序执行得到；重放不是新的模型运行"
-      }
-    },
-    "scope_violations": 0,
-    "conclusion": "在条件已由宿主声明（项目、时间角色、范围、并列与缺失策略都明确给出）的范围内，没有观察到增加计划层带来的选择正确性收益。",
-    "capability_boundary_note": "当前满分是能力边界结果，不是方法增益；不能读作基线无用，也不能读作可发表保证。"
-  },
-  "not_run": {
-    "time_role_comparison": {
-      "status": "not_run",
-      "frozen_tasks": 12,
-      "max_logical_trajectories": 96,
-      "packages": 3,
-      "basis": "任务显式指定采集时间或报告时间；设计已冻结，请求未发出",
-      "no_expected_score": true
+    "direct_selection": {"marker": "R1", "numerator": 120, "denominator": 120, "basis": "原始模型输出，按修正后的参考评分"},
+    "plan_then_execute": {
+      "marker": "R2",
+      "as_run_under_corrected_semantics": {"numerator": 110, "denominator": 120},
+      "corrected_offline_replay": {"numerator": 120, "denominator": 120},
+      "basis": "计划由模型给出，记录集合由同一个固定程序执行得到；重放不是新的模型运行"
     }
   },
   "boundaries": [
-    "记录来自整理后的记录表（规则/OCR 抽取并经评分器校验），不是人工逐条核对的原文事实。",
-    "全部包都是开发集，用于定位与诊断，不是留出验证集。",
-    "来源审核范围：3 个代表包已备原页裁片与问题，人工核对尚未完成；未核部分只标待核。",
-    "参考与执行器曾共用同一假设，因此两者一致只证明实现一致，不证明语义正确。",
-    "方法增益尚未被证明；未证明供应商无关或多模型家族独立。"
+    "记录来自整理后的记录表（规则/OCR 抽取并经校验），不是人工核对的原文事实；10 个包全是开发集，患者级统计功效很弱。",
+    "本轮 60 个参考全为「有答案」，未覆盖「该说未决时说未决」；方法与供应商无关性均未被证明。",
+    "逐行原文远长于记录表，形态差异混了结构与长度；本轮无准确率差异，削弱但不消除该担心。",
+    "时间角色（采集 vs 报告）不可观测：60 题里 0 题在两种角色下答案不同，故不对角色推断下结论。",
+    "来源事实人工核对尚未完成。"
   ],
   "next_step": {
-    "question": "把时间角色交回自然语言之后，直接选择与先计划再执行是否出现差异？",
-    "status": "设计已冻结（3 包 × 4 题），真实轨迹尚未运行",
+    "question": "换成真正会拉开差距的任务类型之后，整理与不整理、直接选择与先给条件再执行，会不会出现正确性差异？",
+    "status": "条件推断这一轮已跑完（240 条）；残余失误集中在「枚举集合、判断空集」",
     "decision_for_advisor": [
-      "是否值得投入这一轮有限的时间角色对照（至多 96 条），还是直接转向条件需要推断的场景。",
-      "是否先完成 3 个代表包的人工来源核对，再解释任何选择差异。"
+      "下一轮是否把重点放在集合枚举与空集判断（本轮 8 处失误里 7 处在此），而不是继续加时间点题型。",
+      "「整理更省」这条成本结论是否足以支撑 AI-Ready 的主表，还是必须先拿到正确性上的差异。"
     ]
+  },
+  "not_run": {
+    "harder_task_family": {
+      "status": "not_run",
+      "note": "更难的题型（两端仍接近上限，需要它才可能拉开差异）",
+      "no_expected_score": true
+    },
+    "empty_and_undetermined_reference_cases": {
+      "status": "not_run",
+      "note": "空集与未决的参考用例（本轮参考全为有答案）",
+      "no_expected_score": true
+    }
   },
   "not_published": [
     "受控端 OCR 与身份对照入口",

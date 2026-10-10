@@ -397,27 +397,27 @@ footer .chip{background:none;border:none;padding:0 12px 0 0;font-size:12.5px}
  p.lead{font-size:16px}
 }
 @media print{
- @page{margin:12mm}
- body{background:#fff;font-size:11.5pt}
+ @page{margin:10mm}
+ body{background:#fff;font-size:9.8pt;line-height:1.45}
  .wrap{max-width:none;padding:0}
- h1.title{font-size:18pt;margin:4pt 0 2pt}
+ h1.title{font-size:15pt;line-height:1.2;margin:2pt 0}
  .eyebrow{display:none}
- .sub{font-size:10pt}
+ .sub{font-size:8.5pt}
  .stamp{display:none}
  nav.tabs{display:none}
- section.block{border:none;padding:0;margin:0 0 8pt;break-inside:avoid}
- section.block>h2{font-size:13pt;margin:0 0 2pt}
- section.block>.hint{font-size:9pt;margin:0 0 4pt}
- h3{font-size:11pt;margin:6pt 0 2pt}
- p{margin:3pt 0}
- p.lead{font-size:11pt;margin:2pt 0 4pt}
- ul,ol{margin:3pt 0;padding-left:16pt}
- li{margin:2pt 0}
+ section.block{border:none;padding:0;margin:0 0 5pt;break-inside:avoid}
+ section.block>h2{font-size:11.5pt;margin:0 0 1pt}
+ section.block>.hint{font-size:8pt;margin:0 0 2pt}
+ h3{font-size:10pt;margin:4pt 0 1pt}
+ p{margin:2pt 0}
+ p.lead{font-size:9.8pt;margin:1pt 0 3pt}
+ ul,ol{margin:2pt 0;padding-left:14pt}
+ li{margin:1pt 0}
  .tw,table,pre{break-inside:avoid}
- table{font-size:9.5pt}
- th,td{padding:3pt 5pt}
+ table{font-size:8.5pt}
+ th,td{padding:2pt 4pt}
  .tw{overflow:visible}
- footer{border-top:1px solid #ccc;padding-top:6pt;font-size:8.5pt}
+ footer{border-top:1px solid #ccc;padding-top:4pt;font-size:7.5pt}
  footer .chip{display:none}
  a{color:var(--ink);text-decoration:none}
 }
@@ -445,9 +445,8 @@ def page(title: str, body: str, subtitle: str, header_note: str = "",
 {body}
 <footer>
 {footer_note}
-<p>本页由 <code>tools/workspace.py build</code> 生成，源是 CONTROL_PANEL.md 与 paper/PROPOSAL.md 的
-<b>白名单摘要区块</b>，数字取自 results/task_selection_summary.json。
-患者正文、受控参考答案、凭据与原始模型响应不在本页，也不在本仓库。</p>
+<p>本页由 <code>tools/workspace.py build</code> 从 CONTROL_PANEL 与 PROPOSAL 的<b>白名单摘要区块</b>生成，
+数字取自 results 的机器汇总。患者正文、受控参考答案、凭据与原始模型响应不在本页。</p>
 </footer>
 </div>
 </body>
@@ -518,14 +517,26 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 
     brief = json.loads((repo / SUMMARY).read_text(encoding="utf-8"))
     latest = brief["latest_run"]
-    result = latest["results"]
-    direct = result["direct_selection"]
-    planned = result["plan_then_execute"]
+    cells = latest["cells"]
+    earlier = brief.get("earlier_run") or {}
+    old_direct = (earlier.get("direct_selection") or {})
+    old_planned = (earlier.get("plan_then_execute") or {})
     next_step = brief["next_step"]
-    notrun = brief["not_run"]["time_role_comparison"]
+    notrun = list((brief.get("not_run") or {}).values())
 
     def ratio(entry: dict[str, int]) -> str:
         return "%d/%d" % (entry["numerator"], entry["denominator"])
+
+    def cell(key: str) -> str:
+        entry = cells[key]
+        return "%d/%d" % (entry["exact"], entry["denominator"])
+
+    raw_tokens = sum(cells[k]["tokens_in"] for k in ("U_R1", "U_R2"))
+    table_tokens = sum(cells[k]["tokens_in"] for k in ("R_R1", "R_R2"))
+    token_ratio = (raw_tokens / table_tokens) if table_tokens else 0
+    cost_ratio = (sum(cells[k]["cost_usd"] for k in ("U_R1", "U_R2"))
+                  / sum(cells[k]["cost_usd"] for k in ("R_R1", "R_R2"))) \
+        if sum(cells[k]["cost_usd"] for k in ("R_R1", "R_R2")) else 0
 
     tabs = f"""<nav class="tabs">
 <a href="#question">研究问题</a>
@@ -561,25 +572,21 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 
 <section class="block" id="results">
 <h2>2. 实际比较与结果</h2>
-<p><b>直接选择</b>：模型直接读任务和记录表，返回它认为该用的那几条记录。
-<b>先计划再执行</b>：模型只把任务翻译成明确条件（时间角色、时间窗、取最近/最早/全部），再由同一个固定程序按条件取数。</p>
-<p>本次运行：<b>{latest['packages']} 个开发包</b>、<b>{latest['distinct_tasks']} 个不同任务</b>、
-每任务每条件重复 <b>{latest['repeats']} 次</b>，共 <b>{latest['logical_trajectories']} 条</b>逻辑轨迹
-（运行日期 {html.escape(latest['experiment_date'])}；输入范围：{html.escape(latest['input_scope'])}）。</p>
+<p><b>逐行原文</b>：只给相关页面的逐行文字，没有按化验记录成组。<b>记录表</b>：同样页面，已整理成一条条记录（含值、单位、两个时间）。
+<b>直接选择</b>：模型自己挑记录。<b>先给条件再执行</b>：模型只翻译出条件（时间角色、时间窗、取最近/最早/全部），由同一个固定程序取数。</p>
+<p>本次运行：<b>{latest['packages']} 个开发患者包</b>、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。题面只用院内词汇暗示时间角色，<b>从不点名字段</b>。</p>
 <div class="tw"><table>
-<thead><tr><th>条件</th><th>记录集合正确</th><th>这个数字是怎么来的</th></tr></thead>
+<thead><tr><th>解法</th><th>输入：逐行原文</th><th>输入：记录表</th></tr></thead>
 <tbody>
-<tr><td>直接选择 <span class="mark">{html.escape(direct['marker'])}</span></td>
-<td><b>{ratio(direct)}</b></td><td>{html.escape(direct['basis'])}</td></tr>
-<tr><td>先计划再执行 <span class="mark">{html.escape(planned['marker'])}·当时执行</span></td>
-<td><b>{ratio(planned['as_run_under_corrected_semantics'])}</b></td>
-<td>当时执行结果，按修正后的语义评分（当时参考有两个缺陷，见边界）</td></tr>
-<tr><td>先计划再执行 <span class="mark">{html.escape(planned['marker'])}·修正后离线重放</span></td>
-<td><b>{ratio(planned['corrected_offline_replay'])}</b></td>
-<td>修正程序后重新执行同一批计划；<b>不是新的模型运行</b>，不能与上面一行合并</td></tr>
+<tr><td>直接选择</td><td><b>{cell("U_R1")}</b></td><td><b>{cell("R_R1")}</b></td></tr>
+<tr><td>先给条件再执行</td><td><b>{cell("U_R2")}</b></td><td><b>{cell("R_R2")}</b></td></tr>
 </tbody></table></div>
+<p class="hint">同一病人、同一题，只换形态或解法。状态正确只在「直接选择」口径下报。</p>
+<p><b>四句话读完</b>：① <b>整理成表没有让选择更准</b>——配对比较里逐行原文反而多对 4 题。② <b>整理成表让输入 token 降到约 1/{token_ratio:.0f}、费用降到约 1/{cost_ratio:.0f}</b>，这是唯一有证据的整理收益。③ <b>先给条件再执行把残余失误全消掉</b>（两种形态都满分，配对里多对 {latest['paired_solution']['only_plan_right']} 题、从未更差）；它的记录集合由固定程序执行得出。④ <b>失误集中在「枚举一个集合」</b>：8 处里 7 处在窗口题。</p>
 <p><b>研究结论</b>：{html.escape(latest['conclusion'])}
 {html.escape(latest['capability_boundary_note'])}</p>
+<p class="hint"><b>上一轮（{html.escape(earlier.get('experiment_date',''))}，条件由宿主显式声明）要分开读</b>：直接选择 <b>{ratio(old_direct)}</b>；
+先计划再执行 <b>当时 {ratio(old_planned['as_run_under_corrected_semantics'])}</b>、<b>修正后离线重放 {ratio(old_planned['corrected_offline_replay'])}</b>（重放<b>不是</b>新的模型运行）。</p>
 </section>
 
 <section class="block" id="limits">
@@ -591,9 +598,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <section class="block" id="next">
 <h2>4. 下一步与师兄判断</h2>
 <p><b>当前检验问题</b>：{html.escape(next_step['question'])}</p>
-<p><b>真实执行状态</b>：{html.escape(next_step['status'])}（{notrun['packages']} 包 × {
-    notrun['frozen_tasks'] // notrun['packages']} 题，至多 {notrun['max_logical_trajectories']} 条）。
-<b>未运行的部分标未运行，不填预期成绩。</b></p>
+<p><b>真实执行状态</b>：{html.escape(next_step['status'])}。<b>仍未运行</b>：{"；".join(html.escape(item.get("note", "")) for item in notrun)}——<b>不填预期成绩</b>。</p>
 <p><b>需要师兄判断</b>：</p>
 <ol>{decision_items}</ol>
 </section>
