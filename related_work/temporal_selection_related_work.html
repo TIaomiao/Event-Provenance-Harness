@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>相关工作核查：LLM 能否选对时间点？</title>
+<style>
+:root{--ink:#1a2b26;--muted:#5d6f68;--line:#d8e2dd;--card:#fff;--accent:#0d6b57;--accent-soft:#e8f3ef;--warn:#a8620a;--warn-soft:#fdf6e6;--bad:#9b2c2c;--bad-soft:#fdecec}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7f5;color:var(--ink);font:15px/1.72 "Segoe UI","Microsoft YaHei",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:32px 20px 60px}
+h1{font-size:26px;line-height:1.3;margin:6px 0 6px}
+h2{font-size:19px;margin:30px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+h3{font-size:16px;margin:20px 0 4px}
+p{margin:9px 0}
+.eyebrow{font:600 12px/1 "Segoe UI",sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);margin:0 0 18px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:0 0 18px}
+.verdict{background:var(--bad-soft);border:1px solid #f0c9c9;border-left:5px solid var(--bad)}
+.verdict h2{border:none;margin-top:0;color:var(--bad)}
+.key{background:var(--accent-soft);border:1px solid #bfdfd5;border-left:5px solid var(--accent)}
+.key h2{border:none;margin-top:0}
+.note{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:14px;color:#5c3d00}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef4f1;font-weight:700}
+tbody tr:nth-child(even){background:#fafcfb}
+code{background:#eef2f0;border-radius:4px;padding:1px 5px;font:13px/1.5 Consolas,monospace}
+blockquote{margin:12px 0;padding:10px 16px;background:#f7faf9;border-left:4px solid var(--accent);border-radius:0 8px 8px 0;color:#20493f;font-size:14.5px}
+ul,ol{padding-left:22px;margin:8px 0}
+li{margin:5px 0}
+a{color:var(--accent)}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:1px 9px;font:600 12px/1.7 "Segoe UI",sans-serif;margin-right:6px}
+.tag.red{background:var(--bad-soft);color:var(--bad)}
+.tag.amber{background:var(--warn-soft);color:var(--warn)}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px}
+@media print{body{background:#fff}section{break-inside:avoid;border:none;padding:0;margin-bottom:14px}h2{margin-top:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="eyebrow">EHR Harness / 相关工作核查</div>
+<h1>「让 LLM 在多个时间点里选对那一个」有没有人做过？</h1>
+<p class="sub">核查日期 2026-10-08 · 核查者 DSH · 只收公开文献，不含任何患者材料 · 每条的核验程度分别标注</p>
+
+<section class="verdict">
+<h2>结论（先说最要紧的）</h2>
+<p><strong>这个问题不新。它已经被明确提出、系统标注，并在旗舰基准上评测过 —— 至少从 2022 年起。</strong></p>
+<p><span class="tag red">决定性证据</span> <strong>EHRSQL</strong>（NeurIPS 2022 Datasets &amp; Benchmarks）里有第三类时间过滤器 <code>[time_filter_exact]</code>，原文定义就是「指出一个确切时间，例如 <em>last</em> measurement」；它的 <strong>Option</strong> 参数「从过滤后的事件中<strong>选出一个确切事件（例如 first、last）</strong>」。该数据集 <strong>24,411</strong> 个问答对，<strong>93.2%</strong> 的查询至少用到一列时间，题目由 <strong>222 名医院工作人员</strong>在<strong>没有看过数据库 schema</strong> 的情况下提出。</p>
+<p>也就是说：<strong>「从自然语言推断该取哪个时间点（first / last / 窗口）」是这条线的既有任务设定，不是我们发现的空白。</strong></p>
+<p>但结论不是「方向死了」，而是<strong>我们的任务设计把这道题做没了</strong>：EHRSQL 要求模型<strong>推断</strong>时间条件，而我们的 baseline 把时间条件<strong>声明</strong>给了模型——这就是 120/120 的来源。</p>
+</section>
+
+<section>
+<h2>一、决定性证据：EHRSQL 已经这么做了</h2>
+<p><strong>EHRSQL: A Practical Text-to-SQL Benchmark for Electronic Health Records</strong> · Gyubok Lee, Hyeonji Hwang, Seongsu Bae, Yeonsu Kwon, Woncheol Shin, Seongjun Yang, Minjoon Seo, Jongyeup Kim, Edward Choi（KAIST 等）· NeurIPS 2022 Datasets and Benchmarks · <a href="https://arxiv.org/abs/2301.07695">arXiv:2301.07695</a> · 已正式发表 · <strong>本篇由我直接读取原文页面核对</strong></p>
+<h3>它的时间过滤器设计（原文要点）</h3>
+<table>
+<thead><tr><th>过滤器</th><th>作用</th><th>谁决定</th></tr></thead>
+<tbody>
+<tr><td><code>[time_filter_global]</code></td><td>限定感兴趣的整体时间范围</td><td>题目给出</td></tr>
+<tr><td><code>[time_filter_within]</code></td><td>限定两个以上医疗事件之间的时间段</td><td>题目给出</td></tr>
+<tr><td><code>[time_filter_exact]</code></td><td>指到一个确切时间，例如「last 一次测量」</td><td><strong>Option：从过滤后的事件中选出一个确切事件（first / last）</strong></td></tr>
+</tbody></table>
+<p>时间还按三个因素系统分类：<strong>表达类型</strong>（absolute / relative / mixed）、<strong>单位</strong>（年 / 月 / 日 / 就诊 / ICU 访次）、<strong>区间类型</strong>（since / until / in）。</p>
+<h3>数据集里的真实题目（原文 Table 1 举例）</h3>
+<ul>
+<li>When was the <strong>first</strong> prescription time of patient 20000?</li>
+<li>What was the <strong>last</strong> arterial bp [systolic] for patient 23042?</li>
+<li>Tell me the <strong>last</strong> specimen test given to patient 51177 in 10/2105?</li>
+<li>Tell me the medication that patient 3929 has been prescribed for the <strong>first</strong> time in 05/this year?</li>
+</ul>
+<h3>它的评测口径</h3>
+<p>两个指标：<code>F1_ans</code>（判断问题可答 / 不可答）与 <code>F1_exe</code>（<strong>执行准确率</strong>——只有数据库返回的答案正确才算对）。含**不可答问题**（需要外部知识或超出 schema），只在验证/测试集出现。</p>
+<div class="note"><strong>对我们的直接影响</strong>：<span class="tag red">不能声称</span>「自然语言里的时间选择条件需要被推断」是新的问题；<span class="tag red">不能声称</span>「first/last 选择」是新的任务类型。审稿人只要知道 EHRSQL，这两句话就会被直接打回。</div>
+</section>
+
+<section>
+<h2>二、这条线三代工作的分工</h2>
+<table>
+<thead><tr><th>代</th><th>代表</th><th>「取哪个时间点」怎么定</th><th>能不能当我们的创新</th></tr></thead>
+<tbody>
+<tr>
+<td>古典时间抽象</td>
+<td>Shahar &amp; Musen 1996（<em>Artif Intell Med</em> 8(3):267–298，<a href="https://doi.org/10.1016/0933-3657(95)00036-4">DOI</a>）；Stacey &amp; McGregor 2007 综述（<a href="https://doi.org/10.1016/j.artmed.2006.08.002">DOI</a>）；Boaz &amp; Shahar 2005（<a href="https://doi.org/10.1016/j.artmed.2004.07.009">DOI</a>）</td>
+<td><strong>窗口是输入的参数</strong>，由查询给出或知识库条目给定；KBTA 把原始值提升为区间概念（LOW/HIGH、INCREASING）</td>
+<td><span class="tag red">不能</span>「把时序值抽象成区间」早已解决</td>
+</tr>
+<tr>
+<td>时序 / 纵向建模</td>
+<td>GRU-D（<em>Sci Rep</em> 2018，<a href="https://doi.org/10.1038/s41598-018-24271-9">DOI</a>）；BEHRT（<em>Sci Rep</em> 2020，<a href="https://doi.org/10.1038/s41598-020-62922-y">DOI</a>）</td>
+<td><strong>窗口是预处理超参</strong>，事先固定；时间用作衰减信号或位置嵌入</td>
+<td><span class="tag red">不能</span>不规则采样与缺失处理也已解决</td>
+</tr>
+<tr>
+<td>LLM 时代</td>
+<td><strong>EHRSQL</strong>（NeurIPS 2022，见上）；TIMER（<em>npj Digit Med</em> 2025，<a href="https://doi.org/10.1038/s41746-025-01965-9">DOI</a>）；MedAlign（AAAI-24，<a href="https://doi.org/10.1609/aaai.v38i20.30205">DOI</a>）；TimeR4（EMNLP 2024，<a href="https://doi.org/10.18653/v1/2024.emnlp-main.394">DOI</a>）；EHR-RAG（<a href="https://arxiv.org/abs/2601.21340">arXiv:2601.21340</a>，预印本）</td>
+<td><strong>由模型从题目推断</strong>（EHRSQL 的 first/last 槽位；TIMER 的时间戳接地与「时间边界遵守」；TimeR4 先把时间约束重写出来再检索）</td>
+<td><span class="tag amber">部分</span>机制已存在，但见第三节的四个残余缺口</td>
+</tr>
+</tbody></table>
+<p class="sub">上表古典与建模部分来自定向检索（核验到摘要与元数据级，Shahar 1996 全文付费墙；未逐篇通读全文）。这一限制如实标注。</p>
+</section>
+
+<section class="key">
+<h2>三、还空着的四个位置（我们的机会所在）</h2>
+<ol>
+<li><strong>输入是结构化 MIMIC-III / eICU，不是扫描病历。</strong>EHRSQL 直接在关系库上生成 SQL；<strong>没有人处理「记录在表格重建之前根本不存在」这一层</strong>。我们在 <code>batch-full-01</code> 实测：一行化验结果在 OCR 里是好几条独立行（项目名、别名、结果、单位、参考区间），只把项目名行交给抽取器 → <strong>值+单位完整 0 条</strong>；按行带跨行重建 → <strong>2,303 条明确记录</strong>。</li>
+<li><strong>「给选中的集合打分」也已经有人做了——但粒度和时间维度都还不够。</strong> <strong>FHIR-AgentBench</strong>（ML4H 2025，<a href="https://arxiv.org/abs/2509.19319">arXiv:2509.19319</a>）的官方评测脚本<strong>同时</strong>打两件事：① 金标准选中集合 <code>true_fhir_ids</code>（{FHIR 资源类型 → 资源 ID 列表}）上的 retrieval precision / recall / F1；② 用 LLM judge 判答案正确率。它的题目也<strong>确实要求</strong>在多个时间点之间消歧（例如「第一次住院当天第二次测量 vs 第一次测量」）。<br>
+<span class="tag amber">但两处不够</span> 第一，选中集合的粒度只到 <strong>FHIR 资源 ID</strong>，没有「观测 ID + 显式时间点」这一级；第二，它<strong>没有时间角色标签</strong>（采集 vs 报告）。更有意思的是它的 judge 明确写了 <em>「忽略单位（1850 = 1850 mL）」</em>、日期<em>「除非题目明确要求，可忽略时间与时区差异」</em> —— 也就是说<strong>单位错与时刻错在答案指标里根本不扣分</strong>。</li>
+<li><strong>没有把「采集时间 vs 报告时间」当作标注轴。</strong>我们能查到的基准里都没有这个维度；FHIR-AgentBench 的金标准只到资源 ID 级，TIMER 的金标准是 (问题, 回答, <strong>时间证据</strong>) 但只用 LLM-judge / BERTScore / ROUGE-L 评<strong>回答文本</strong>，没有对时间证据做集合匹配。</li>
+<li><strong>「条件被声明 vs 必须推断」这个边界本身几乎没有被系统测量。</strong>我们自己的 240 条轨迹恰好测出了这条边界的一端（全部声明 → 两组满分），但这是我们的观察，不是既有工作。</li>
+</ol>
+</section>
+
+<section>
+<h2>四、这对我们的题目意味着什么</h2>
+<table>
+<thead><tr><th>说法</th><th>判定</th><th>理由</th></tr></thead>
+<tbody>
+<tr><td>「自然语言取数条件需要被推断」是新问题</td><td><span class="tag red">站不住</span></td><td>EHRSQL 2022 已系统标注并评测</td></tr>
+<tr><td>「first/last 时间点选择」是新任务类型</td><td><span class="tag red">站不住</span></td><td><code>[time_filter_exact]</code> 的 Option 就是它</td></tr>
+<tr><td>「把时间约束先外化再检索」是新方法</td><td><span class="tag red">站不住</span></td><td>TimeR4 等已是既有做法</td></tr>
+<tr><td>「真实扫描病历上的记录层 + 选中记录集合评分 + 时间角色 + 未决状态」</td><td><span class="tag amber">尚可辩护</span></td><td>第三节四个缺口；但必须把「结构化库 vs 扫描件」的差异讲清楚，不能只说「输入不同」</td></tr>
+<tr><td>「当前 baseline 无增量」</td><td><span class="tag">是事实，且不丢人</span></td><td>原因是我们把 EHRSQL 要求<strong>推断</strong>的条件<strong>声明</strong>了；师兄在会上也说了先跑通、创新点放后面</td></tr>
+</tbody></table>
+<h3>据此题目应改写成什么（草）</h3>
+<blockquote>在<strong>真实扫描病历</strong>上，先把逐行 OCR 重建为可选择的「记录」，再检验当取数条件<strong>不再被声明</strong>、必须从自然语言推断时，模型能否选出正确的记录集合，并如实交出时间角色、来源锚点与未决状态——并以<strong>记录集合</strong>而非最终答案作为评分对象。</blockquote>
+<p>这个版本里，EHRSQL 是我们的<strong>对照与来源</strong>，不是我们要否认的既有工作。</p>
+</section>
+
+<section>
+<h2>五、我们的实测事实（与文献无关，自己测得）</h2>
+<ul>
+<li>240 条轨迹：直接选择在<strong>原始输出</strong>下按修正参考 120/120；先计划再执行<strong>当时执行</strong>按修正语义 110/120，<strong>修正后离线重放</strong>才 120/120（重放不是新模型运行）。</li>
+<li>20 条差异全部来自我方参考的两处缺陷（窗口外计数、仅日期精度被当成 <code>HH:MM:SS</code>），<strong>不是模型错误</strong>。</li>
+<li>覆盖测量：10 个包里只有 2 个的采集序与报告序不一致，各 1 对倒序 → 时间角色维度<strong>覆盖充分但判别力很弱</strong>。</li>
+<li>记录层：<code>batch-full-01</code> 13,084 份文档，1,244 份检验报告全部进入抽取、0 schema/对齐失败；逐行 0 完整 vs 跨行 2,303 明确。</li>
+</ul>
+</section>
+
+<section>
+<h2>六、未核与风险</h2>
+<ul>
+<li><strong>未核</strong>：Shahar 1996 全文（付费墙，只核到摘要）；EHRSQL 的附录 B.2 时间模板全表（只核到正文 Table 3 举例）；MedAlign / TIMER 的技术全文（只到摘要与元数据级）。</li>
+<li><strong>风险</strong>：EHRSQL 2.0 或后续版本未逐项核对；可能还存在我们没检索到的、已经做了「记录集合评分」的工作。</li>
+<li><strong>低可信来源</strong>：clawRxiv:2604.00633 自称做了「按题目推断最窄可辩护时间范围」，但它是<strong>未经同行评审的预印本</strong>，只有 2 个病例、无基准比较，作者自称贡献是概念性的——<strong>不能当作既有工作引用，也不能当作已被验证的方法</strong>。</li>
+</ul>
+</section>
+
+<section class="key">
+<h2>七、下一步三件事</h2>
+<ol>
+<li><strong>把任务设计改成 EHRSQL 式</strong>：让模型从自然语言推断时间条件（first/last/窗口），而不是由宿主声明。这是唯一能产生非满分结果的改法。</li>
+<li><strong>把评分对象定在记录集合</strong>（含时间角色与来源锚点、未决状态），并在论文里明确写出这与 EHRSQL 的 <code>F1_exe</code> 的区别。</li>
+<li><strong>把记录层当作独立贡献</strong>：真实扫描件上「记录不存在直到表格被重建」这件事，是我们实测的、别人（结构化库路线）没有面对的问题。</li>
+</ol>
+<p>相关问题要问师兄：这个改写后的定位他是否接受；以及是否同意把 EHRSQL 作为主要对照基准。</p>
+</section>
+
+<footer>
+<p>本页是<strong>阅读视图</strong>，不是台账本身。唯一活动文献台账仍是 <code>related_work/AI_READY_EVIDENCE_MATRIX.md</code>，本页结论将同步回台账。所有引用只指向公开来源；未核部分已逐条标注。本页不含患者材料、受控路径或凭据。</p>
+</footer>
+</div>
+</body>
+</html>
