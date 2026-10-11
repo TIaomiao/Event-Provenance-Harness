@@ -574,7 +574,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <h2>2. 实际比较与结果</h2>
 <p><b>逐行原文</b>：只给相关页面的逐行文字，没有按化验记录成组。<b>记录表</b>：同样页面，已整理成一条条记录（含值、单位、两个时间）。
 <b>直接选择</b>：模型自己挑记录。<b>先给条件再执行</b>：模型只翻译出条件（时间角色、时间窗、取最近/最早/全部），由同一个固定程序取数。</p>
-<p>本次运行：<b>{latest['packages']} 个开发患者包</b>、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。题面只用院内词汇暗示时间角色，<b>从不点名字段</b>。</p>
+<p>本次运行：<b>{latest['packages']} 个开发患者包</b>、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。任务**全部换成集合枚举与空集判断**；题面只用院内词汇暗示时间角色，<b>从不点名字段</b>。</p>
 <div class="tw"><table>
 <thead><tr><th>解法</th><th>输入：逐行原文</th><th>输入：记录表</th></tr></thead>
 <tbody>
@@ -582,7 +582,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <tr><td>先给条件再执行</td><td><b>{cell("U_R2")}</b></td><td><b>{cell("R_R2")}</b></td></tr>
 </tbody></table></div>
 <p class="hint">同一病人、同一题，只换形态或解法。状态正确只在「直接选择」口径下报。</p>
-<p><b>四句话读完</b>：① <b>整理成表没有让选择更准</b>——配对比较里逐行原文反而多对 4 题。② <b>整理成表让输入 token 降到约 1/{token_ratio:.0f}、费用降到约 1/{cost_ratio:.0f}</b>，这是唯一有证据的整理收益。③ <b>先给条件再执行把残余失误全消掉</b>（两种形态都满分，配对里多对 {latest['paired_solution']['only_plan_right']} 题、从未更差）；它的记录集合由固定程序执行得出。④ <b>失误集中在「枚举一个集合」</b>：8 处里 7 处在窗口题。</p>
+<p><b>四句话读完</b>：① <b>整理成表没有让选择更准</b>——配对里逐行原文反而多对 {latest['paired_form']['only_raw_right']} 题。② <b>整理成表让输入 token 降到约 1/{token_ratio:.0f}、费用约 1/{cost_ratio:.0f}</b>，这是唯一有证据的整理收益。③ <b>空集判断模型全对</b>（30/30）；难的是<b>大集合的完整枚举</b>（最大枚举族 8/10 与 6/10）。④ <b>直接选择的失误在记录表形态下全是「该有记录却返回空集」</b>；<b>先给条件再执行把失误全消掉</b>（两形态都 62/62）。</p>
 <p><b>研究结论</b>：{html.escape(latest['conclusion'])}
 {html.escape(latest['capability_boundary_note'])}</p>
 <p class="hint"><b>上一轮（{html.escape(earlier.get('experiment_date',''))}，条件由宿主显式声明）要分开读</b>：直接选择 <b>{ratio(old_direct)}</b>；

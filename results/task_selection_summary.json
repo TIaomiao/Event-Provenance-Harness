@@ -1,40 +1,50 @@
 {
-  "schema": "research-brief-summary-v2",
+  "schema": "research-brief-summary-v3",
   "purpose": "dashboard.html 与研究结论唯一取数的机器汇总；正文与表格都由这里生成，不在多个文件手抄完整表。",
   "source_of_record": "results/2026-10-06_task_selection_baseline.md",
   "latest_run": {
-    "run_id": "task_selection_v5_20261010",
-    "experiment_date": "2026-10-10",
-    "code_version": "task_selection_run_v5",
+    "run_id": "task_selection_v6_20261011",
+    "experiment_date": "2026-10-11",
+    "code_version": "task_selection_run_v6",
     "consumer_alias": "[j]gemini-3-flash",
     "packages": 10,
-    "distinct_tasks": 60,
+    "distinct_tasks": 62,
     "forms": 2,
     "solutions": 2,
-    "logical_trajectories": 240,
+    "logical_trajectories": 248,
     "blocked": 0,
     "parse_failures": 0,
-    "repairs": 0,
-    "input_scope": "10 个开发患者包；含目标项目的页面；逐行原文与重建记录表两种形态；题面只用院内词汇暗示时间角色，从不点名字段",
+    "repairs": 1,
+    "empty_references": 30,
+    "answered_references": 32,
+    "input_scope": "10 个开发患者包；任务全部换成集合枚举与空集判断；仍然只用院内词汇暗示时间角色",
     "reference_level": "规则/OCR 派生的选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成",
-    "cost_usd": 2.0788911,
+    "cost_usd": 2.1171432,
     "cells": {
-      "U_R1": {"label": "逐行原文 + 直接选择", "exact": 58, "denominator": 60, "tokens_in": 2672084, "cost_usd": 1.0403, "mean_latency_s": 10.6},
-      "U_R2": {"label": "逐行原文 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 2671784, "cost_usd": 0.8888, "mean_latency_s": 9.1},
-      "R_R1": {"label": "记录表 + 直接选择", "exact": 54, "denominator": 60, "tokens_in": 55532, "cost_usd": 0.0975, "mean_latency_s": 8.0},
-      "R_R2": {"label": "记录表 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 55232, "cost_usd": 0.0523, "mean_latency_s": 7.1}
+      "U_R1": {"label": "逐行原文 + 直接选择", "exact": 58, "denominator": 62, "tokens_in": 2772964, "cost_usd": 1.065999, "mean_latency_s": 10.0},
+      "U_R2": {"label": "逐行原文 + 先给条件再执行", "exact": 62, "denominator": 62, "tokens_in": 2814008, "cost_usd": 0.912275, "mean_latency_s": 8.8},
+      "R_R1": {"label": "记录表 + 直接选择", "exact": 54, "denominator": 62, "tokens_in": 57781, "cost_usd": 0.089070, "mean_latency_s": 7.1},
+      "R_R2": {"label": "记录表 + 先给条件再执行", "exact": 62, "denominator": 62, "tokens_in": 57471, "cost_usd": 0.049799, "mean_latency_s": 6.2}
     },
-    "paired_form": {"note": "同一病人同一题，逐行原文 vs 记录表", "only_raw_right": 5, "only_table_right": 1, "both_right": 53, "both_wrong": 1},
-    "paired_solution": {"note": "同一病人同一题，直接选择 vs 先给条件再执行", "only_direct_right": 0, "only_plan_right": 8, "both_right": 112, "both_wrong": 0, "pairs": 120},
-    "by_shape": {
-      "U_R1": {"before": [20, 20], "after": [20, 20], "window": [18, 20]},
-      "R_R1": {"before": [20, 20], "after": [19, 20], "window": [15, 20]},
-      "U_R2": {"before": [20, 20], "after": [20, 20], "window": [20, 20]},
-      "R_R2": {"before": [20, 20], "after": [20, 20], "window": [20, 20]}
+    "paired_form": {"note": "同一病人同一题，逐行原文 vs 记录表，直接选择", "only_raw_right": 5, "only_table_right": 1, "both_right": 53, "both_wrong": 3},
+    "paired_solution": {"note": "同一病人同一题，直接选择 vs 先给条件再执行", "only_direct_right": 0, "only_plan_right": 12, "both_right": 112, "both_wrong": 0, "pairs": 124},
+    "empty_agreement": {"U_R1": [29, 30], "R_R1": [27, 30], "U_R2": [30, 30], "R_R2": [30, 30]},
+    "answered_agreement": {"U_R1": [28, 32], "R_R1": [24, 32], "U_R2": [32, 32], "R_R2": [32, 32]},
+    "by_family_direct": {
+      "empty-gap": [10, 10, 10, 10],
+      "empty-after-last": [10, 10, 10, 10],
+      "boundary-exclusive": [10, 10, 10, 10],
+      "single-day-most": [9, 10, 9, 10],
+      "boundary-inclusive": [10, 10, 8, 10],
+      "full-span-all": [8, 10, 6, 10],
+      "role-split-window": [1, 2, 1, 2]
     },
-    "input_token_ratio": 48.1,
-    "conclusion": "把逐行原文整理成记录表之后，选择正确性没有提升（配对里未整理那端反而多对 4 题）；整理的价值在成本上——同为直接选择，记录表的输入 token 约 1/48、费用约 1/11。让模型先说出条件、再由固定程序执行，两种形态都 60/60，消掉了直接选择的全部残余失误。",
-    "capability_boundary_note": "条件改为必须从自然语言推断后，两端正确率仍接近上限（54–60/60），题目对当前模型依然偏浅：本轮拿到的是「整理更省」的证据，不是「整理更准」的证据。"
+    "conclusion": "把任务压到集合枚举与空集判断上：空集判断模型全对（30/30）；难的是大集合的完整枚举，最大枚举族只有 8/10 与 6/10。直接选择的失误在记录表形态下全是「该有记录却返回空集」。整理成表仍然没有让选择更准（配对里逐行原文多对 5 题，与上一轮的 5:1 一致）；先给条件再执行把失误全消掉，两形态都 62/62。",
+    "capability_boundary_note": "两轮独立结果一致：整理成表没有正确性收益，只有成本收益（输入约 1/48、费用约 1/14）。成本不足以支撑 AI-Ready 主表；要拿正确性差异，需要把枚举负荷或干扰量再提高。"
+  },
+  "prior_runs": {
+    "task_selection_v5_20261010": {"condition": "条件必须从自然语言推断；两种输入形态", "trajectories": 240, "direct_raw": "58/60", "direct_table": "54/60", "plan_both": "60/60"},
+    "task_selection_v3_20261006": {"condition": "条件由宿主显式声明", "trajectories": 240}
   },
   "earlier_run": {
     "experiment_date": "2026-10-06",
@@ -53,28 +63,28 @@
   },
   "boundaries": [
     "记录来自整理后的记录表（规则/OCR 抽取并经校验），不是人工核对的原文事实；10 个包全是开发集，患者级统计功效很弱。",
-    "本轮 60 个参考全为「有答案」，未覆盖「该说未决时说未决」；方法与供应商无关性均未被证明。",
-    "逐行原文远长于记录表，形态差异混了结构与长度；本轮无准确率差异，削弱但不消除该担心。",
-    "时间角色（采集 vs 报告）不可观测：60 题里 0 题在两种角色下答案不同，故不对角色推断下结论。",
-    "来源事实人工核对尚未完成。"
+    "30 题参考是空集、32 题有答案；并列导致的「未决」参考在 10 个包里没能构造出来，仍未覆盖。",
+    "逐行原文远长于记录表，形态差异混了结构与长度；两轮方向一致，但该混杂仍在。",
+    "直接选择在逐行原文形态下仍达 58/62，题目整体偏浅，只有最大枚举族真正拉开。",
+    "方法与供应商无关性未被证明；来源事实人工核对尚未完成。"
   ],
   "next_step": {
-    "question": "换成真正会拉开差距的任务类型之后，整理与不整理、直接选择与先给条件再执行，会不会出现正确性差异？",
-    "status": "条件推断这一轮已跑完（240 条）；残余失误集中在「枚举集合、判断空集」",
+    "question": "既然空集判断与时间点定位都不是弱点、大集合枚举才是——把枚举负荷与干扰量再提高之后，整理与不整理会不会出现正确性差异？",
+    "status": "两轮都跑完；直接选择在最大枚举族掉到 8/10 与 6/10，其余族接近满分",
     "decision_for_advisor": [
-      "下一轮是否把重点放在集合枚举与空集判断（本轮 8 处失误里 7 处在此），而不是继续加时间点题型。",
-      "「整理更省」这条成本结论是否足以支撑 AI-Ready 的主表，还是必须先拿到正确性上的差异。"
+      "是否继续加枚举负荷（跨文档、更长原文、更多记录）以逼出正确性差异，还是承认在这类记录层上整理只有成本收益、把主表改成成本维度。",
+      "并列（未决）参考在 10 个包里没能构造出来，是否值得专门去找能构造出并列的包。"
     ]
   },
   "not_run": {
-    "harder_task_family": {
+    "undetermined_reference_cases": {
       "status": "not_run",
-      "note": "更难的题型（两端仍接近上限，需要它才可能拉开差异）",
+      "note": "并列导致的未决参考：重复时刻不落在窗口最新位置，10 个包里没能构造出来",
       "no_expected_score": true
     },
-    "empty_and_undetermined_reference_cases": {
+    "larger_enumeration_load": {
       "status": "not_run",
-      "note": "空集与未决的参考用例（本轮参考全为有答案）",
+      "note": "跨文档或更长原文的更大枚举负荷：尚未运行",
       "no_expected_score": true
     }
   },
