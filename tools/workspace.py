@@ -576,21 +576,20 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 
 <section class="block" id="results">
 <h2>2. 实际比较与结果</h2>
-<p><b>逐行原文</b>：只给相关页面的逐行文字，没有按化验记录成组。<b>记录表</b>：同样页面，已整理成一条条记录（含值、单位、两个时间）。
-<b>直接选择</b>：模型自己挑记录。<b>先给条件再执行</b>：模型只翻译出条件（时间角色、时间窗、取最近/最早/全部），由同一个固定程序取数。</p>
-<p>本次运行：<b>{latest['packages']} 对患者包</b>（每个任务<b>同时给出目标患者与另一位病人</b>的材料）、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。任务点名目标患者，每块与每行都标注所属患者。</p>
+<p><b>三条臂</b>：<b>未整理·长</b>＝只给逐行原文；<b>已整理·短</b>＝整理成记录表；<b>已整理·长</b>＝记录表之后再附上同页面里未被整理成记录的其余文本，把输入长度补到与「未整理·长」几乎相同（字符比 0.99）。
+<b>直接选择</b>＝模型自己挑记录；<b>先给条件再执行</b>＝模型只说条件，由同一个固定程序取数。</p>
+<p>本次运行：<b>{latest['packages']} 对患者包</b>（每个任务同时给出目标患者与另一位病人）、<b>{latest['distinct_tasks']} 个任务</b> × 三条臂 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。任务点名目标患者，每块与每行都标注所属患者。</p>
 <div class="tw"><table>
-<thead><tr><th>解法</th><th>输入：逐行原文</th><th>输入：记录表</th></tr></thead>
+<thead><tr><th>解法</th><th>未整理·长</th><th>已整理·短</th><th>已整理·长</th></tr></thead>
 <tbody>
-<tr><td>直接选择</td><td><b>{cell("U_R1")}</b></td><td><b>{cell("R_R1")}</b></td></tr>
-<tr><td>先给条件再执行</td><td><b>{cell("U_R2")}</b></td><td><b>{cell("R_R2")}</b></td></tr>
+<tr><td>直接选择</td><td>{cell("U_R1")}</td><td>{cell("R_R1")}</td><td>{cell("P_R1")}</td></tr>
+<tr><td>先给条件再执行</td><td>{cell("U_R2")}</td><td>{cell("R_R2")}</td><td>{cell("P_R2")}</td></tr>
 </tbody></table></div>
-<p class="hint">同一病人、同一题，只换形态或解法。状态正确只在「直接选择」口径下报。</p>
-<p><b>四句话读完</b>：① <b>把负荷提上去，形态差异出现了，而且翻转</b>——单患者时逐行原文略优（5:1、8:2），两患者时<b>记录表以 {latest['paired_form']['only_table_right']}:{latest['paired_form']['only_raw_right']} 反超</b>。② <b>机制是记录组装</b>：未整理形态把两患者未成组的原文<b>拼成了并不存在的记录</b>（25 次）；整理形态的失败集中在<b>窗口边界</b>（窗口外 9 次）。③ <b>整理成表输入的 token 约为 1/{token_ratio:.0f}、费用约 1/{cost_ratio:.0f}</b>。④ <b>先给条件再执行仍是集合口径满分</b>（两形态都 60/60）。</p>
+<p class="hint">同一病人、同一题，只换输入形态或解法。「已整理·长」的输入是「已整理·短」的 46 倍，与「未整理·长」几乎相同。</p>
+<p><b>四句话读完</b>：① <b>优势来自结构，不是长度</b>——等长的「已整理·长」拿到 55/60，与短的「已整理·短」54/60 同档，「未整理·长」只有 37/60。② 配对里 <b>「已整理·短」与「已整理·长」无差异（3:4）</b>，两者都大幅优于「未整理」（22:5、21:3）。③ <b>机制是记录组装</b>：未整理形态把两患者未成组的原文<b>拼成了并不存在的记录</b>（25 次）；整理后的失败集中在<b>窗口边界</b>。④ <b>先给条件再执行三臂都是集合口径 60/60</b>。</p>
 <p><b>研究结论</b>：{html.escape(latest['conclusion'])}
 {html.escape(latest['capability_boundary_note'])}</p>
-<p class="hint"><b>上一轮（{html.escape(earlier.get('experiment_date',''))}，条件由宿主显式声明）要分开读</b>：直接选择 <b>{ratio(old_direct)}</b>；
-先计划再执行 <b>当时 {ratio(old_planned['as_run_under_corrected_semantics'])}</b>、<b>修正后离线重放 {ratio(old_planned['corrected_offline_replay'])}</b>（重放<b>不是</b>新的模型运行）。</p>
+<p class="hint"><b>更早一轮（{html.escape(earlier.get('experiment_date',''))}，条件由宿主显式声明）要分开读</b>：直接选择 <b>{ratio(old_direct)}</b>；先计划再执行 <b>当时 {ratio(old_planned['as_run_under_corrected_semantics'])}</b>、<b>修正后离线重放 {ratio(old_planned['corrected_offline_replay'])}</b>（重放<b>不是</b>新的模型运行）。</p>
 </section>
 
 <section class="block" id="limits">

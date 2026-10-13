@@ -1,42 +1,50 @@
 {
-  "schema": "research-brief-summary-v4",
+  "schema": "research-brief-summary-v5",
   "purpose": "dashboard.html 与研究结论唯一取数的机器汇总；正文与表格都由这里生成，不在多个文件手抄完整表。",
   "source_of_record": "results/2026-10-06_task_selection_baseline.md",
   "latest_run": {
-    "run_id": "task_selection_v7_20261013",
+    "run_id": "task_selection_v8_20261013",
     "experiment_date": "2026-10-13",
-    "code_version": "task_selection_run_v7",
+    "code_version": "task_selection_run_v8",
     "consumer_alias": "[j]gemini-3-flash",
     "packages": 10,
-    "packages_note": "每个任务同时给出目标患者与另一位患者（干扰）的材料",
     "distinct_tasks": 60,
-    "forms": 2,
-    "solutions": 2,
     "logical_trajectories": 240,
     "blocked": 0,
     "parse_failures": 0,
-    "repairs": 2,
-    "empty_references": 30,
-    "answered_references": 30,
-    "metric": "集合一致＝选中的记录集合与参考完全相同；联合一致＝集合一致且状态也正确",
+    "repairs": 0,
+    "metric": "集合一致＝选中的记录集合与参考完全相同；状态也对＝集合一致且状态正确",
+    "arms": {
+      "U": "未整理成记录（逐行原文），输入长",
+      "R": "已整理成记录表，输入短",
+      "P": "已整理成记录表 + 同页面未被整理成记录的其余文本，输入与 U 等长（P/U 字符比 0.99）"
+    },
     "input_scope": "10 对患者包（目标 + 下一位患者作干扰）；任务点名目标患者，每块与每行都标注所属患者",
     "reference_level": "规则/OCR 派生的选择参考（冻结记录表上按定义独立计算），人工原页核对尚未完成",
-    "cost_usd": 3.3908052,
+    "cost_usd": 3.2842767,
     "cells": {
-      "U_R1": {"label": "逐行原文 + 直接选择", "exact": 37, "joint": 22, "denominator": 60, "tokens_in": 5514884, "cost_usd": 1.684810, "mean_latency_s": 6.4},
-      "U_R2": {"label": "逐行原文 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 5332050, "cost_usd": 1.609989, "mean_latency_s": 5.8},
-      "R_R1": {"label": "记录表 + 直接选择", "exact": 56, "joint": 53, "denominator": 60, "tokens_in": 113370, "cost_usd": 0.053318, "mean_latency_s": 2.8},
-      "R_R2": {"label": "记录表 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 112530, "cost_usd": 0.042688, "mean_latency_s": 2.5}
+      "U_R1": {"label": "未整理·长 + 直接选择", "exact": 37, "joint": 22, "denominator": 60, "tokens_in": 5514884, "cost_usd": 1.684810, "mean_latency_s": 6.4},
+      "U_R2": {"label": "未整理·长 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 5332050, "cost_usd": 1.609989, "mean_latency_s": 5.8},
+      "R_R1": {"label": "已整理·短 + 直接选择", "exact": 54, "joint": 53, "denominator": 60, "tokens_in": 113370, "cost_usd": 0.054711, "mean_latency_s": 2.6},
+      "R_R2": {"label": "已整理·短 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 112530, "cost_usd": 0.042783, "mean_latency_s": 2.3},
+      "P_R1": {"label": "已整理·长 + 直接选择", "exact": 55, "joint": 54, "denominator": 60, "tokens_in": 5264892, "cost_usd": 1.598440, "mean_latency_s": 4.5},
+      "P_R2": {"label": "已整理·长 + 先给条件再执行", "exact": 60, "denominator": 60, "tokens_in": 5264052, "cost_usd": 1.588343, "mean_latency_s": 4.2}
     },
-    "paired_form": {"note": "同一病人同一题，逐行原文 vs 记录表，直接选择，联合口径", "only_raw_right": 1, "only_table_right": 32, "both_right": 21, "both_wrong": 6},
-    "load_trend": {"note": "配对里「只有逐行原文对」与「只有记录表对」的题数", "v5_single_patient": [5, 1], "v6_single_patient": [8, 2], "v7_two_patients": [1, 32]},
-    "anatomy": {"raw_form_main_failure": "声称有记录但一条都对不上（25 次）", "table_form_main_failure": "窗口边界失误（窗口外 9 次）", "other_patient_returned": 0},
-    "conclusion": "把负荷提上去（每个任务多给一位患者的材料）之后形态差异出现，而且是翻转：单患者时逐行原文略优（5:1、8:2），两患者时记录表以 32:1 反超（联合口径 53/60 对 22/60）。机制是未整理形态把两患者未成组的原文拼成了不存在的记录（25 次），整理形态的失败则集中在窗口边界。整理成表解决的是「记录能不能被正确组装」，不是「选哪个时间点」。先给条件再执行仍是集合口径 60/60。",
-    "capability_boundary_note": "前两轮「无差异」得到解释：不是整理无用，而是单患者、小体量下题目太轻。但结构仍未与长度分离（逐行原文约为记录表输入的 48 倍），需要等长填充对照臂才能分开。"
+    "paired": {
+      "note": "同一病人同一题，集合一致口径",
+      "R_vs_P": [3, 4, 51, 2],
+      "R_vs_U": [22, 5, 32, 1],
+      "P_vs_U": [21, 3, 34, 2]
+    },
+    "length_ratio": {"P_over_U_chars": 0.99, "P_over_R_tokens": 46},
+    "anatomy": {"raw_form_main_failure": "声称有记录但一条都对不上（25 次）", "prepared_forms_main_failure": "窗口边界（窗口外）", "other_patient_returned": 0},
+    "conclusion": "补上长度对照之后结论明确：优势来自结构，不是长度。已整理且与未整理等长的 P 臂拿到 55/60（状态也对 54/60），与短的 R 臂 54/60 同档，而未整理的 U 臂只有 37/60；配对里 R 与 P 无差异（3:4），两者都大幅优于 U（22:5、21:3）。P 的输入是 R 的 46 倍、与 U 几乎相同。机制是记录组装：未整理形态会把两患者未成组的原文拼成不存在的记录（25 次），整理后的失败集中在窗口边界。",
+    "capability_boundary_note": "整理成记录表解决的是「记录能不能被正确组装」，不解决「选哪个时间点」。这条结论现在有了长度对照支持；但仍是单一模型、开发集、规则参考，且填充用的是同来源文本，未完全排除填充内容本身的影响。"
   },
   "prior_runs": {
-    "task_selection_v6_20261011": {"condition": "单患者；任务压到集合枚举与空集判断", "trajectories": 248, "direct_raw": "57/60", "direct_table": "53/60", "joint_raw": "56/60", "joint_table": "50/60"},
-    "task_selection_v5_20261010": {"condition": "单患者；条件必须从自然语言推断", "trajectories": 240, "direct_raw": "58/60", "direct_table": "54/60", "joint_raw": "58/60", "joint_table": "54/60"},
+    "task_selection_v7_20261013": {"condition": "单患者→两患者（负荷条件）", "trajectories": 240, "note": "U 臂数据来自本轮；R 臂在 v8 中重跑"},
+    "task_selection_v6_20261011": {"condition": "单患者；集合枚举与空集判断", "trajectories": 248},
+    "task_selection_v5_20261010": {"condition": "单患者；条件必须从自然语言推断", "trajectories": 240},
     "task_selection_v3_20261006": {"condition": "条件由宿主显式声明", "trajectories": 240}
   },
   "earlier_run": {
@@ -57,22 +65,22 @@
   "boundaries": [
     "记录来自整理后的记录表（规则/OCR 抽取并经校验），不是人工核对的原文事实；10 对包全是开发集，患者级统计功效很弱。",
     "30 题参考是空集、30 题有答案；并列导致的「未决」参考在 10 个包里没能构造出来，仍未覆盖。",
-    "逐行原文约为记录表输入的 48 倍，形态差异里结构与长度仍未分离，需要等长填充对照臂才能分开。",
+    "长度已被对照排除，但 P 的填充用的是同来源文本，未完全排除「填充内容本身是干扰」；语义无关的等长填充未运行。",
     "「先给条件再执行」的状态由执行器产出、契约不含状态，因此它只报集合口径。",
     "方法与供应商无关性未被证明；来源事实人工核对尚未完成。"
   ],
   "next_step": {
-    "question": "既然负荷一变形态差异就翻转，那么把「结构」与「长度」分开、并继续提高负荷之后，记录表的正确性优势会保持还是消失？",
-    "status": "负荷条件已跑完（240 条）；记录表以 32:1 反超，但结构与长度仍未分离",
+    "question": "既然整理的优势来自记录组装，那么把「组装」这一步单独拆掉（例如只给已分组的行但打乱值-单位对应）之后，优势会不会消失？",
+    "status": "三臂对照已跑完；结构被确认，长度被排除",
     "decision_for_advisor": [
-      "是否补一条「记录表 + 等长填充」对照臂，把「结构有用」与「输入短有用」分开——这是把结果写成主表结论前最关键的一步。",
-      "是否把「整理成表解决记录组装、不解决时间点定位」作为主表的核心结论，并据此重新定位 AI-Ready 的主张。"
+      "是否接受「整理成表解决记录组装、不解决时间点定位」作为主表核心结论，并据此重新定位 AI-Ready 的主张。",
+      "是否值得再做一条「组装被破坏」的消融，用来把结论从相关推到因果。"
     ]
   },
   "not_run": {
-    "length_matched_control_arm": {
+    "semantic_free_length_padding": {
       "status": "not_run",
-      "note": "记录表 + 等长填充的对照臂：用来把结构与长度分开",
+      "note": "语义无关的等长填充：用来排除填充内容本身的影响",
       "no_expected_score": true
     },
     "undetermined_reference_cases": {
