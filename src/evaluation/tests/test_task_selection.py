@@ -454,5 +454,76 @@ class ExpansionAndViewTest(unittest.TestCase):
             self.assertIn(field, lines[0])
 
 
+class FieldBindingRegressionTest(unittest.TestCase):
+    """Counter-examples required by the measurement contract.
+
+    A correct record id must not excuse a wrong value, unit, time or source, and an
+    answer that gives less time precision than the record carries must not be exempt
+    from the time check.  Expectations are literals, not produced by the scorer.
+    """
+
+    def _task(self, selection="latest"):
+        return {"task_id": "t", "time_role": "collection", "case_token": "CASE-SYNTHETIC",
+                "spec": {"window": {"from": None, "to": 10, "include_from": False,
+                                    "include_to": True},
+                         "selection": selection}}
+
+    def _score(self, answer, records):
+        reference = {"status": "ok", "selected": [records[0]["record_id"]],
+                     "candidates": []}
+        return ts.score(self._task(), answer, records, reference)
+
+    def _answer(self, **over):
+        item = {"record_id": "r1", "value": 5.0, "unit": "g/L", "day_offset": 3,
+                "source_refs": ["L1", "L2", "L3", "L4", "L5"]}
+        item.update(over)
+        return {"status": "ok", "selected_records": [item]}
+
+    def test_wrong_value_fails_even_with_the_correct_id(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(value=999.0), records)
+        self.assertTrue(result["set_exact_match"], "the id is correct")
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("value" in m for m in result["field_mismatches"]))
+        # joint_fields_ok keeps its old meaning (the frozen record is complete) and is
+        # deliberately NOT the field-correctness signal; fields_match is.
+        self.assertTrue(result["joint_fields_ok"])
+
+    def test_wrong_unit_fails_even_with_the_correct_id(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(unit="mmol/L"), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("unit" in m for m in result["field_mismatches"]))
+
+    def test_wrong_time_fails_even_with_the_correct_id(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=9), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time" in m for m in result["field_mismatches"]))
+
+    def test_wrong_source_fails_even_with_the_correct_id(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(source_refs=["L9"]), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("source" in m for m in result["field_mismatches"]))
+
+    def test_day_only_answer_is_not_exempt_for_a_second_precision_record(self):
+        """Less precision than the record carries is a mismatch, not a pass."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=3), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("precision" in m for m in result["field_mismatches"]))
+
+    def test_matching_fields_are_accepted(self):
+        """Positive control: the fix must not simply fail everything."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=3, clock="08:15:00"), records)
+        self.assertIs(result["fields_match"], True)
+        self.assertTrue(result["joint_fields_ok"])
+        self.assertEqual(result["field_mismatches"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

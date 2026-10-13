@@ -394,6 +394,48 @@ def _supplied_fields(answer):
     return supplied
 
 
+def _norm_unit(text):
+    return " ".join(str(text or "").split()).lower()
+
+
+def _field_mismatches(identifier, item, record, role):
+    """Compare the fields the model supplied against the frozen record.
+
+    Only fields the model actually supplied are checked; an unsupplied field is not
+    a mismatch but it never counts as verified either.  Time precision is checked:
+    an answer that gives less precision than the record carries cannot be exempt.
+    """
+    out = []
+    if item.get("value") is not None:
+        try:
+            expected = float(record.get("value"))
+            if abs(float(item["value"]) - expected) > 1e-6 * max(1.0, abs(expected)):
+                out.append("%s:value" % identifier)
+        except (TypeError, ValueError):
+            out.append("%s:value" % identifier)
+    if item.get("unit") is not None and _norm_unit(item.get("unit")) != _norm_unit(
+            record.get("unit")):
+        out.append("%s:unit" % identifier)
+    supplied_day = item.get("day_offset")
+    if supplied_day is None:
+        supplied_day = item.get("%s_day_offset" % role)
+    if supplied_day is not None:
+        expected_day, _, expected_precision = role_time(record, role)
+        if expected_day is None or int(supplied_day) != int(expected_day):
+            out.append("%s:time" % identifier)
+        else:
+            supplied_clock = item.get("clock") or item.get("%s_clock" % role)
+            if str(expected_precision or "").lower() == "second" and supplied_clock is None:
+                out.append("%s:time_precision" % identifier)
+    if item.get("source_refs") is not None:
+        expected_refs = sorted(str(record.get(field)) for field in
+                               ("project_ref", "result_ref", "unit_ref",
+                                "collection_ref", "report_ref") if record.get(field))
+        if sorted(str(ref) for ref in item["source_refs"]) != expected_refs:
+            out.append("%s:source" % identifier)
+    return out
+
+
 def score(task, answer, records, reference, *, plan=None, plan_ok=None,
           fields_expanded_by_host=False):
     """Score a selected record set against a reference that keeps its status.
@@ -428,16 +470,21 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
     if selected is None:
         selected = answer.get("selected")
     ids: list[str] = []
+    pairs: list[tuple[str, object]] = []
     if isinstance(selected, list):
         for item in selected:
             if isinstance(item, str):
                 ids.append(item)
+                pairs.append((item, None))
             elif isinstance(item, dict):
                 identifier = item.get("record_id") or item.get("id")
                 if isinstance(identifier, str):
                     ids.append(identifier)
+                    pairs.append((identifier, item))
     result["selected_ids"] = ids
     result["fields_supplied"] = _supplied_fields(answer)
+    result["fields_match"] = None
+    result["field_mismatches"] = []
     by_id = {record["record_id"]: record for record in records}
     reference_set, selected_set = set(reference_ids), set(ids)
 
@@ -485,16 +532,32 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
     result["empty_handling"] = None if reference_set else (status == STATUS_EMPTY)
     if selected_set and selected_set <= set(by_id):
         supplied = result["fields_supplied"]
+        mismatches = []
+        for identifier, item in pairs:
+            record = by_id.get(identifier)
+            if item is None or record is None:
+                continue
+            mismatches.extend(_field_mismatches(identifier, item, record, role))
+        result["field_mismatches"] = mismatches
         if fields_expanded_by_host:
+            # The host expanded the fields for every condition, so the model is not
+            # asked for them and only the record's own completeness is checked.
+            result["fields_match"] = None
             result["joint_fields_ok"] = all(
                 by_id[i].get("value") is not None and by_id[i].get("unit") is not None
                 and role_time(by_id[i], role)[0] is not None
                 and role in available_roles(by_id[i])
                 for i in selected_set)
         elif not (supplied["value"] and supplied["unit"]):
+            result["fields_match"] = None
             result["joint_fields_ok"] = None
             result["fields_insufficient"] = True
         else:
+            # fields_match compares what the model claimed with the frozen record.
+            # joint_fields_ok keeps its existing meaning, which is only that the
+            # frozen record itself carries the joint fields; it is NOT a statement
+            # that the model's own claims were right.
+            result["fields_match"] = not mismatches
             result["joint_fields_ok"] = all(
                 by_id[i].get("value") is not None and by_id[i].get("unit") is not None
                 and role_time(by_id[i], role)[0] is not None
