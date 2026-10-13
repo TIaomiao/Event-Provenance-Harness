@@ -44,6 +44,23 @@
 
 **当前设计吸收**：DocETL 约束计划改写与验证成本；Sufficient Context 约束证据不足与利用失败的区分；EHR-RobustGym 约束噪声类型与重复一致性；CliniCARE-Bench 约束多态弃答、证据 grounding 和轨迹可回放；**EHRSQL 约束我们把「时间条件推断」当既有工作、并作为主要对照基准**。上述是设计影响，不是对这些论文结果的复现。
 
+## 创新边界核实（2026-10-13，DSH）
+
+本轮从本台账出发核实「扫描纵向 EHR 记录重建与任务证据选择」这一组合是否已被覆盖。**最多三条结论**，逐条给出处与核验程度。
+
+**结论一：时间槽的标注与整体评测已被 EHRSQL 覆盖，「时间点选择是空白」不成立。**
+出处：EHRSQL: A Practical Text-to-SQL Benchmark for Electronic Health Records（[arXiv:2301.07695](https://arxiv.org/abs/2301.07695)，NeurIPS 2022 Datasets and Benchmarks）。**核验程度：本轮由 DSH 直接读取原文页面**（§3.1.2 时间过滤器、Table 1 例题、Table 3 时间槽、附录 Table 8 四种 Option）。要点：`[time_filter_exact]` 的 Option 为 first / second / second to last / last；24,411 个问答对；93.2% 的查询用到至少一列时间；题目由 222 名医院工作人员在未见 schema 时提出。**判死**：不得再声称「让模型从自然语言推断该取哪个时间点」是新问题。
+
+**结论二：对「选中集合」打分也已被 FHIR-AgentBench 覆盖，「给选中集合打分是空白」不成立。**
+出处：FHIR-AgentBench（[arXiv:2509.19319](https://arxiv.org/abs/2509.19319)，ML4H 2025 Proceedings；官方仓库 `glee4810/FHIR-AgentBench`）。**核验程度：由检索子代理读取官方评测脚本与 judge 提示词核对**（`true_fhir_ids` 按资源类型给出金标准 ID 列表，经 `retrieval_recall` 与 `retrieval_precision(method="continuous")` 报 P/R/F1；另用 LLM judge 判答案）。**判死**：不得声称「以选中集合而非最终答案为主指标」本身是新做法。**残余**：其粒度只到 **FHIR 资源 ID**，无「观测 ID + 显式时间点」一级；其 judge 明说「忽略单位（1850 = 1850 mL）」、日期「除非题目明确要求可忽略时间与时区差异」，故单位错与时刻错在其答案指标里**不扣分**。
+
+**结论三：仍可辩护的组合是「同一评测里同时出现」的五项，但这是待核实定位，不是已成立的创新。**
+五项：① **观测级字段绑定**（项目 / 值 / 单位 / 两个时间角色及其精度）；② **采集时间与报告时间两个角色**；③ **未决与空集**的显式计分；④ **原页来源锚点**（可回溯到页与行）；⑤ **扫描件输入**（而非已结构化关系库）。核查范围内**没有**同时覆盖这五项的来源；**HoloBench**（[arXiv:2410.11996](https://arxiv.org/abs/2410.11996)，原文部分已核）只做长上下文聚合；**Infherno**（[arXiv:2507.12261](https://arxiv.org/abs/2507.12261)，EACL 2026 System Demonstrations pp.163–174，全文已取得）做文本→FHIR，评的是结构合法性与一致性，不是任务条件下的记录选择。
+
+**不得包装为发现（已知分组收益）**：① 表示/序列化会影响下游表现——**S1「Representation Wins on QA, Not on ML」**已做同题同模型只换表示的配对比较；② 上下文变长会退化——**HoloBench** 已报告聚合随规模退化。我们自己的 U/R/P 结果方向一致，**只能作为复现与机制补充**，不能当作新发现。
+
+**未核事项（必须保留）**：**ClinTraceBench** 与 **"From PDF to Evidence"** 本轮**仅得搜索摘要线索，未取得原文**，**不作为全文证据**，也不据此判死或判活；TIMER、MedAlign 为摘要/元数据级；EHRSQL 附录 B.2 全表未逐行核对。
+
 ## 阅读卡
 
 w 本人的第一轮阅读卡**已经备好**，是仓库外的本地阅读包 `26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/`：
