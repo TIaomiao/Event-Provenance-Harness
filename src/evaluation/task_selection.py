@@ -21,6 +21,7 @@ Changes in v0.2 (2026-10-06), after the first real run:
 """
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -398,40 +399,88 @@ def _norm_unit(text):
     return " ".join(str(text or "").split()).lower()
 
 
+REQUIRED_ITEM_FIELDS = ("value", "unit", "time", "source")
+
+
+def _finite(value):
+    """A usable number, or None.  NaN and infinity are not usable numbers."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
 def _field_mismatches(identifier, item, record, role):
     """Compare the fields the model supplied against the frozen record.
 
-    Only fields the model actually supplied are checked; an unsupplied field is not
-    a mismatch but it never counts as verified either.  Time precision is checked:
-    an answer that gives less precision than the record carries cannot be exempt.
+    A required field the answer omits is a failure, not a neutral omission.  Values
+    must be finite numbers, the day offset must be an exact integer, and the clock
+    must match when the record carries one.  Unusable input is recorded as a mismatch
+    instead of raising, so a malformed answer becomes a scored failure.
     """
+    if not isinstance(item, dict):
+        return ["%s:missing_%s" % (identifier, field) for field in REQUIRED_ITEM_FIELDS]
     out = []
-    if item.get("value") is not None:
-        try:
-            expected = float(record.get("value"))
-            if abs(float(item["value"]) - expected) > 1e-6 * max(1.0, abs(expected)):
-                out.append("%s:value" % identifier)
-        except (TypeError, ValueError):
+
+    expected_value = _finite(record.get("value"))
+    if item.get("value") is None:
+        out.append("%s:missing_value" % identifier)
+    else:
+        supplied_value = _finite(item.get("value"))
+        if supplied_value is None or expected_value is None:
             out.append("%s:value" % identifier)
-    if item.get("unit") is not None and _norm_unit(item.get("unit")) != _norm_unit(
-            record.get("unit")):
+        elif abs(supplied_value - expected_value) > 1e-6 * max(1.0, abs(expected_value)):
+            out.append("%s:value" % identifier)
+
+    if item.get("unit") is None:
+        out.append("%s:missing_unit" % identifier)
+    elif _norm_unit(item.get("unit")) != _norm_unit(record.get("unit")):
         out.append("%s:unit" % identifier)
+
     supplied_day = item.get("day_offset")
     if supplied_day is None:
         supplied_day = item.get("%s_day_offset" % role)
-    if supplied_day is not None:
-        expected_day, _, expected_precision = role_time(record, role)
-        if expected_day is None or int(supplied_day) != int(expected_day):
+    supplied_clock = item.get("clock")
+    if supplied_clock is None:
+        supplied_clock = item.get("%s_clock" % role)
+    if supplied_day is None and supplied_clock is None:
+        out.append("%s:missing_time" % identifier)
+    else:
+        expected_day, expected_clock, expected_precision = role_time(record, role)
+        day_ok = False
+        if supplied_day is None:
             out.append("%s:time" % identifier)
         else:
-            supplied_clock = item.get("clock") or item.get("%s_clock" % role)
-            if str(expected_precision or "").lower() == "second" and supplied_clock is None:
+            number = _finite(supplied_day)
+            if number is None or not float(number).is_integer():
+                out.append("%s:time" % identifier)
+            elif expected_day is None or int(number) != int(expected_day):
+                out.append("%s:time" % identifier)
+            else:
+                day_ok = True
+        if day_ok:
+            second_precision = str(expected_precision or "").lower() == "second"
+            if second_precision:
+                if supplied_clock is None:
+                    out.append("%s:time_precision" % identifier)
+                elif not CLOCK_RE.match(str(supplied_clock).strip()):
+                    out.append("%s:time" % identifier)
+                elif expected_clock and str(supplied_clock).strip() != str(expected_clock).strip():
+                    out.append("%s:time" % identifier)
+            elif supplied_clock is not None:
                 out.append("%s:time_precision" % identifier)
-    if item.get("source_refs") is not None:
+
+    claimed = item.get("source_refs")
+    if claimed is None:
+        out.append("%s:missing_source" % identifier)
+    else:
         expected_refs = sorted(str(record.get(field)) for field in
                                ("project_ref", "result_ref", "unit_ref",
                                 "collection_ref", "report_ref") if record.get(field))
-        if sorted(str(ref) for ref in item["source_refs"]) != expected_refs:
+        if not isinstance(claimed, (list, tuple)):
+            out.append("%s:source" % identifier)
+        elif sorted(str(ref) for ref in claimed) != expected_refs:
             out.append("%s:source" % identifier)
     return out
 
@@ -457,7 +506,8 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
               "joint_fields_ok": None, "fields_supplied": None,
               "fields_expanded_by_host": fields_expanded_by_host,
               "empty_handling": None, "undetermined_handling": None,
-              "plan_ok": plan_ok, "plan_problems": None}
+              "plan_ok": plan_ok, "plan_problems": None,
+              "task_success": False}
     if plan is not None:
         _, problems = validate_plan(plan)
         result["plan_problems"] = problems
@@ -497,10 +547,13 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
         result["precision"] = (len(candidates & selected_set) / len(selected_set)) if selected_set else None
         result["recall"] = (len(candidates & selected_set) / len(candidates)) if candidates else None
         result["equivalent_answer"] = bool(result["status_ok"] and not selected_set)
+        # A correct abstention delivers the right thing: nothing selected, right status.
+        result["task_success"] = result["equivalent_answer"]
         return result
     if reference_status == STATUS_UNSUPPORTED_ROLE:
         result["status_ok"] = status == STATUS_UNSUPPORTED_ROLE
         result["equivalent_answer"] = bool(result["status_ok"] and not selected_set)
+        result["task_success"] = result["equivalent_answer"]
         return result
 
     result["set_exact_match"] = reference_set == selected_set
@@ -564,6 +617,11 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
                 and role in available_roles(by_id[i])
                 for i in selected_set)
     result["equivalent_answer"] = bool(result["set_exact_match"] and result["status_ok"])
+    # Final task success: the task's own required fields and source must be delivered,
+    # so an omitted field cannot pass.  equivalent_answer keeps its older set+status
+    # reading and is reported alongside.
+    result["task_success"] = bool(result["set_exact_match"] and result["status_ok"]
+                                  and result["fields_match"] is True)
     return result
 
 

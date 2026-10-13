@@ -525,5 +525,56 @@ class FieldBindingRegressionTest(unittest.TestCase):
         self.assertEqual(result["field_mismatches"], [])
 
 
+    def test_wrong_clock_on_the_correct_day_fails(self):
+        """A correct day with a wrong clock is not a match."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=3, clock="23:59:59"), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time" in m for m in result["field_mismatches"]))
+
+    def test_omitting_time_and_source_does_not_pass(self):
+        """A required field the answer omits is a failure, not a neutral omission."""
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "r1", "value": 5.0, "unit": "g/L"}]}
+        result = self._score(answer, records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("missing_time" in m for m in result["field_mismatches"]))
+        self.assertTrue(any("missing_source" in m for m in result["field_mismatches"]))
+
+    def test_not_a_number_value_fails(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(value=float("nan")), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("value" in m for m in result["field_mismatches"]))
+
+    def test_fractional_day_offset_fails(self):
+        """3.9 must not be accepted as 3."""
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=3.9), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time" in m for m in result["field_mismatches"]))
+
+    def test_unparsable_day_offset_is_recorded_not_raised(self):
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset="not-a-day"), records)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time" in m for m in result["field_mismatches"]))
+
+    def test_final_success_requires_the_task_fields(self):
+        """The old set+status reading is kept, but final success needs the fields."""
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        result = self._score(self._answer(value=999.0), records)
+        self.assertTrue(result["equivalent_answer"])
+        self.assertIs(result["task_success"], False)
+
+    def test_final_success_holds_when_everything_matches(self):
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        result = self._score(self._answer(day_offset=3, clock="08:15:00"), records)
+        self.assertIs(result["task_success"], True)
+
+
 if __name__ == "__main__":
     unittest.main()
