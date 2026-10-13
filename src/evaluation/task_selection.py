@@ -249,6 +249,10 @@ def eligible_records(records, plan):
     empty eligible set and an explicit status, never a silent fallback to the
     collection time.  A record outside the window is not a candidate at all, so it
     never turns an empty window into an undetermined one.
+
+    The declared patient scope is *not* applied here: the caller hands in the rows
+    the declared scope covers, so a stray case token cannot silently empty the
+    candidate set.
     """
     usable, incomplete, role_supported = [], [], False
     role = plan.get("time_role")

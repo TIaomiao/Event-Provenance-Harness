@@ -529,7 +529,11 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 
     def cell(key: str) -> str:
         entry = cells[key]
-        return "%d/%d" % (entry["exact"], entry["denominator"])
+        base = "%d/%d" % (entry["exact"], entry["denominator"])
+        if entry.get("joint") is not None:
+            return "%s<br><span class=\"mark\">状态也对：%d/%d</span>" % (
+                base, entry["joint"], entry["denominator"])
+        return base
 
     raw_tokens = sum(cells[k]["tokens_in"] for k in ("U_R1", "U_R2"))
     table_tokens = sum(cells[k]["tokens_in"] for k in ("R_R1", "R_R2"))
@@ -574,7 +578,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <h2>2. 实际比较与结果</h2>
 <p><b>逐行原文</b>：只给相关页面的逐行文字，没有按化验记录成组。<b>记录表</b>：同样页面，已整理成一条条记录（含值、单位、两个时间）。
 <b>直接选择</b>：模型自己挑记录。<b>先给条件再执行</b>：模型只翻译出条件（时间角色、时间窗、取最近/最早/全部），由同一个固定程序取数。</p>
-<p>本次运行：<b>{latest['packages']} 个开发患者包</b>、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。任务**全部换成集合枚举与空集判断**；题面只用院内词汇暗示时间角色，<b>从不点名字段</b>。</p>
+<p>本次运行：<b>{latest['packages']} 对患者包</b>（每个任务<b>同时给出目标患者与另一位病人</b>的材料）、<b>{latest['distinct_tasks']} 个任务</b> × 两种形态 × 两种解法 = <b>{latest['logical_trajectories']} 条</b>（{html.escape(latest['experiment_date'])}）。任务点名目标患者，每块与每行都标注所属患者。</p>
 <div class="tw"><table>
 <thead><tr><th>解法</th><th>输入：逐行原文</th><th>输入：记录表</th></tr></thead>
 <tbody>
@@ -582,7 +586,7 @@ def build(repo: Path, link_base: str) -> dict[str, object]:
 <tr><td>先给条件再执行</td><td><b>{cell("U_R2")}</b></td><td><b>{cell("R_R2")}</b></td></tr>
 </tbody></table></div>
 <p class="hint">同一病人、同一题，只换形态或解法。状态正确只在「直接选择」口径下报。</p>
-<p><b>四句话读完</b>：① <b>整理成表没有让选择更准</b>——配对里逐行原文反而多对 {latest['paired_form']['only_raw_right']} 题。② <b>整理成表让输入 token 降到约 1/{token_ratio:.0f}、费用约 1/{cost_ratio:.0f}</b>，这是唯一有证据的整理收益。③ <b>空集判断模型全对</b>（30/30）；难的是<b>大集合的完整枚举</b>（最大枚举族 8/10 与 6/10）。④ <b>直接选择的失误在记录表形态下全是「该有记录却返回空集」</b>；<b>先给条件再执行把失误全消掉</b>（两形态都 62/62）。</p>
+<p><b>四句话读完</b>：① <b>把负荷提上去，形态差异出现了，而且翻转</b>——单患者时逐行原文略优（5:1、8:2），两患者时<b>记录表以 {latest['paired_form']['only_table_right']}:{latest['paired_form']['only_raw_right']} 反超</b>。② <b>机制是记录组装</b>：未整理形态把两患者未成组的原文<b>拼成了并不存在的记录</b>（25 次）；整理形态的失败集中在<b>窗口边界</b>（窗口外 9 次）。③ <b>整理成表输入的 token 约为 1/{token_ratio:.0f}、费用约 1/{cost_ratio:.0f}</b>。④ <b>先给条件再执行仍是集合口径满分</b>（两形态都 60/60）。</p>
 <p><b>研究结论</b>：{html.escape(latest['conclusion'])}
 {html.escape(latest['capability_boundary_note'])}</p>
 <p class="hint"><b>上一轮（{html.escape(earlier.get('experiment_date',''))}，条件由宿主显式声明）要分开读</b>：直接选择 <b>{ratio(old_direct)}</b>；

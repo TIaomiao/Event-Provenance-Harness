@@ -92,6 +92,9 @@ def in_window(day, window):
 def eligible(records, *, time_role, window):
     """Split by window and completeness for the requested role.
 
+    The caller is responsible for handing in only the rows the declared patient
+    scope covers.
+
     A record is only *withheld for missing data* when it is already a candidate by
     role and by window.  A record outside the window is not a candidate at all, so
     it must not turn an empty window into an undetermined one.
