@@ -34,47 +34,35 @@ verified_commit: e94f497
 
 ## 当前任务
 
-**本轮工作单元（2026-10-13）：严格字段评分与最终任务成功指标（已获授权，直接继续修）。**
+**本轮工作单元（2026-10-13）：严格评分收尾 + 需求出处 / 任务卡 / 机制差异卡。**
 
-**开工回执（10 行）**
-1. **目标**：把「为什么需要这个机制」变成可证伪的问题；交付可运行 baseline 与匿名比较。
-2. **顺序**：① 基线核对（完成）→ ② **字段评分严格化 + 最终指标（本轮完成）** → ③ 机制卡与需求出处（并行）→ ④ 严格评分通过后才跑真实比较 → ⑤ 判定继续/缩小/停止。
-3. **最大风险**：缺真实需求依据与独立人工原页核对 → 只报工程与合成验证，**不报真实正确率**。
-4. **分支 / 运行目录**：`main`；受控目录 `/tmp/identity_review_build/`，入口 `task_selection_run_v8.py`。
-5. **未核**：真实需求出处未提取；独立人工原页核对未完成；**v7/v8 仅核到模块逻辑一致**——冻结输入、提示、匹配器、配置、R2 执行表**均未核清**，不足以证明整轮可复现。
-6. **上限**：5 个真实患者 × 3 条任务；两批小实验；一周时间盒。
-7. **不混入**：其他患者、长度填充、病种或临床诊断扩项。
-8. **允许改**：`task_selection.py`、`test_task_selection.py`（只加回归测试）、`necessity_probe.py` 及测试、三个研究文档、构建生成页。
-9. **只读**：`selection_reference.py`、既有答案键、冻结响应、历史分数、生产流水线、**旧测试断言**、CI、`archive/`。
-10. **真实任务闭环暂不验收**：严格评分通过后再跑真实比较。
+**路径变更（先记）**：本仓库已由 `G:\Intern\ehr_harness_research` **移动到** `G:\Intern\01_在研项目\EHR_Harness论文工作区`。已核实：**同一仓库**（`origin` 仍为 Event-Provenance-Harness）、**同一提交 `c8808a5`**、工作树干净（仅 2 个既有未跟踪文件）。`AGENTS.md` 头部仍写旧路径，**未改**（只读规则内不动），在此登记该不一致。
 
-### 本轮完成（两批反例，逐条记录）
+### 本轮修复（两处，均影响比较公平性）
 
-**第一批（4 个漏判，独立抽查发现）**
-
-| 漏判 | 修前 | 修后 |
+| 问题 | 修前（用 `c8808a5` 的旧实现真实跑出） | 修后 |
 | --- | --- | --- |
-| 正确日期但**错误时刻** | `fields_match=True` | 记 `record:time` |
-| **只给值与单位**，遗漏时间与来源 | `fields_match=True` | 记 `missing_time` + `missing_source` |
-| 值为 **NaN** | `fields_match=True` | 记 `record:value`（`NaN` 不是可用数值） |
-| 日偏移 **3.9 截成 3** | `fields_match=True` | 记 `record:time`（要求精确整数） |
-| **非法日期字符串** | **抛 ValueError** | 记 `record:time`，**不再抛出** |
+| **正确回答空集** | `equivalent_answer=True`，但 **`task_success=False`** | `task_success=True` |
+| **同一份完全正确答案，仅设 `fields_expanded_by_host=True`** | `fields_match=None` → **`task_success=False`**，**标志本身翻转了判决** | `fields_match=True`、`task_success=True`，**判决不再随标志变化** |
 
-**第二批（最终指标接通）**：错值虽使 `fields_match=False`，但 `equivalent_answer` 仍为 True。**保留其「集合＋状态」旧义**，另设 **`task_success` = 集合一致 且 状态正确 且 `fields_match` 为真**（任务要求的字段与来源必须交付，**遗漏不算通过**）。正确的弃答（`undetermined` / `unsupported_time_role`）按 `equivalent_answer` 计，**不因无字段而受罚**。
+**改动**：① `task_success` 改为「集合一致 且 状态正确 且（`fields_match` 为真 **或** 未选中任何记录）」——空集没有字段可绑，**不得因此受罚**；② 删除 `fields_expanded_by_host` 的自动放行分支，**字段无论由模型还是宿主产生，都用同一套检查逐项核验**（宿主展开**实际核验**，既不自动放行，也不因标志本身判错）。
 
-**真实输出（同一命令）**
-- 修前：`Ran 147 tests` → 6 ERROR；加第一批后 `Ran 13 tests`（反例类）→ **4 failures + 3 errors**。
-- 修后：`Ran 160 tests` → **OK**（147 + 13）；原型 `Ran 54 tests` → **OK**；反例类单跑 `Ran 13 tests` → **OK**。
+**真实输出**
+- 修前（旧实现直跑）：`correct-empty → task_success=False`；`model fields → True`；`host expanded → False`；`verdict changed by the flag alone: True`。
+- 修后（同场景）：`correct-empty → True`；`model fields → True`；`host expanded → True`；`verdict changed by the flag alone: False`。
+- 测试：**`Ran 164 tests OK`**（160 + 4 条新回归）；原型 **`Ran 54 tests OK`**。
 
-**改动**：`src/evaluation/task_selection.py`（`_finite`、严格 `_field_mismatches`、`task_success`、`import math`）；`src/evaluation/tests/test_task_selection.py`（+13 条反例）。`selection_reference.py` 与 `.github/` 未改动。
+**回归覆盖**：正确空集应成功；宿主标志不改变判决；**宿主展开但字段错误 → 必须失败**；宿主展开但字段缺失 → **按内容失败**（不是因标志失败）。
 
-### 已登记的冲突（未改旧语义）
+### 本轮交付
 
-旧测试 `test_supplied_wrong_fields_are_not_credited_as_matching` **名字说「错字段不算匹配」，断言却是 `joint_fields_ok == True`**，固化该缺陷。按令**旧断言只读**，故 **`joint_fields_ok` 保持原义（仅表示冻结记录完整）**，正确信号是 **`fields_match`** 与 **`task_success`**。**后果：任何以 `joint_fields_ok` 证明字段正确的旧表述作废。**
+**需求出处（5 条可查，含缺口）**、**任务卡 3 条**（T1 单点取值 / T2 分类输入取数 / T3 多时间点取值选择）、**机制差异卡**（解决的具体失败、接收与输出、相对常规处理**可定义的** 5 项额外操作、否定其价值的结果）。全文见 `paper/PROPOSAL.md` 的「需求出处、任务卡与机制差异卡」。
 
-**协议三处纠正已写入 Proposal**：① 少答时间精度不免检；② 研究字段绑定时主指标必须含字段项；③ 15 条人工核对只是试标注量，不是投稿门槛。
+**缺口（登记，不编造）**：**未取得可核对的真实用户原始问法**——现有出处只有师兄对任务形态的口头设想；EHRSQL 的题目属**文献模板**，不得伪装成本地需求。
 
-**待裁决**：三项贡献暂留为假设；证据不齐不赶 ARR；暂不扩多项目。**先严格评分通过，再跑真实比较，最后才决定机制是否扩建。**
+**机制差异的诚实边界**：相对「常规抽取 + SQL」，可定义的差别只有**来源锚点**与**未决语义**两项；清洗与单位归一属常规处理，**不当作机制**。若强基线 B 在 `task_success` 上持平 → **停止扩建、保留负结果**。
+
+**待裁决**：三项贡献暂留为假设；证据不齐不赶 ARR；暂不扩多项目。**下一步：按任务卡 T1 跑严格评分下的真实比较（评分已通过）。**
 
 ## 最新可核验交付
 

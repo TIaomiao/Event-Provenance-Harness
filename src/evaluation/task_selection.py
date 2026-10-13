@@ -588,40 +588,34 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
         mismatches = []
         for identifier, item in pairs:
             record = by_id.get(identifier)
-            if item is None or record is None:
+            if record is None:
                 continue
             mismatches.extend(_field_mismatches(identifier, item, record, role))
         result["field_mismatches"] = mismatches
-        if fields_expanded_by_host:
-            # The host expanded the fields for every condition, so the model is not
-            # asked for them and only the record's own completeness is checked.
-            result["fields_match"] = None
+        # Whoever produced the fields, the final answer is judged the same way: an
+        # expanded field is verified against the record rather than trusted, and the
+        # host flag never decides the verdict by itself.
+        result["fields_match"] = not mismatches
+        # joint_fields_ok keeps its existing meaning, which is only that the frozen
+        # record itself carries the joint fields; it is NOT a statement that the
+        # answer's own claims were right.
+        if fields_expanded_by_host or (supplied["value"] and supplied["unit"]):
             result["joint_fields_ok"] = all(
                 by_id[i].get("value") is not None and by_id[i].get("unit") is not None
                 and role_time(by_id[i], role)[0] is not None
                 and role in available_roles(by_id[i])
                 for i in selected_set)
-        elif not (supplied["value"] and supplied["unit"]):
-            result["fields_match"] = None
+        else:
             result["joint_fields_ok"] = None
             result["fields_insufficient"] = True
-        else:
-            # fields_match compares what the model claimed with the frozen record.
-            # joint_fields_ok keeps its existing meaning, which is only that the
-            # frozen record itself carries the joint fields; it is NOT a statement
-            # that the model's own claims were right.
-            result["fields_match"] = not mismatches
-            result["joint_fields_ok"] = all(
-                by_id[i].get("value") is not None and by_id[i].get("unit") is not None
-                and role_time(by_id[i], role)[0] is not None
-                and role in available_roles(by_id[i])
-                for i in selected_set)
     result["equivalent_answer"] = bool(result["set_exact_match"] and result["status_ok"])
     # Final task success: the task's own required fields and source must be delivered,
-    # so an omitted field cannot pass.  equivalent_answer keeps its older set+status
-    # reading and is reported alongside.
+    # so an omitted field cannot pass.  When nothing is selected there is nothing to
+    # bind, so a correct empty answer is not penalised for having no fields.
+    # equivalent_answer keeps its older set+status reading and is reported alongside.
     result["task_success"] = bool(result["set_exact_match"] and result["status_ok"]
-                                  and result["fields_match"] is True)
+                                  and (result["fields_match"] is True
+                                       or not selected_set))
     return result
 
 

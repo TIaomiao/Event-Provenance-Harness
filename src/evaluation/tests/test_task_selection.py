@@ -468,10 +468,11 @@ class FieldBindingRegressionTest(unittest.TestCase):
                                     "include_to": True},
                          "selection": selection}}
 
-    def _score(self, answer, records):
-        reference = {"status": "ok", "selected": [records[0]["record_id"]],
-                     "candidates": []}
-        return ts.score(self._task(), answer, records, reference)
+    def _score(self, answer, records, reference=None, **over):
+        if reference is None:
+            reference = {"status": "ok", "selected": [records[0]["record_id"]],
+                         "candidates": []}
+        return ts.score(self._task(), answer, records, reference, **over)
 
     def _answer(self, **over):
         item = {"record_id": "r1", "value": 5.0, "unit": "g/L", "day_offset": 3,
@@ -574,6 +575,46 @@ class FieldBindingRegressionTest(unittest.TestCase):
                           value=5.0, unit="g/L")]
         result = self._score(self._answer(day_offset=3, clock="08:15:00"), records)
         self.assertIs(result["task_success"], True)
+
+
+    def test_correct_empty_answer_succeeds(self):
+        """A correct empty delivery has no fields to bind and must not be penalised."""
+        records = [record("r1", 3, value=5.0, unit="g/L")]
+        answer = {"status": "empty", "selected_records": []}
+        reference = {"status": "empty", "selected": [], "candidates": []}
+        result = self._score(answer, records, reference)
+        self.assertTrue(result["set_exact_match"])
+        self.assertTrue(result["status_ok"])
+        self.assertIs(result["task_success"], True)
+
+    def test_host_expansion_does_not_change_the_verdict(self):
+        """The same complete answer must score the same either way."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        answer = self._answer(day_offset=3, clock="08:15:00")
+        plain = self._score(answer, records)
+        hosted = self._score(answer, records, fields_expanded_by_host=True)
+        self.assertIs(plain["task_success"], True)
+        self.assertEqual(plain["task_success"], hosted["task_success"])
+        self.assertEqual(plain["fields_match"], hosted["fields_match"])
+
+    def test_host_expansion_with_wrong_fields_fails(self):
+        """Expansion is verified against the record, never waved through."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        answer = self._answer(day_offset=3, clock="08:15:00", value=999.0)
+        result = self._score(answer, records, fields_expanded_by_host=True)
+        self.assertIs(result["fields_match"], False)
+        self.assertIs(result["task_success"], False)
+
+    def test_host_expansion_with_missing_fields_fails_on_content(self):
+        """An id-only answer fails because the fields are absent, not because of the flag."""
+        records = [record("r1", 3, clock="08:15:00", precision="second",
+                          value=5.0, unit="g/L")]
+        answer = {"status": "ok", "selected_records": ["r1"]}
+        result = self._score(answer, records, fields_expanded_by_host=True)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("missing_value" in m for m in result["field_mismatches"]))
 
 
 if __name__ == "__main__":
