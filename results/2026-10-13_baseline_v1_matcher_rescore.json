@@ -1,0 +1,51 @@
+{
+  "schema": "baseline-v1-matcher-rescore-v1",
+  "scope": "all 78 stored answers across the three batches",
+  "cost": 0,
+  "label": "post-hoc: responses were produced under the earlier scorer and matcher",
+  "old_matcher": "candidate by value and unit, then silently the first candidate",
+  "new_matcher": "0 candidates -> unmatched and the prediction is kept as wrong; 1 candidate -> linked; several -> narrowed by the answer's own day then by its own source lines; still several -> ambiguous, never the first candidate",
+  "result": {
+    "batch1_handicapped_B": {
+      "old": {
+        "A": 2,
+        "B": 0
+      },
+      "new": {
+        "A": 2,
+        "B": 0
+      },
+      "changed_items": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "batch2_gemini_fair_B": {
+      "old": {
+        "A": 2,
+        "B": 12
+      },
+      "new": {
+        "A": 2,
+        "B": 12
+      },
+      "changed_items": 0,
+      "ambiguous": 0,
+      "unresolved": 1
+    },
+    "batch3_deepseek": {
+      "old": {
+        "A": 0,
+        "B": 5
+      },
+      "new": {
+        "A": 0,
+        "B": 5
+      },
+      "changed_items": 0,
+      "ambiguous": 0,
+      "unresolved": 0
+    }
+  },
+  "conclusion": "not one of the 78 stored answers changed. No item became ambiguous, so the old silent first-pick never misfired on this material; the fix removes a real risk that did not trigger here. None of the observed gap between the arms comes from the matcher.",
+  "honest_limit": "this says nothing about material where several candidates with the same value and unit do occur; the ambiguity path is exercised by synthetic tests only"
+}

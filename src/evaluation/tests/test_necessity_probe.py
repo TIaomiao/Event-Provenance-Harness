@@ -216,5 +216,163 @@ class RetrievalToolTest(unittest.TestCase):
         self.assertLess(len(seen["user"]), len(long_context), "the input was actually cut")
 
 
+class RunIdentityTest(unittest.TestCase):
+    """Resuming must not silently reuse answers produced by a different experiment."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.records = [record("r1", 0, 5.0)]
+        self.bundle = {
+            "probe_version": np.VERSION,
+            "scorer_sha256": np.scorer_fingerprint()["sha256"],
+            "tasks": [{"task_id": "t1", "instruction": "take the latest",
+                       "contract": contract(),
+                       "reference": {"status": "ok", "selected": ["r1"], "candidates": []},
+                       "records": self.records,
+                       "context": {"A_raw_tools": "L1 HGB 5.0 g/L",
+                                   "B_extracted_sql": "r1 HGB 5.0 g/L day 0"}}]}
+        self.bundle_path = self.tmp / "bundle.json"
+        self.bundle_path.write_text(json.dumps(self.bundle, ensure_ascii=False),
+                                    encoding="utf-8")
+        self.calls = []
+
+    def _transport(self, **kwargs):
+        self.calls.append(kwargs)
+        return {"status": "ok", "model_returned": "synthetic", "tokens_in": 100,
+                "tokens_out": 10,
+                "raw": json.dumps({"status": "ok", "selected": [
+                    {"record_id": "r1", "value": 5.0, "unit": "g/L", "day_offset": 0,
+                     "source_refs": ["L1"]}]})}
+
+    def _run(self, model):
+        return np.run(self.bundle_path, self.tmp / "resp", self.tmp / "ledger.jsonl",
+                      self._transport, model=model, price_per_million=PRICE,
+                      run_dir=self.tmp / "run")
+
+    def test_swapping_the_model_is_refused_before_any_call(self):
+        self._run("model-one")
+        self.assertEqual(len(self.calls), 2)
+        with self.assertRaises(np.RunIdentityMismatch):
+            self._run("model-two")
+        self.assertEqual(len(self.calls), 2, "the refused run made no call")
+
+    def test_the_refusal_names_what_differed(self):
+        self._run("model-one")
+        try:
+            self._run("model-two")
+        except np.RunIdentityMismatch as error:
+            self.assertIn("model", str(error))
+        else:
+            self.fail("a different model must be refused")
+
+    def test_the_same_identity_resumes_without_calling_again(self):
+        self._run("model-one")
+        report = self._run("model-one")
+        self.assertEqual(len(self.calls), 2)
+        self.assertEqual(report["planned_calls"], 0)
+        self.assertEqual(report["identity_state"], "matched")
+
+    def test_a_deleted_ledger_is_rebuilt_from_responses_without_calling(self):
+        self._run("model-one")
+        self.assertEqual(len(self.calls), 2)
+        (self.tmp / "ledger.jsonl").unlink()
+        report = self._run("model-one")
+        self.assertEqual(len(self.calls), 2, "recovery must not call again")
+        self.assertEqual(report["recovered_from_response"], 2)
+        self.assertEqual(report["planned_calls"], 0)
+        self.assertEqual(len(np.load_ledger(self.tmp / "ledger.jsonl")), 2)
+
+    def test_a_request_without_a_saved_result_is_not_treated_as_free(self):
+        def failing(**kwargs):
+            self.calls.append(kwargs)
+            raise RuntimeError("connection dropped after the request was sent")
+
+        report = np.run(self.bundle_path, self.tmp / "resp", self.tmp / "ledger.jsonl",
+                        failing, model="model-one", price_per_million=PRICE,
+                        run_dir=self.tmp / "run")
+        rows = np.load_ledger(self.tmp / "ledger.jsonl")
+        self.assertTrue(all(row["status"] == "result_unknown" for row in rows))
+        self.assertTrue(all(row["cost_usd"] is None for row in rows),
+                        "an unsaved result must not be recorded as free")
+        self.assertEqual(report["unknown_cost_rows"], 2)
+
+    def test_an_attempted_unknown_row_is_not_retried_as_if_unpaid(self):
+        def failing(**kwargs):
+            self.calls.append(kwargs)
+            raise RuntimeError("boom")
+
+        np.run(self.bundle_path, self.tmp / "resp", self.tmp / "ledger.jsonl", failing,
+               model="model-one", price_per_million=PRICE, run_dir=self.tmp / "run")
+        before = len(self.calls)
+        report = np.run(self.bundle_path, self.tmp / "resp", self.tmp / "ledger.jsonl",
+                        self._transport, model="model-one", price_per_million=PRICE,
+                        run_dir=self.tmp / "run")
+        self.assertEqual(len(self.calls), before, "unknown rows are not silently retried")
+        self.assertEqual(report["planned_calls"], 0)
+
+
+class MatcherTest(unittest.TestCase):
+    """The matcher links an answer to a record; it never invents the answer."""
+
+    def _records(self):
+        return [{"record_id": "a", "value": 119.0, "unit": "g/L",
+                 "collection_day_offset": 0, "collection_ref": "L2223",
+                 "result_ref": "L2160", "alias_refs": ["L2159"]},
+                {"record_id": "b", "value": 119.0, "unit": "g/L",
+                 "collection_day_offset": 5, "collection_ref": "L9",
+                 "result_ref": "L10", "alias_refs": []}]
+
+    def test_no_candidate_leaves_the_item_unmatched_and_the_prediction_intact(self):
+        items = [{"value": 999.0, "unit": "g/L", "day_offset": 0}]
+        resolved, unresolved, ambiguous = np.resolve_items(items, self._records(),
+                                                           "collection")
+        self.assertEqual(unresolved, 1)
+        self.assertEqual(ambiguous, 0)
+        self.assertNotIn("record_id", resolved[0],
+                         "a prediction with no candidate is kept, not dropped")
+
+    def test_one_candidate_is_linked(self):
+        records = [self._records()[1]]
+        items = [{"value": 119.0, "unit": "g/L", "day_offset": 5}]
+        resolved, unresolved, ambiguous = np.resolve_items(items, records, "collection")
+        self.assertEqual((unresolved, ambiguous), (0, 0))
+        self.assertEqual(resolved[0]["record_id"], "b")
+
+    def test_several_candidates_are_narrowed_by_the_answers_own_day(self):
+        items = [{"value": 119.0, "unit": "g/L", "day_offset": 5}]
+        resolved, unresolved, ambiguous = np.resolve_items(items, self._records(),
+                                                           "collection")
+        self.assertEqual((unresolved, ambiguous), (0, 0))
+        self.assertEqual(resolved[0]["record_id"], "b")
+
+    def test_several_candidates_are_narrowed_by_the_answers_own_source(self):
+        items = [{"value": 119.0, "unit": "g/L", "source_refs": ["L10"]}]
+        resolved, unresolved, ambiguous = np.resolve_items(items, self._records(),
+                                                           "collection")
+        self.assertEqual((unresolved, ambiguous), (0, 0))
+        self.assertEqual(resolved[0]["record_id"], "b")
+
+    def test_still_several_is_ambiguous_and_never_the_first_candidate(self):
+        records = [dict(self._records()[0]), dict(self._records()[1])]
+        items = [{"value": 119.0, "unit": "g/L"}]
+        resolved, unresolved, ambiguous = np.resolve_items(items, records, "collection")
+        self.assertEqual(ambiguous, 1)
+        self.assertEqual(unresolved, 0)
+        self.assertNotIn("record_id", resolved[0],
+                         "an ambiguous item must not be silently pinned to the first")
+
+    def test_a_non_integer_day_offset_cannot_narrow_and_yields_ambiguity(self):
+        items = [{"value": 119.0, "unit": "g/L", "day_offset": 3.9}]
+        resolved, _, ambiguous = np.resolve_items(items, self._records(), "collection")
+        self.assertEqual(ambiguous, 1)
+        self.assertNotIn("record_id", resolved[0])
+
+    def test_a_string_id_is_passed_through(self):
+        resolved, unresolved, ambiguous = np.resolve_items(["a"], self._records(),
+                                                           "collection")
+        self.assertEqual(resolved, ["a"])
+        self.assertEqual((unresolved, ambiguous), (0, 0))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -21,10 +21,12 @@ import os
 import time
 from pathlib import Path
 
-from task_selection import SelectionError, check_contract, score
+from task_selection import (SelectionError, _finite, _norm_unit, check_contract,
+                            score)
 
 VERSION = "necessity_probe v1"
 ARMS = ("A_raw_tools", "B_extracted_sql")
+PLANNED_OUTPUT_TOKENS = 900
 REQUIRED_BUNDLE_KEYS = ("task_id", "contract", "reference", "context")
 INSTRUCTION = ("请只输出 JSON：{\"status\": \"ok\" | \"empty\" | \"undetermined\", "
                "\"selected\": [{\"record_id\": null, \"project_name\": \"<项目>\", "
@@ -107,7 +109,7 @@ def average_context_tokens(bundle, chars_per_token=1.6):
     return int(total / max(1, len(bundle["tasks"]) * len(ARMS)) / chars_per_token)
 
 
-def plan(bundle, price_per_million, planned_output_tokens=900, chars_per_token=1.6):
+def plan(bundle, price_per_million, planned_output_tokens=PLANNED_OUTPUT_TOKENS, chars_per_token=1.6):
     jobs = []
     for task in bundle["tasks"]:
         for arm in ARMS:
@@ -146,25 +148,49 @@ def append_ledger(ledger, row):
 
 
 def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
-        max_usd=2.0, dry_run=False, limit=None, attempts=1):
-    """Run both arms over the bundle.  Resumable, budgeted, never overwrites."""
+        max_usd=2.0, dry_run=False, limit=None, attempts=1, params=None, tools=None,
+        run_dir=None, price_snapshot=None):
+    """Run both arms over the bundle: identified, resumable, budgeted, durable.
+
+    The run directory carries an identity manifest.  A resume whose identity differs is
+    refused before any request, because task id and arm alone do not say which model,
+    prompt, tools, code or scorer produced the saved answers.
+    """
     bundle = load_bundle(bundle_path)
     fp = scorer_fingerprint()
     check_bundle(bundle, fp)
-    rows = load_ledger(ledger)
-    done = done_keys(rows)
-    spent = sum(row.get("cost_usd") or 0 for row in rows)
-    jobs = [j for j in plan(bundle, price_per_million)
-            if (j["task_id"], j["arm"]) not in done]
+    run_dir = Path(run_dir) if run_dir else Path(responses).parent
+    identity = run_identity(bundle_path, bundle, model=model,
+                            params=dict(params or {"max_output_tokens":
+                                                   PLANNED_OUTPUT_TOKENS}),
+                            tools=dict(tools or {}))
+    identity_state = require_identity(run_dir, identity)
+
+    plan_jobs = plan(bundle, price_per_million)
+    recovered, rows = recover_ledger(ledger, responses, plan_jobs)
+    # Anything with a usable saved response counts as done, and an attempted-but-unsaved
+    # request is not retried automatically: it may already have been paid for.
+    done = {(row["task_id"], row["arm"]) for row in rows
+            if row.get("status") in ("ok", "recovered_from_response", "result_unknown")
+            or (row.get("response_file") and Path(row["response_file"]).is_file())}
+    known_spend = sum(row["cost_usd"] for row in rows
+                      if isinstance(row.get("cost_usd"), (int, float)))
+    unknown_rows = [r for r in rows if r.get("cost_usd") is None]
+    jobs = [j for j in plan_jobs if (j["task_id"], j["arm"]) not in done]
     if limit is not None:
         jobs = jobs[:limit]
-    planned = round(sum(j["cost_estimate"] for j in jobs), 6)
-    report = {"scorer": fp, "model": model, "already_done": len(done),
-              "planned_calls": len(jobs), "planned_cost": planned,
-              "spent_before": round(spent, 6), "max_usd": max_usd, "runs": []}
+    report = {"scorer": fp, "identity": identity, "identity_digest":
+              identity_digest(identity), "identity_state": identity_state,
+              "model": model, "already_done": len(done), "recovered_from_response":
+              recovered, "planned_calls": len(jobs),
+              "planned_cost": round(sum(j["cost_estimate"] for j in jobs), 6),
+              "known_spend_before": round(known_spend, 6),
+              "unknown_cost_rows": len(unknown_rows), "max_usd": max_usd,
+              "price_snapshot": price_snapshot, "runs": []}
     if dry_run:
         report["dry_run"] = True
         return report
+    spent = known_spend
     for job in jobs:
         if spent + job["cost_estimate"] > max_usd:
             report["stopped"] = "BUDGET"
@@ -177,50 +203,93 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
         messages = [{"role": "system", "content": "你是严谨的临床数据取数助手，只依据材料作答。"},
                     {"role": "user", "content": "%s\n\n任务：%s\n\n%s" % (
                         context, task["instruction"], INSTRUCTION)}]
-        target = response_path(responses, job["task_id"], job["arm"])
+        cap = (params or {}).get("max_output_tokens", PLANNED_OUTPUT_TOKENS)
         started = time.time()
-        last = None
-        for attempt in range(1, attempts + 1):
+        last, used_attempt, sent = None, 1, False
+        for used_attempt in range(1, attempts + 1):
+            sent = True
             try:
-                last = transport(model=model, messages=messages)
+                last = transport(model=model, messages=messages,
+                                 max_output_tokens=cap)
                 break
             except Exception as error:  # a transport failure is a status, not a crash
                 last = {"status": "transport_error", "error": str(error)[:200],
-                        "tokens_in": 0, "tokens_out": 0, "raw": ""}
-        tokens_in = last.get("tokens_in") or 0
-        tokens_out = last.get("tokens_out") or 0
-        cost = estimate_cost(tokens_in, tokens_out, price_per_million)
-        if not target.exists():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(json.dumps(
-                {"messages": messages, "raw": last.get("raw", ""),
-                 "model_returned": last.get("model_returned"),
-                 "tokens_in": tokens_in, "tokens_out": tokens_out},
-                ensure_ascii=False), encoding="utf-8")
+                        "tokens_in": None, "tokens_out": None, "raw": ""}
+        saved_ok = bool(last and last.get("status") == "ok")
+        target = attempt_path(responses, job["task_id"], job["arm"], used_attempt)
+        if saved_ok:
+            atomic_write_text(target, json.dumps(
+                {"task_id": job["task_id"], "arm": job["arm"], "model_requested": model,
+                 "model_returned": last.get("model_returned"), "messages": messages,
+                 "raw": last.get("raw", ""), "tokens_in": last.get("tokens_in"),
+                 "tokens_out": last.get("tokens_out"), "cost_usd": None,
+                 "price_per_million": list(price_per_million),
+                 "attempt": used_attempt, "latency_s": round(time.time() - started, 2)},
+                ensure_ascii=False))
             os.chmod(target, 0o600)
+        tokens_in = last.get("tokens_in") if last else None
+        tokens_out = last.get("tokens_out") if last else None
+        if isinstance(tokens_in, int) and isinstance(tokens_out, int):
+            cost = round(estimate_cost(tokens_in, tokens_out, price_per_million), 7)
+        else:
+            # A request may have been sent without a usable result.  That is not free,
+            # so its cost stays unknown instead of being recorded as zero.
+            cost = None
+        status = last.get("status", "ok") if last else "result_unknown"
+        if sent and not saved_ok:
+            status = "result_unknown"
+        if saved_ok:
+            saved = json.loads(target.read_text(encoding="utf-8"))
+            saved["cost_usd"] = cost
+            atomic_write_text(target, json.dumps(saved, ensure_ascii=False))
         row = {"task_id": job["task_id"], "arm": job["arm"], "model_requested": model,
-               "model_returned": last.get("model_returned"),
-               "status": last.get("status", "ok"), "attempts": attempt,
-               "tokens_in": tokens_in, "tokens_out": tokens_out,
-               "cost_usd": round(cost, 7), "latency_s": round(time.time() - started, 2),
-               "retrieved_lines": retrieved, "response_file": str(target)}
+               "model_returned": last.get("model_returned") if last else None,
+               "status": status, "attempts": used_attempt,
+               "tokens_in": tokens_in, "tokens_out": tokens_out, "cost_usd": cost,
+               "latency_s": round(time.time() - started, 2),
+               "retrieved_lines": retrieved, "response_file": str(target),
+               "identity_digest": report["identity_digest"]}
         append_ledger(ledger, row)
         rows.append(row)
-        spent += cost
+        if cost is not None:
+            spent += cost
         report["runs"].append(row)
-    report["spent_after"] = round(spent, 6)
+    report["known_spend_after"] = round(spent, 6)
+    report["unknown_cost_rows"] += sum(1 for r in report["runs"]
+                                       if r.get("cost_usd") is None)
     return report
 
 
-def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_failure=True):
-    """Rebuild the summary from saved responses.  No network, no cost."""
+def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_failure=True,
+            ledger=None, allow_scorer_change=False):
+    """Rebuild the summary from saved responses.  No network, no cost.
+
+    Each item is scored from the very file its ledger row points at, so a retry can never
+    leave the ledger describing one answer while scoring reads another.
+    """
     bundle = load_bundle(bundle_path)
     fp = scorer_fingerprint()
+    scorer_changed = None
+    if allow_scorer_change and bundle.get("scorer_sha256") != fp["sha256"]:
+        # A post-hoc rescore of answers produced under an earlier scorer is allowed only
+        # when asked for explicitly, and it is recorded.  run() keeps the hard refusal.
+        scorer_changed = {"bundle": bundle.get("scorer_sha256"), "loaded": fp["sha256"]}
+        bundle = dict(bundle, scorer_sha256=fp["sha256"])
     check_bundle(bundle, fp)
+    by_key = {}
+    if ledger and Path(ledger).is_file():
+        for row in load_ledger(ledger):
+            by_key[(row["task_id"], row["arm"])] = row
     items = []
     for task in bundle["tasks"]:
         for arm in ARMS:
-            path = response_path(responses, task["task_id"], arm)
+            row = by_key.get((task["task_id"], arm))
+            if row and row.get("response_file") and Path(row["response_file"]).is_file():
+                path = Path(row["response_file"])
+            else:
+                saved_files = saved_attempts(responses, task["task_id"], arm)
+                path = saved_files[-1] if saved_files else response_path(responses,
+                                                                        task["task_id"], arm)
             if not path.is_file():
                 if tasks_without_response_count_as_failure:
                     items.append({"task_id": task["task_id"], "arm": arm,
@@ -228,28 +297,35 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
                 continue
             saved = json.loads(path.read_text(encoding="utf-8"))
             answer = _parse_answer(saved.get("raw", ""))
+            unresolved = ambiguous = 0
             if answer.get("selected_records"):
-                resolved_items, unresolved = _resolve_items(answer["selected_records"],
-                                                           task["records"],
-                                                           task["contract"]["time_role"])
+                resolved_items, unresolved, ambiguous = resolve_items(
+                    answer["selected_records"], task["records"],
+                    task["contract"]["time_role"])
                 answer = {"status": answer["status"], "selected_records": resolved_items,
-                          "_unresolved": unresolved}
-            scored = score({"task_id": task["task_id"], "time_role": task["contract"]["time_role"],
+                          "_unresolved": unresolved, "_ambiguous": ambiguous}
+            scored = score({"task_id": task["task_id"],
+                            "time_role": task["contract"]["time_role"],
                             "spec": {"window": task["contract"]["window"],
                                      "selection": task["contract"]["selection"],
                                      "contract": task["contract"]}},
                            answer, task["records"], task["reference"])
             items.append({"task_id": task["task_id"], "arm": arm,
                           "status": saved.get("status", "ok"),
+                          "model_returned": saved.get("model_returned"),
+                          "unresolved_items": unresolved, "ambiguous_items": ambiguous,
                           "set_exact_match": scored["set_exact_match"],
                           "status_ok": scored["status_ok"],
                           "fields_match": scored["fields_match"],
                           "task_success": scored["task_success"],
                           "field_mismatches": scored["field_mismatches"]})
     summary = {"probe_version": VERSION, "scorer": fp,
+               "post_hoc": bool(scorer_changed), "scorer_changed": scorer_changed,
                "tasks": len(bundle["tasks"]), "items": len(items),
                "by_arm": {}, "failures": [i for i in items if not i.get("task_success")],
-               "missing_responses": [i for i in items if i.get("status") == "missing_response"]}
+               "missing_responses": [i for i in items if i.get("status") == "missing_response"],
+               "ambiguous_items": sum(i.get("ambiguous_items") or 0 for i in items),
+               "unresolved_items": sum(i.get("unresolved_items") or 0 for i in items)}
     for arm in ARMS:
         group = [i for i in items if i["arm"] == arm]
         summary["by_arm"][arm] = {
@@ -264,16 +340,147 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
     return summary
 
 
-def _resolve_items(items, records, role):
-    """Fill in the record id for the answer's items, keeping their fields.
+class RunIdentityMismatch(ProbeError):
+    """A run directory belongs to a different experiment."""
 
-    The contract asks the model to identify a record by its fields when it cannot know our
-    internal id, so a field-based item is matched against the frozen records and the id is
-    written back onto the same item.  The fields stay attached so the field checks can still
-    run.  An item that matches nothing keeps no id, so it contributes no selection and its
-    missing fields are recorded as mismatches; it is never dropped.
+
+def atomic_write_text(target, text):
+    """Write beside the target and replace it, so a reader never sees a half file."""
+    target = Path(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target.with_name(target.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, target)
+
+
+def _sha256_text(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def run_identity(bundle_path, bundle, *, model, params, tools):
+    """Everything that makes one run that run, so a resume can be checked against it.
+
+    Resuming used to look only at task id and arm, so swapping the model in the same
+    directory silently reused the old answers.
     """
-    resolved, unresolved = [], 0
+    prompt_material = json.dumps([[t.get("task_id"), t.get("instruction"), t.get("contract")]
+                                  for t in bundle.get("tasks", [])], ensure_ascii=False,
+                                 sort_keys=True)
+    return {"bundle_sha256": hashlib.sha256(Path(bundle_path).read_bytes()).hexdigest(),
+            "prompt_sha256": _sha256_text(INSTRUCTION + prompt_material),
+            "model": model, "params": dict(params or {}), "tools": dict(tools or {}),
+            "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "scorer_sha256": scorer_fingerprint()["sha256"]}
+
+
+def identity_digest(identity):
+    return _sha256_text(json.dumps(identity, ensure_ascii=False, sort_keys=True))
+
+
+def require_identity(run_dir, identity):
+    """Create the manifest once, then refuse any run whose identity differs."""
+    run_dir = Path(run_dir)
+    manifest = run_dir / "run_identity.json"
+    record = {"identity": identity, "digest": identity_digest(identity)}
+    if not manifest.is_file():
+        atomic_write_text(manifest, json.dumps(record, ensure_ascii=False, indent=2))
+        return "created"
+    existing = json.loads(manifest.read_text(encoding="utf-8"))
+    if existing.get("identity") != identity:
+        differing = sorted(key for key in set(existing.get("identity", {})) | set(identity)
+                           if existing.get("identity", {}).get(key) != identity.get(key))
+        raise RunIdentityMismatch(
+            "RUN_IDENTITY_MISMATCH differing=%s expected_digest=%s got_digest=%s"
+            % (",".join(differing), existing.get("digest"), record["digest"]))
+    return "matched"
+
+
+def attempt_path(responses, task_id, arm, attempt):
+    return Path(responses) / ("%s__%s__attempt%d.json" % (task_id, arm, attempt))
+
+
+def saved_attempts(responses, task_id, arm):
+    return sorted(Path(responses).glob("%s__%s__attempt*.json" % (task_id, arm)))
+
+
+def recover_ledger(ledger, responses, jobs):
+    """Rebuild ledger rows from saved responses.  No call is made for them."""
+    rows = load_ledger(ledger)
+    known = {(row["task_id"], row["arm"]) for row in rows}
+    recovered = 0
+    for job in jobs:
+        key = (job["task_id"], job["arm"])
+        if key in known:
+            continue
+        saved = saved_attempts(responses, job["task_id"], job["arm"])
+        if not saved:
+            continue
+        last = saved[-1]
+        try:
+            payload = json.loads(last.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            continue
+        row = {"task_id": job["task_id"], "arm": job["arm"],
+               "model_requested": payload.get("model_requested"),
+               "model_returned": payload.get("model_returned"),
+               "status": "recovered_from_response", "attempts": len(saved),
+               "tokens_in": payload.get("tokens_in") or 0,
+               "tokens_out": payload.get("tokens_out") or 0,
+               "cost_usd": payload.get("cost_usd"),
+               "latency_s": payload.get("latency_s"),
+               "response_file": str(last), "recovered": True}
+        append_ledger(ledger, row)
+        rows.append(row)
+        recovered += 1
+    return recovered, rows
+
+
+def _value_unit_match(item, record):
+    try:
+        expected = _finite(record.get("value"))
+        got = _finite(item.get("value"))
+    except Exception:
+        return False
+    if expected is None or got is None:
+        return False
+    if abs(got - expected) > 1e-6 * max(1.0, abs(expected)):
+        return False
+    return _norm_unit(item.get("unit")) == _norm_unit(record.get("unit"))
+
+
+def _day_match(item, record, role):
+    day = item.get("day_offset")
+    if day is None:
+        day = item.get("%s_day_offset" % role)
+    if day is None:
+        return True
+    number = _finite(day)
+    if number is None or not float(number).is_integer():
+        return False
+    expected = record.get("%s_day_offset" % role)
+    return expected is None or int(number) == int(expected)
+
+
+def _source_overlap(item, record):
+    claimed = item.get("source_refs") or []
+    if not isinstance(claimed, (list, tuple)) or not claimed:
+        return True
+    own = {str(record.get(field)) for field in
+           ("project_ref", "result_ref", "unit_ref", "collection_ref", "report_ref")
+           if record.get(field)}
+    own |= {str(ref) for ref in (record.get("alias_refs") or [])}
+    return bool({str(ref) for ref in claimed} & own)
+
+
+def resolve_items(items, records, role):
+    """Decide which record an answer item refers to.  The program does not guess.
+
+    No candidate by value and unit means the item is unmatched and stays as a wrong
+    answer.  Exactly one candidate is linked and then field-checked.  Several candidates
+    are narrowed by the answer's own day and then by its own source lines.  Several still
+    means the answer is ambiguous and is NOT silently turned into the first candidate.
+    """
+    resolved, unresolved, ambiguous = [], 0, 0
     for item in items or []:
         if isinstance(item, str):
             resolved.append(item)
@@ -285,33 +492,27 @@ def _resolve_items(items, records, role):
         if isinstance(identifier, str):
             resolved.append(item)
             continue
-        day = item.get("day_offset")
-        if day is None:
-            day = item.get("%s_day_offset" % role)
-        hit = None
-        for record in records:
-            try:
-                same = abs(float(item.get("value")) - float(record.get("value"))) <= 1e-6 * max(
-                    1.0, abs(float(record.get("value"))))
-            except (TypeError, ValueError):
-                same = False
-            if not same:
-                continue
-            if str(item.get("unit") or "").strip() != str(record.get("unit") or "").strip():
-                continue
-            if day is not None and record.get("%s_day_offset" % role) is not None \
-                    and int(day) != record.get("%s_day_offset" % role):
-                continue
-            hit = record
-            break
-        if hit is None:
+        candidates = [record for record in records if _value_unit_match(item, record)]
+        if not candidates:
             unresolved += 1
             resolved.append(item)
-        else:
-            filled = dict(item)
-            filled["record_id"] = hit["record_id"]
-            resolved.append(filled)
-    return resolved, unresolved
+            continue
+        if len(candidates) > 1:
+            narrowed = [record for record in candidates if _day_match(item, record, role)]
+            if narrowed:
+                candidates = narrowed
+        if len(candidates) > 1:
+            narrowed = [record for record in candidates if _source_overlap(item, record)]
+            if narrowed:
+                candidates = narrowed
+        if len(candidates) != 1:
+            ambiguous += 1
+            resolved.append(item)
+            continue
+        filled = dict(item)
+        filled["record_id"] = candidates[0]["record_id"]
+        resolved.append(filled)
+    return resolved, unresolved, ambiguous
 
 
 def _parse_answer(raw):
