@@ -194,6 +194,12 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
                 continue
             saved = json.loads(path.read_text(encoding="utf-8"))
             answer = _parse_answer(saved.get("raw", ""))
+            if answer.get("selected_records"):
+                resolved_items, unresolved = _resolve_items(answer["selected_records"],
+                                                           task["records"],
+                                                           task["contract"]["time_role"])
+                answer = {"status": answer["status"], "selected_records": resolved_items,
+                          "_unresolved": unresolved}
             scored = score({"task_id": task["task_id"], "time_role": task["contract"]["time_role"],
                             "spec": {"window": task["contract"]["window"],
                                      "selection": task["contract"]["selection"],
@@ -224,9 +230,74 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
     return summary
 
 
+def _resolve_items(items, records, role):
+    """Fill in the record id for the answer's items, keeping their fields.
+
+    The contract asks the model to identify a record by its fields when it cannot know our
+    internal id, so a field-based item is matched against the frozen records and the id is
+    written back onto the same item.  The fields stay attached so the field checks can still
+    run.  An item that matches nothing keeps no id, so it contributes no selection and its
+    missing fields are recorded as mismatches; it is never dropped.
+    """
+    resolved, unresolved = [], 0
+    for item in items or []:
+        if isinstance(item, str):
+            resolved.append(item)
+            continue
+        if not isinstance(item, dict):
+            unresolved += 1
+            continue
+        identifier = item.get("record_id") or item.get("id")
+        if isinstance(identifier, str):
+            resolved.append(item)
+            continue
+        day = item.get("day_offset")
+        if day is None:
+            day = item.get("%s_day_offset" % role)
+        hit = None
+        for record in records:
+            try:
+                same = abs(float(item.get("value")) - float(record.get("value"))) <= 1e-6 * max(
+                    1.0, abs(float(record.get("value"))))
+            except (TypeError, ValueError):
+                same = False
+            if not same:
+                continue
+            if str(item.get("unit") or "").strip() != str(record.get("unit") or "").strip():
+                continue
+            if day is not None and record.get("%s_day_offset" % role) is not None \
+                    and int(day) != record.get("%s_day_offset" % role):
+                continue
+            hit = record
+            break
+        if hit is None:
+            unresolved += 1
+            resolved.append(item)
+        else:
+            filled = dict(item)
+            filled["record_id"] = hit["record_id"]
+            resolved.append(filled)
+    return resolved, unresolved
+
+
 def _parse_answer(raw):
-    """Parse a saved response body without raising on malformed content."""
+    """Parse a saved response body without raising on malformed content.
+
+    A saved body is the provider envelope, so the assistant text is unwrapped first and
+    the answer object is then located inside it.  A fenced code block is stripped too.
+    """
     text = raw or ""
+    try:
+        envelope = json.loads(text)
+    except (ValueError, TypeError):
+        envelope = None
+    if isinstance(envelope, dict):
+        choices = envelope.get("choices")
+        if isinstance(choices, list) and choices:
+            message = choices[0].get("message") if isinstance(choices[0], dict) else None
+            if isinstance(message, dict) and isinstance(message.get("content"), str):
+                text = message["content"]
+    text = text.replace("```json", "```")
     start, end = text.find("{"), text.rfind("}")
     if start < 0 or end <= start:
         return {"status": None, "selected_records": None}
