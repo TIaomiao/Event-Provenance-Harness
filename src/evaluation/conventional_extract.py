@@ -118,32 +118,32 @@ def extract_rows(lines, project_markers):
             continue
         unit, value, days, dates, refs, name = None, None, [], [], [], None
         for line in ordered:
-            text = str(line.get("text") or "").strip()
-            if not text:
+            raw = str(line.get("text") or "").strip()
+            if not raw:
                 continue
             refs.append(line.get("anchor"))
-            if name is None and any(marker in text for marker in project_markers):
-                name = text
+            if name is None and any(marker in raw for marker in project_markers):
+                name = raw
+            marker = DAY_MARKER.search(raw)
+            if marker:
+                days.append(int(marker.group(1)))
+                continue
+            absolute = _date(raw)
+            if absolute:
+                dates.append(absolute)
+            # a date must not be read as a value, so dates are removed before numbers
+            text = DATE.sub(" ", raw)
+            text = DAY_MARKER.sub(" ", text)
             found_unit = UNIT.search(text)
-            if found_unit and unit is None and not DAY_MARKER.search(text):
+            if found_unit and unit is None:
                 unit = found_unit.group(0).replace(" ", "")
                 if value is None:
-                    # the result usually shares its line with the unit, so read the
-                    # number next to the unit rather than skipping the whole line
                     before = NUMBER.findall(text[:found_unit.start()])
                     after = NUMBER.findall(text[found_unit.end():])
                     if before:
                         value = float(before[-1])
                     elif after:
                         value = float(after[0])
-                continue
-            marker = DAY_MARKER.search(text)
-            if marker:
-                days.append(int(marker.group(1)))
-                continue
-            absolute = _date(text)
-            if absolute:
-                dates.append(absolute)
                 continue
             if value is None:
                 number = NUMBER.search(text)
