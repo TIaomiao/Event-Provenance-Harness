@@ -34,43 +34,55 @@ verified_commit: e94f497
 
 ## 当前任务
 
-**本轮工作单元：把单例烟测升级为可重复运行、可核算完整成本、可检查每个答案的 baseline v1。**
+**本轮工作单元：baseline v1 —— 把单例烟测升级为同一入口下可运行、可核算、可回放的 A/B。**
 
 **开工回执（10 行）**
-1. **目标**：A/B 两条完整流程可一条命令运行、可 dry-run 预算、可断点续跑、可仅重评分、可机器汇总；为「何时需要额外机制」提供可靠起点。
-2. **顺序**：① 事实与基线核对（完成）→ ② **一次解决契约：区分选择精度与展示精度（完成）** → ③ A/B 同一入口程序化 → ④ 冻结小题集与参考 → ⑤ 运行、核算、判断。
-3. **最大风险**：**B 的 12 条记录表来路未核**——若来自人工修正、gold 或专属 Harness 路径，就不能标为独立常规基线。
-4. **分支/目录**：`main` @ `8d5e9ef`（= origin/main）；工作区 `G:\Intern\01_在研项目\EHR_Harness论文工作区`；受控入口 `/tmp/identity_review_build/`。
-5. **实际加载模块（调用前核验）**：`src/evaluation/task_selection.py` = `daaa86749442bc1d`（29,464 B）；`src/evaluation/selection_reference.py` = `a85f694dad7aad5a`（7,960 B）。**受控端与公开文件必须同哈希，不符则在发请求前报错。**
+1. **目标**：一条入口命令跑 A/B；另一条零花费命令重建同一汇总；可 dry-run 预算、可断点续跑、可仅重评分。
+2. **顺序**：① 基线核对（完成）→ ② 契约：选择精度 ≠ 展示精度（完成）→ ③ **可运行引擎（本轮完成）** → ④ 受控侧束构建与真实传输（未完成）→ ⑤ 冻结小题集与参考（未完成）→ ⑥ 付费批与核算（未完成）。
+3. **最大风险**：**B 的 12 条记录表来路未核**；未核清就不能标为独立常规基线。
+4. **分支/目录**：`main`；工作区 `G:\Intern\01_在研项目\EHR_Harness论文工作区`；受控入口 `/tmp/identity_review_build/`。
+5. **调用前核验**：`scorer_fingerprint()` 取**实际导入模块**的绝对路径与 SHA-256；束里声明的指纹不符 → **发请求前抛 `ProbeError`**。
 6. **未核**：v7/v8 考古（冻结输入、提示、匹配器、配置、R2 执行表）单独登记，不阻塞新实验。
-7. **上限**：5 名已有患者 × 3 类任务（工程试运行规模）；两批真实调用；**本轮新增费用上限 2 美元**，达上限停调用、继续离线交付。
-8. **只为白名单**：`task_selection.py`、其测试、新建 `necessity_probe.py` 及测试与专用配置、两个研究文档、`results/` 匿名汇总、两个生成页。
-9. **只读**：`selection_reference.py`、历史 gold/响应/结果、既有测试断言、CI、`archive/`；不改历史分数。
-10. **不以正结果为验收**：单例两条基线选对只说明该例未暴露困难，**不能证明机制普遍无增量**。
+7. **上限**：5 名已有患者 × 3 类任务；两批真实调用；**本轮新增费用上限 2 美元**。
+8. **白名单**：`task_selection.py`、其测试、新增 `necessity_probe.py` 及测试、专用配置、两个研究文档、`results/` 匿名汇总、两个生成页。
+9. **只读**：`selection_reference.py`、历史 gold/响应/结果、既有测试断言、CI、`archive/`。
+10. **不以正结果为验收**。
 
-### 任务 1 完成：一次解决契约（选择精度 ≠ 展示精度）
+### 任务 2 进展：可运行引擎已交付（真实输出）
 
-**新增契约**（`task["spec"]["contract"]`，三键缺一即报错）：`required_fields`、`display_precision`（`day`|`second`）、`source_mode`（`exact`|`supported`）。
-- **选择**始终按记录**最细可用精度**排序（同日取较晚者仍正确）；
-- **展示**按契约要求核验：声明 `day` 时给日即合格、不因缺秒报错；声明 `second` 时缺秒**判错**；
-- **来源**：`supported` 允许**记录自身组成行的任意非空子集**（等价有效锚点），`exact` 保留旧行为；
-- **未声明契约**＝旧行为（旧任务可复现）；**声明但不完整** → 抛 `SelectionError`，**不静默默认**。
+新增 `src/evaluation/necessity_probe.py`（`necessity_probe v1`）与 `src/evaluation/tests/test_necessity_probe.py`。
 
-**修前 / 修后（同一场景真实跑出）**
+**两个子命令**
+- `run --bundle --responses --ledger --model --price --max-usd [--dry-run] [--limit]`：按束逐题逐臂调用；**断点续跑**（已完成项跳过、**不重复扣费**）；**预算不足即停**（`stopped=BUDGET`）；**原始响应只在缺失时写入、绝不覆盖**；逐条落账（请求型号、实际返回型号、usage、重试、耗时、费用、状态）。
+- `rescore --bundle --responses [--out]`：**零花费**重建同一汇总，缺失响应**计入失败而非丢弃**。
+
+**入口实测（合成束，无患者数据，无付费）**
 ```
-PREV  day-display, day-only answer : fields_match=False task_success=False
-      mismatches = ['late:time_precision', 'late:source']
-PREV  partial contract             : ACCEPTED silently (no error)
-NOW   day-display, day-only answer : fields_match=True  task_success=True
-NOW   partial contract             : raised SelectionError
+$ python src/evaluation/necessity_probe.py run --bundle .local/probe_demo/bundle.json     --responses ... --ledger ... --model demo --price 0.3,1.5 --dry-run
+{ "scorer": {"sha256": "07525ca2e3d5d81e..."}, "planned_calls": 2,
+  "planned_cost": 0.002706, "max_usd": 2.0, "runs": [], "dry_run": true }
+
+$ python src/evaluation/necessity_probe.py rescore --bundle ... --responses ... --out ...
+{ "probe_version": "necessity_probe v1", "tasks": 1, "items": 2,
+  "by_arm": {"A_raw_tools": {...,"task_success": 0}, "B_extracted_sql": {...,"task_success": 0}},
+  "missing_responses": [2 条] }
 ```
 
-**新增 6 条回归**：日级展示仍正确选中同日较晚记录；要求秒时遗漏失败；错误来源失败；**等价有效锚点被接受**；**缺契约必须报错**；无契约保持旧精度行为。
-**测试**：`Ran 170 tests` **OK**（164 + 6）；原型 `Ran 54 tests` **OK**；`workspace check` OK；`git diff --check` 干净。
+**新增 10 条测试**（合成样例、注入传输、**不发网络请求、不产生费用**）：dry-run 零调用；每臂恰调用一次并落账；**续跑不重复扣费**；**预算不足不调用**；**束指纹不符在调用前拒绝**；**部分契约在调用前拒绝**；rescore 离线重建；**缺失响应计为失败**；**畸形响应计为失败而非崩溃**；费用公式按声明价格。
 
-**仍待核（任务 1 内）**：A 的来源 `L2159`/`L2158` 须**逐项核验**（确认哪一行真正承载项目名），不得把全部失败归为精度问题。
+**一个真缺陷当场修掉**：`_parse_answer` 原先只保留 `record_id`、**丢掉字段**，导致重评分时字段检查必然失败。已改为保留完整条目。
 
-**未完成（后续任务）**：任务 2 A/B 同一入口程序化（含 A 的真实可调用工具、B 抽取链追溯）；任务 3 冻结小题集与参考；任务 4 运行、分项核算与判断。**人工原页核对未完成 → 只完成工程版，不冒称研究验证通过。**
+**测试**：`Ran 180 tests` **OK**（170 + 10）；原型 `Ran 54 tests` **OK**；`workspace check` OK。
+
+### 仍未完成（完成条件未达成）
+
+1. **受控侧束构建器**：从真实记录生成 `bundle.json`（含 `records`、`reference`、两臂 context、契约与指纹）——**需在受控端实现**，本轮只完成引擎。
+2. **`necessity_transport`**：真实网关传输层（凭据只走 stdin）。
+3. **B 抽取链追溯**：核实那 12 条记录表是否来自人工修正/gold/专属 Harness 路径。
+4. **A 的来源 `L2159`/`L2158` 逐项核验**。
+5. **冻结小题集与参考**、**付费批与完整成本拆分**（OCR / 制表 / 查询 / 重试 / 人工）。
+
+**人工原页核对未完成 → 只完成工程版，不冒称研究验证通过。** 恢复时先读本节继续。
 ## 最新可核验交付
 
 - **首轮阅读包（2026-09-19/20，仓库外的本地阅读包 `26.7-/EHR_Harness_论文阅读包/04_Agent数据准备与评测/`）**：四篇原文均已取得并落盘——JCM AI-Ready（Europe PMC 官方全文 XML 转出；MDPI PDF 被 Cloudflare 拦截未取得）、Infherno（arXiv 版 + EACL 2026 发表版，各 12 页）、FHIR-AgentBench（19 页 PDF）、HealthFlow（27 页）。四张阅读卡含逐节原文定位、术语解释与关键段落中译；另有一份两页反馈模板。
