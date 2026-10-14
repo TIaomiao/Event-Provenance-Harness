@@ -159,5 +159,62 @@ class ProbeTest(unittest.TestCase):
         self.assertAlmostEqual(np.estimate_cost(1_000_000, 1_000_000, PRICE), 1.8, places=6)
 
 
+class RetrievalToolTest(unittest.TestCase):
+    """Arm A gets a tool the program actually runs, not a promise in the prompt."""
+
+    def test_retrieval_keeps_the_answer_bearing_line_and_shrinks_the_input(self):
+        context = "\n".join(["填充行 %d" % i for i in range(200)] +
+                             ["L77 HGB 血红蛋白 7.0 g/L"])
+        text, kept = np.retrieve_lines(context, "取血红蛋白最近一次", top_k=5)
+        self.assertIn("L77", text)
+        self.assertLess(kept, 200)
+
+    def test_retrieval_without_terms_returns_the_context_unchanged(self):
+        context = "L1 HGB 5.0 g/L"
+        text, kept = np.retrieve_lines(context, "")
+        self.assertEqual(text, context)
+
+    def test_the_engine_runs_retrieval_for_arm_a_and_records_it(self):
+        import tempfile
+        tmp = Path(tempfile.mkdtemp())
+        rec = record("r1", 0, 5.0)
+        contract = {"project": "HGB", "time_role": "collection",
+                    "window": {"from": None, "to": 0, "include_from": False,
+                               "include_to": True},
+                    "selection": "latest", "tie_policy": "undetermined",
+                    "missing_policy": "undetermined",
+                    "required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "day", "source_mode": "supported"}
+        long_context = "\n".join(["噪声 %d" % i for i in range(400)] + ["L9 HGB 血红蛋白 5.0"])
+        bundle = {"probe_version": np.VERSION,
+                  "scorer_sha256": np.scorer_fingerprint()["sha256"],
+                  "a_retrieval_tool": True,
+                  "tasks": [{"task_id": "t1", "instruction": "取血红蛋白最近一次",
+                             "contract": contract,
+                             "reference": {"status": "ok", "selected": ["r1"],
+                                           "candidates": []},
+                             "records": [rec],
+                             "context": {"A_raw_tools": long_context,
+                                         "B_extracted_sql": "r1 HGB 5.0 day 0"}}]}
+        bundle_path = tmp / "b.json"
+        bundle_path.write_text(json.dumps(bundle), encoding="utf-8")
+        seen = {}
+
+        def transport(**kwargs):
+            seen["user"] = kwargs["messages"][1]["content"]
+            return {"status": "ok", "model_returned": "synthetic", "tokens_in": 10,
+                    "tokens_out": 5, "raw": json.dumps(
+                        {"status": "ok", "selected": [
+                            {"record_id": "r1", "value": 5.0, "unit": "g/L",
+                             "day_offset": 0, "source_refs": ["L1"]}]})}
+
+        report = np.run(bundle_path, tmp / "resp", tmp / "ledger.jsonl", transport,
+                        model="m", price_per_million=PRICE)
+        self.assertEqual(len(report["runs"]), 2)
+        arm_a = [r for r in report["runs"] if r["arm"] == "A_raw_tools"][0]
+        self.assertIsNotNone(arm_a["retrieved_lines"], "the tool ran for arm A")
+        self.assertLess(len(seen["user"]), len(long_context), "the input was actually cut")
+
+
 if __name__ == "__main__":
     unittest.main()

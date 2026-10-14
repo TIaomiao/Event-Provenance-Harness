@@ -33,6 +33,36 @@ INSTRUCTION = ("请只输出 JSON：{\"status\": \"ok\" | \"empty\" | \"undeterm
                "\"source_refs\": [\"<行号>\"]}], \"reason\": \"<可选>\"}")
 
 
+def retrieve_lines(context, question, top_k=40, window=1):
+    """A real, program-executed retrieval step for the raw arm.
+
+    Arm A is allowed to search rather than swallow the whole file, so the engine runs a
+    lexical retrieval itself and passes the hits with their neighbours.  This is a tool
+    the program actually executes, not an instruction telling the model it may search.
+    Returns the retrieved text and the number of source lines it kept.
+    """
+    lines = [line for line in (context or "").splitlines() if line.strip()]
+    terms = {ch for ch in question if ch.isalnum()} 
+    if not lines or not terms:
+        return context or "", len(lines)
+    scored = []
+    for index, line in enumerate(lines):
+        hits = sum(1 for ch in set(line) if ch in terms)
+        scored.append((hits, index))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    keep = set()
+    for hits, index in scored[:top_k]:
+        if hits == 0:
+            break
+        for offset in range(-window, window + 1):
+            if 0 <= index + offset < len(lines):
+                keep.add(index + offset)
+    if not keep:
+        return context or "", len(lines)
+    picked = [lines[i] for i in sorted(keep)]
+    return "\n".join(picked), len(picked)
+
+
 class ProbeError(RuntimeError):
     """A configuration or provenance failure that must stop the run."""
 
@@ -140,9 +170,13 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
             report["stopped"] = "BUDGET"
             break
         task = next(t for t in bundle["tasks"] if t["task_id"] == job["task_id"])
+        context = task["context"][job["arm"]]
+        retrieved = None
+        if job["arm"].startswith("A") and bundle.get("a_retrieval_tool"):
+            context, retrieved = retrieve_lines(context, task["instruction"])
         messages = [{"role": "system", "content": "你是严谨的临床数据取数助手，只依据材料作答。"},
                     {"role": "user", "content": "%s\n\n任务：%s\n\n%s" % (
-                        task["context"][job["arm"]], task["instruction"], INSTRUCTION)}]
+                        context, task["instruction"], INSTRUCTION)}]
         target = response_path(responses, job["task_id"], job["arm"])
         started = time.time()
         last = None
@@ -169,7 +203,7 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
                "status": last.get("status", "ok"), "attempts": attempt,
                "tokens_in": tokens_in, "tokens_out": tokens_out,
                "cost_usd": round(cost, 7), "latency_s": round(time.time() - started, 2),
-               "response_file": str(target)}
+               "retrieved_lines": retrieved, "response_file": str(target)}
         append_ledger(ledger, row)
         rows.append(row)
         spent += cost
