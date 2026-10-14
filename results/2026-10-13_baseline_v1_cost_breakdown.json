@@ -1,0 +1,67 @@
+{
+  "schema": "baseline-v1-cost-breakdown-v1",
+  "currency": "USD",
+  "measured_from": "run ledgers on the controlled host, copied locally",
+  "batches": {
+    "batch2_gemini_fair_B": {
+      "calls": 26,
+      "by_arm": {
+        "A_raw_tools": {
+          "calls": 13,
+          "tokens_in": 772044,
+          "tokens_out": 3872,
+          "cost_usd": 0.2374212,
+          "mean_latency_s": 3.98,
+          "retries": 0,
+          "failures": 0
+        },
+        "B_extracted_sql": {
+          "calls": 13,
+          "tokens_in": 14603,
+          "tokens_out": 7428,
+          "cost_usd": 0.0155229,
+          "mean_latency_s": 3.13,
+          "retries": 0,
+          "failures": 0
+        }
+      },
+      "total_usd": 0.2529441,
+      "price_note": "priced with the rate the runner was given (0.3/1.5 per million)",
+      "first_question_total_usd": 0.2529441,
+      "amortised_note": "each task is a separate first question here, so the batch total is the first-question total; there is no shared per-query table cost to amortise because B table building is local and unpriced"
+    },
+    "batch3_deepseek": {
+      "calls": 26,
+      "by_arm": {
+        "A_raw_tools": {
+          "calls": 13,
+          "tokens_in": 581221,
+          "tokens_out": 11699,
+          "cost_usd": 0.1919148,
+          "mean_latency_s": 7.4,
+          "retries": 0,
+          "failures": 0
+        },
+        "B_extracted_sql": {
+          "calls": 13,
+          "tokens_in": 11007,
+          "tokens_out": 10269,
+          "cost_usd": 0.0187056,
+          "mean_latency_s": 5.74,
+          "retries": 0,
+          "failures": 0
+        }
+      },
+      "total_usd": 0.2106204,
+      "price_note": "PRICE NOT SUPPLIED FOR THIS ALIAS: cost is placeholder-priced with the first alias's rate and is not a real figure; tokens are exact",
+      "first_question_total_usd": 0.2106204,
+      "amortised_note": "each task is a separate first question here, so the batch total is the first-question total; there is no shared per-query table cost to amortise because B table building is local and unpriced"
+    }
+  },
+  "unmeasured": [
+    "B table building: local rule extraction, no API cost, machine time not measured",
+    "shared OCR: pre-existing governance artifact, not measured in this round",
+    "human preparation and verification: not performed, not measured",
+    "reports / retries beyond the recorded attempt count: none occurred"
+  ]
+}
