@@ -1,0 +1,391 @@
+{
+  "schema": "baseline-v1-per-task-failures-v1",
+  "note": "anonymised: case tokens are replaced by patient indices",
+  "runs": {
+    "gemini-3-flash": {
+      "by_arm": {
+        "A_raw_tools": {
+          "n": 13,
+          "task_success": 2,
+          "set_exact": 4,
+          "fields_match": 2
+        },
+        "B_extracted_sql": {
+          "n": 13,
+          "task_success": 12,
+          "set_exact": 12,
+          "fields_match": 13
+        }
+      },
+      "failure_count": 12,
+      "failure_rows": [
+        {
+          "task": "P5-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P5-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": false,
+          "task_success": false,
+          "mismatch_kinds": [
+            "source"
+          ]
+        },
+        {
+          "task": "P3-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": true,
+          "status_ok": true,
+          "fields_match": false,
+          "task_success": false,
+          "mismatch_kinds": [
+            "source"
+          ]
+        },
+        {
+          "task": "P3-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": false,
+          "task_success": false,
+          "mismatch_kinds": [
+            "source"
+          ]
+        },
+        {
+          "task": "P3-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": true,
+          "status_ok": true,
+          "fields_match": false,
+          "task_success": false,
+          "mismatch_kinds": [
+            "source"
+          ]
+        },
+        {
+          "task": "P4-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P4-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": false,
+          "task_success": false,
+          "mismatch_kinds": [
+            "source"
+          ]
+        },
+        {
+          "task": "P2-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-same-day-multiple",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": true,
+          "fields_match": true,
+          "task_success": false,
+          "mismatch_kinds": []
+        }
+      ]
+    },
+    "deepseek-flash": {
+      "by_arm": {
+        "A_raw_tools": {
+          "n": 13,
+          "task_success": 0,
+          "set_exact": 0,
+          "fields_match": 0
+        },
+        "B_extracted_sql": {
+          "n": 13,
+          "task_success": 5,
+          "set_exact": 5,
+          "fields_match": 5
+        }
+      },
+      "failure_count": 21,
+      "failure_rows": [
+        {
+          "task": "P5-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P5-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P5-all-in-interval",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P5-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P5-same-day-multiple",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P3-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P3-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P3-all-in-interval",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P3-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P3-same-day-multiple",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P4-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P4-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P4-all-in-interval",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P2-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P2-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P2-all-in-interval",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-latest-before-cutoff",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-all-in-interval",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-all-in-interval",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-same-day-multiple",
+          "arm": "A_raw_tools",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        },
+        {
+          "task": "P1-same-day-multiple",
+          "arm": "B_extracted_sql",
+          "status": "ok",
+          "set_exact": false,
+          "status_ok": false,
+          "fields_match": null,
+          "task_success": false,
+          "mismatch_kinds": []
+        }
+      ]
+    }
+  },
+  "patient_aliases": {
+    "CASE-00178": "P1",
+    "CASE-00234": "P2",
+    "CASE-00497": "P3",
+    "CASE-00504": "P4",
+    "CASE-00641": "P5"
+  }
+}
