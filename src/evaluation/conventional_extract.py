@@ -127,6 +127,15 @@ def extract_rows(lines, project_markers):
             found_unit = UNIT.search(text)
             if found_unit and unit is None and not DAY_MARKER.search(text):
                 unit = found_unit.group(0).replace(" ", "")
+                if value is None:
+                    # the result usually shares its line with the unit, so read the
+                    # number next to the unit rather than skipping the whole line
+                    before = NUMBER.findall(text[:found_unit.start()])
+                    after = NUMBER.findall(text[found_unit.end():])
+                    if before:
+                        value = float(before[-1])
+                    elif after:
+                        value = float(after[0])
                 continue
             marker = DAY_MARKER.search(text)
             if marker:
