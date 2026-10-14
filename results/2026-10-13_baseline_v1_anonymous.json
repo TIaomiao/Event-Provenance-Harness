@@ -32,8 +32,10 @@
   "cost_usd": {
     "batch_1_handicapped_B": 0.291086,
     "batch_2_fair_B": 0.252944,
-    "round_total": 0.54403,
-    "round_cap": 2.0
+    "batch_3_second_alias_placeholder_priced": 0.21062,
+    "round_total": 0.75465,
+    "round_cap": 2.0,
+    "warning": "batch 3 is priced with the first alias's rate as a placeholder; the second alias's rate has not been supplied, so its cost is not a real figure"
   },
   "reference_level": "rule/OCR derived; NOT independently verified against original pages",
   "fairness_notes": [
@@ -43,5 +45,50 @@
     "Arm B's table comes from the upstream rule-based cross-row extractor, so it is NOT an independently implemented conventional baseline; that independence gap remains open.",
     "The extractor never reads the reference and never selects records per question."
   ],
-  "not_claimed": "No accuracy claim is made as a research result: the reference has no independent human verification."
+  "not_claimed": "No accuracy claim is made as a research result: the reference has no independent human verification.",
+  "two_model_replication": {
+    "frozen_set": "same 13 tasks, 5 patients, same bundle and scorer fingerprint",
+    "by_model": {
+      "gemini-3-flash": {
+        "A_raw_tools": {
+          "set_exact": 4,
+          "fields_match": 2,
+          "task_success": 2,
+          "n": 13
+        },
+        "B_extracted_sql": {
+          "set_exact": 12,
+          "fields_match": 13,
+          "task_success": 12,
+          "n": 13
+        }
+      },
+      "deepseek-flash": {
+        "A_raw_tools": {
+          "set_exact": 0,
+          "fields_match": 0,
+          "task_success": 0,
+          "n": 13
+        },
+        "B_extracted_sql": {
+          "set_exact": 5,
+          "fields_match": 5,
+          "task_success": 5,
+          "n": 13
+        }
+      }
+    },
+    "direction": "B above A in both aliases",
+    "alias_note": "no model family is inferred from an alias; the returned identifier is recorded per call",
+    "deepseek_tokens": {
+      "A_raw_tools": {
+        "tokens_in": 581221,
+        "tokens_out": 11699
+      },
+      "B_extracted_sql": {
+        "tokens_in": 11007,
+        "tokens_out": 10269
+      }
+    }
+  }
 }
