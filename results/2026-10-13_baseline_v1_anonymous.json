@@ -1,0 +1,47 @@
+{
+  "schema": "baseline-v1-anonymous-summary-v1",
+  "run": "baseline v1 development batch (batch 2, fair B)",
+  "probe_version": "necessity_probe v1",
+  "scorer_sha256": "07525ca2e3d5d81e41f62cc9b22484eb0104cb2e3f3e2379f4bce738c15ef945",
+  "model_requested": "[j]gemini-3-flash",
+  "model_returned": "gemini-3-flash",
+  "patients": 5,
+  "tasks": 13,
+  "arms": 2,
+  "calls": 26,
+  "failures": 0,
+  "by_arm": {
+    "A_raw_tools": {
+      "n": 13,
+      "set_exact": 4,
+      "fields_match": 2,
+      "task_success": 2
+    },
+    "B_extracted_sql": {
+      "n": 13,
+      "set_exact": 12,
+      "fields_match": 13,
+      "task_success": 12
+    }
+  },
+  "task_classes": {
+    "latest_before_cutoff": 5,
+    "all_in_interval": 5,
+    "same_day_multiple": 3
+  },
+  "cost_usd": {
+    "batch_1_handicapped_B": 0.291086,
+    "batch_2_fair_B": 0.252944,
+    "round_total": 0.54403,
+    "round_cap": 2.0
+  },
+  "reference_level": "rule/OCR derived; NOT independently verified against original pages",
+  "fairness_notes": [
+    "Both arms receive the same instruction, output contract, model configuration and repair cap.",
+    "Arm A gets the raw per-line text and is explicitly allowed retrieval, code or SQL.",
+    "Arm B gets a table with project, value, unit, both time roles and source lines.",
+    "Arm B's table comes from the upstream rule-based cross-row extractor, so it is NOT an independently implemented conventional baseline; that independence gap remains open.",
+    "The extractor never reads the reference and never selects records per question."
+  ],
+  "not_claimed": "No accuracy claim is made as a research result: the reference has no independent human verification."
+}
