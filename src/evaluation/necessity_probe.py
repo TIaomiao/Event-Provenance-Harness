@@ -42,7 +42,7 @@ def retrieve_lines(context, question, top_k=40, window=1):
     Returns the retrieved text and the number of source lines it kept.
     """
     lines = [line for line in (context or "").splitlines() if line.strip()]
-    terms = {ch for ch in question if ch.isalnum()} 
+    terms = {ch for ch in question if ch.isalnum()}
     if not lines or not terms:
         return context or "", len(lines)
     scored = []
