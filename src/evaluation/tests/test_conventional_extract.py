@@ -103,6 +103,40 @@ class ConventionalExtractTest(unittest.TestCase):
         records = ce.extract_rows(rows, ("HGB",))
         self.assertIsNone(records[0]["collection_date"])
 
+    def test_a_date_in_the_page_header_is_associated_across_rows(self):
+        """The stamp sits in the header, not on the result row."""
+        rows = [
+            line("L1", "采集时间：2025-04-27 17:16:14", 40, 20),
+            line("L2", "报告时间：2025-05-02 08:00:00", 40, 36),
+            line("L9", "HGB 血红蛋白量", 10, 400),
+            line("L10", "119", 120, 400),
+            line("L11", "g/L", 180, 400),
+        ]
+        rows[0]["page_number"] = 1
+        rows[1]["page_number"] = 1
+        rows[2]["page_number"] = 1
+        rows[3]["page_number"] = 1
+        rows[4]["page_number"] = 1
+        records = ce.extract_rows(rows, ("HGB",))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["collection_date"], "2025-04-27")
+        self.assertEqual(records[0]["report_date"], "2025-05-02")
+        ce.to_day_offsets(records)
+        self.assertEqual(records[0]["collection_day_offset"], 0)
+        self.assertEqual(records[0]["report_day_offset"], 5)
+
+    def test_a_row_with_its_own_date_keeps_it(self):
+        rows = [
+            line("L1", "HGB 血红蛋白量", 10, 100),
+            line("L2", "119", 120, 100),
+            line("L3", "g/L", 180, 100),
+            line("L4", "采集时间：2025-06-01 10:00:00", 240, 100),
+        ]
+        for index, row in enumerate(rows):
+            row["page_number"] = 1
+        records = ce.extract_rows(rows, ("HGB",))
+        self.assertEqual(records[0]["collection_date"], "2025-06-01")
+
 
 if __name__ == "__main__":
     unittest.main()

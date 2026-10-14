@@ -77,6 +77,30 @@ def _x(line):
     return min(point[0] for point in box)
 
 
+def _y(line):
+    box = line.get("bbox") or [[0.0, 0.0]]
+    return min(point[1] for point in box)
+
+
+def _page_times(lines):
+    """Every dated line, grouped by page, as (y, date_text) pairs.
+
+    On a scanned lab report the collection and report stamps usually sit in the page
+    header rather than on the result row, so they have to be associated across rows.
+    """
+    pages = {}
+    for line in lines:
+        if not line.get("bbox"):
+            continue
+        found = _date(str(line.get("text") or ""))
+        if not found:
+            continue
+        pages.setdefault(line.get("page_number"), []).append((_y(line), found))
+    for key in pages:
+        pages[key].sort()
+    return pages
+
+
 def extract_rows(lines, project_markers):
     """Return one record per row band that mentions the project.
 
@@ -84,8 +108,10 @@ def extract_rows(lines, project_markers):
     matches a unit pattern, and the two time roles come from the day markers in the band
     in reading order: collection first, then report.  A band without a value is skipped.
     """
+    all_lines = list(lines)
+    page_times = _page_times(all_lines)
     out = []
-    for band in _bands(list(lines)):
+    for band in _bands(all_lines):
         ordered = sorted(band, key=_x)
         joined = " ".join(str(line.get("text") or "") for line in ordered)
         if not any(marker in joined for marker in project_markers):
@@ -116,6 +142,16 @@ def extract_rows(lines, project_markers):
                     value = float(number.group(0))
         if value is None:
             continue
+        if dates:
+            pass
+        else:
+            # no date on the row itself: take the two nearest dated lines on the page
+            candidates = page_times.get(ordered[0].get("page_number")) or []
+            if candidates:
+                band_y = _y(ordered[0])
+                nearest = sorted(candidates, key=lambda item: abs(item[0] - band_y))[:2]
+                nearest.sort()
+                dates = [entry[1] for entry in nearest]
         out.append({"project_name": name, "value": value, "unit": unit,
                     "collection_day_offset": days[0] if days else None,
                     "report_day_offset": days[1] if len(days) > 1 else None,
