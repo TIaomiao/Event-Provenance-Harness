@@ -1,6 +1,6 @@
 {
   "schema": "baseline-v1-per-task-failures-v1",
-  "note": "anonymised: case tokens are replaced by patient indices",
+  "note": "anonymised: case tokens are replaced by patient indices; the mapping itself is not published",
   "runs": {
     "gemini-3-flash": {
       "by_arm": {
@@ -382,10 +382,13 @@
     }
   },
   "patient_aliases": {
-    "CASE-00178": "P1",
-    "CASE-00234": "P2",
-    "CASE-00497": "P3",
-    "CASE-00504": "P4",
-    "CASE-00641": "P5"
+    "count": 5,
+    "codes": [
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5"
+    ]
   }
 }
