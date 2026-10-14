@@ -260,9 +260,11 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
         if job["arm"].startswith("A") and bundle.get("a_retrieval_tool"):
             context, retrieved = retrieve_pages(context, task["instruction"] + " " + str(
                 (task.get("contract") or {}).get("project", "")))
+        plan_arm = (job["arm"].startswith("B") and bundle.get("b_plan_executor"))
+        ask = PLAN_INSTRUCTION if plan_arm else INSTRUCTION
         messages = [{"role": "system", "content": "你是严谨的临床数据取数助手，只依据材料作答。"},
                     {"role": "user", "content": "%s\n\n任务：%s\n\n%s" % (
-                        context, task["instruction"], INSTRUCTION)}]
+                        context, task["instruction"], ask)}]
         cap = (params or {}).get("max_output_tokens", PLANNED_OUTPUT_TOKENS)
         started = time.time()
         last, used_attempt, sent = None, 1, False
@@ -277,6 +279,15 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
                         "tokens_in": None, "tokens_out": None, "raw": ""}
         saved_ok = bool(last and last.get("status") == "ok")
         target = attempt_path(responses, job["task_id"], job["arm"], used_attempt)
+        plan_record, plan_ok, plan_problems, execute_problems = None, None, [], []
+        derived_answer = None
+        if plan_arm and saved_ok:
+            plan_record = parse_plan(last.get("raw", ""))
+            plan_ok, plan_problems = validate_plan(plan_record, task["contract"])
+            if plan_ok:
+                ids, execute_problems = execute_plan(plan_record, task["records"],
+                                                     task["contract"])
+                derived_answer = build_answer(ids, task["records"], task["contract"])
         if saved_ok:
             atomic_write_text(target, json.dumps(
                 {"task_id": job["task_id"], "arm": job["arm"], "model_requested": model,
@@ -284,6 +295,8 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
                  "raw": last.get("raw", ""), "tokens_in": last.get("tokens_in"),
                  "tokens_out": last.get("tokens_out"), "cost_usd": None,
                  "price_per_million": list(price_per_million),
+                 "plan": plan_record, "plan_ok": plan_ok, "plan_problems": plan_problems,
+                 "execute_problems": execute_problems, "derived_answer": derived_answer,
                  "attempt": used_attempt, "latency_s": round(time.time() - started, 2)},
                 ensure_ascii=False))
             os.chmod(target, 0o600)
@@ -302,9 +315,15 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
             saved = json.loads(target.read_text(encoding="utf-8"))
             saved["cost_usd"] = cost
             atomic_write_text(target, json.dumps(saved, ensure_ascii=False))
+        if plan_arm and saved_ok and not plan_ok:
+            status = "plan_error"
+        elif plan_arm and saved_ok and execute_problems:
+            status = "execute_error"
         row = {"task_id": job["task_id"], "arm": job["arm"], "model_requested": model,
                "model_returned": last.get("model_returned") if last else None,
                "status": status, "attempts": used_attempt,
+               "plan_ok": plan_ok, "plan_problems": plan_problems,
+               "execute_problems": execute_problems,
                "tokens_in": tokens_in, "tokens_out": tokens_out, "cost_usd": cost,
                "latency_s": round(time.time() - started, 2),
                "retrieved_lines": retrieved, "response_file": str(target),
@@ -356,7 +375,11 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
                                   "status": "missing_response", "task_success": False})
                 continue
             saved = json.loads(path.read_text(encoding="utf-8"))
-            answer = _parse_answer(saved.get("raw", ""))
+            if saved.get("derived_answer") is not None:
+                # the executor built this answer from the records; score that, not free text
+                answer = saved["derived_answer"]
+            else:
+                answer = _parse_answer(saved.get("raw", ""))
             unresolved = ambiguous = 0
             if answer.get("selected_records"):
                 resolved_items, unresolved, ambiguous = resolve_items(
@@ -372,6 +395,9 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
                            answer, task["records"], task["reference"])
             items.append({"task_id": task["task_id"], "arm": arm,
                           "status": saved.get("status", "ok"),
+                          "plan_ok": saved.get("plan_ok"),
+                          "plan_problems": saved.get("plan_problems") or [],
+                          "execute_problems": saved.get("execute_problems") or [],
                           "model_returned": saved.get("model_returned"),
                           "unresolved_items": unresolved, "ambiguous_items": ambiguous,
                           "set_exact_match": scored["set_exact_match"],
@@ -577,6 +603,141 @@ def resolve_items(items, records, role):
         filled["record_id"] = candidates[0]["record_id"]
         resolved.append(filled)
     return resolved, unresolved, ambiguous
+
+
+PLAN_INSTRUCTION = ("请只输出一个选择计划 JSON，不要输出答案、不要解释："
+                    "{\"project\": \"<项目名>\", \"time_role\": \"collection\" | \"report\", "
+                    "\"cutoff_day\": <整数或 null>, \"selection\": \"latest\" | "
+                    "\"earliest\" | \"all\"}")
+PLAN_KEYS = ("project", "time_role", "cutoff_day", "selection")
+ALLOWED_SELECTION = ("latest", "earliest", "all")
+
+
+def parse_plan(raw):
+    """Read a plan object out of a response.  None means the model did not give one."""
+    text = raw or ""
+    try:
+        envelope = json.loads(text)
+    except (ValueError, TypeError):
+        envelope = None
+    if isinstance(envelope, dict):
+        choices = envelope.get("choices")
+        if isinstance(choices, list) and choices:
+            message = choices[0].get("message") if isinstance(choices[0], dict) else None
+            if isinstance(message, dict) and isinstance(message.get("content"), str):
+                text = message["content"]
+    text = text.replace("```json", "```")
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end <= start:
+        return None
+    try:
+        payload = json.loads(text[start:end + 1])
+    except (ValueError, TypeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def validate_plan(plan, contract):
+    """Check the plan's shape and allowed operations only.
+
+    It never compares the plan with a known-correct one and never replaces it: a plan that
+    is well formed but wrong is a wrong answer, not a plan error.
+    """
+    problems = []
+    if plan is None:
+        return False, ["plan_missing"]
+    extra = sorted(set(plan) - set(PLAN_KEYS))
+    if extra:
+        problems.append("plan_unexpected_keys:%s" % ",".join(extra))
+    missing = [key for key in ("project", "time_role", "selection") if key not in plan]
+    if missing:
+        problems.append("plan_missing_keys:%s" % ",".join(missing))
+    if missing:
+        return False, problems
+    if not isinstance(plan.get("project"), str) or not plan["project"].strip():
+        problems.append("plan_bad_project")
+    if plan.get("time_role") not in ("collection", "report"):
+        problems.append("plan_bad_time_role")
+    if plan.get("selection") not in ALLOWED_SELECTION:
+        problems.append("plan_bad_selection")
+    cutoff = plan.get("cutoff_day")
+    if cutoff is not None and (not isinstance(cutoff, int) or isinstance(cutoff, bool)):
+        problems.append("plan_bad_cutoff")
+    return not problems, problems
+
+
+def execute_plan(plan, records, contract):
+    """Select and order the records by code.  Returns record ids and its own problems."""
+    problems = []
+    role = plan.get("time_role")
+    cutoff = plan.get("cutoff_day")
+    selection = plan.get("selection")
+    window = contract.get("window") or {}
+    low = window.get("from")
+    include_low = window.get("include_from", False)
+    if cutoff is not None:
+        # a cutoff means on or before that day
+        high, include_high = cutoff, True
+    else:
+        high = window.get("to")
+        include_high = window.get("include_to", True)
+
+    def in_window(record):
+        day = record.get("%s_day_offset" % role)
+        if day is None:
+            return False
+        if low is not None:
+            if day < low or (day == low and not include_low):
+                return False
+        if high is not None:
+            if day > high or (day == high and not include_high):
+                return False
+        return True
+
+    candidates = [record for record in records if in_window(record)]
+    if not candidates:
+        return [], ["execute_no_records_in_window"]
+
+    def order_key(record):
+        day = record.get("%s_day_offset" % role)
+        clock = record.get("%s_clock" % role) or ""
+        return (day, clock)
+
+    if selection == "all":
+        chosen = sorted(candidates, key=order_key)
+    elif selection == "earliest":
+        chosen = [sorted(candidates, key=order_key)[0]]
+    else:
+        chosen = [sorted(candidates, key=order_key)[-1]]
+
+    days = {record.get("%s_day_offset" % role) for record in chosen}
+    if len(chosen) > 1 and len(days) > 1 and selection in ("latest", "earliest"):
+        problems.append("execute_multiple_days_in_one_choice")
+    return [record["record_id"] for record in chosen], problems
+
+
+def build_answer(selected_ids, records, contract, *, undetermined_reason=None):
+    """Build the answer object from the selected records.  The model does not write it."""
+    if undetermined_reason:
+        return {"status": "undetermined", "selected_records": [],
+                "reason": undetermined_reason}
+    by_id = {record["record_id"]: record for record in records}
+    items = []
+    for identifier in selected_ids:
+        record = by_id.get(identifier)
+        if record is None:
+            continue
+        refs = [record.get(field) for field in
+                ("project_ref", "result_ref", "unit_ref", "collection_ref", "report_ref")
+                if record.get(field)]
+        items.append({"record_id": identifier,
+                      "project_name": record.get("project_name"),
+                      "value": record.get("value"), "unit": record.get("unit"),
+                      "collection_day_offset": record.get("collection_day_offset"),
+                      "report_day_offset": record.get("report_day_offset"),
+                      "source_refs": refs})
+    status = "ok" if items else "empty"
+    return {"status": status, "selected_records": items}
 
 
 def _parse_answer(raw):

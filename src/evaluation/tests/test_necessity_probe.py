@@ -374,5 +374,82 @@ class MatcherTest(unittest.TestCase):
         self.assertEqual((unresolved, ambiguous), (0, 0))
 
 
+class ExecutorTest(unittest.TestCase):
+    """The plan comes from the model; the selection is done by code; the answer by code."""
+
+    def _records(self):
+        return [{"record_id": "a", "value": 119.0, "unit": "g/L",
+                 "collection_day_offset": 0, "collection_clock": "17:16:14",
+                 "project_ref": "L1", "result_ref": "L2", "unit_ref": "L3",
+                 "collection_ref": "L4", "report_ref": "L5"},
+                {"record_id": "b", "value": 114.0, "unit": "g/L",
+                 "collection_day_offset": 5, "collection_clock": "06:33:31",
+                 "project_ref": "L9", "result_ref": "L10", "unit_ref": "L11",
+                 "collection_ref": "L12", "report_ref": "L13"}]
+
+    def test_a_valid_plan_executes_and_the_answer_is_built_from_the_records(self):
+        plan = {"project": "HGB", "time_role": "collection", "cutoff_day": 0,
+                "selection": "latest"}
+        ok, problems = np.validate_plan(plan, contract())
+        self.assertTrue(ok)
+        self.assertEqual(problems, [])
+        ids, execute_problems = np.execute_plan(plan, self._records(), contract())
+        self.assertEqual(ids, ["a"])
+        self.assertEqual(execute_problems, [])
+        answer = np.build_answer(ids, self._records(), contract())
+        self.assertEqual(answer["status"], "ok")
+        self.assertEqual(answer["selected_records"][0]["value"], 119.0)
+        self.assertIn("L2", answer["selected_records"][0]["source_refs"])
+
+    def test_a_bad_selection_value_is_a_plan_error(self):
+        plan = {"project": "HGB", "time_role": "collection", "cutoff_day": 0,
+                "selection": "nearest"}
+        ok, problems = np.validate_plan(plan, contract())
+        self.assertFalse(ok)
+        self.assertIn("plan_bad_selection", problems)
+
+    def test_a_missing_plan_is_a_plan_error(self):
+        ok, problems = np.validate_plan(None, contract())
+        self.assertFalse(ok)
+        self.assertIn("plan_missing", problems)
+
+    def test_free_text_instead_of_a_plan_is_a_plan_error(self):
+        self.assertIsNone(np.parse_plan("the latest value is 119 g/L"))
+
+    def test_a_well_formed_but_wrong_plan_is_followed_not_replaced(self):
+        """The validator checks shape only; it never swaps in the right plan."""
+        plan = {"project": "HGB", "time_role": "collection", "cutoff_day": 5,
+                "selection": "latest"}
+        ok, _ = np.validate_plan(plan, contract())
+        self.assertTrue(ok, "a plan can be well formed and still wrong")
+        ids, _ = np.execute_plan(plan, self._records(), contract())
+        self.assertEqual(ids, ["b"], "the wrong plan is executed, not corrected")
+
+    def test_an_empty_window_is_an_execution_error(self):
+        plan = {"project": "HGB", "time_role": "collection", "cutoff_day": 0,
+                "selection": "latest"}
+        records = [record for record in self._records() if record["record_id"] != "a"]
+        ids, problems = np.execute_plan(plan, records, contract())
+        self.assertEqual(ids, [])
+        self.assertIn("execute_no_records_in_window", problems)
+
+    def test_a_record_without_a_time_role_is_not_selectable(self):
+        plan = {"project": "HGB", "time_role": "report", "cutoff_day": 9,
+                "selection": "all"}
+        ids, problems = np.execute_plan(plan, self._records(), contract())
+        self.assertEqual(ids, [])
+        self.assertIn("execute_no_records_in_window", problems)
+
+    def test_the_answer_carries_the_two_time_roles_and_the_anchors(self):
+        ids, _ = np.execute_plan({"project": "HGB", "time_role": "collection",
+                                  "cutoff_day": 9, "selection": "all"},
+                                 self._records(), contract())
+        answer = np.build_answer(ids, self._records(), contract())
+        self.assertEqual(len(answer["selected_records"]), 2)
+        for item in answer["selected_records"]:
+            self.assertIn("collection_day_offset", item)
+            self.assertTrue(item["source_refs"])
+
+
 if __name__ == "__main__":
     unittest.main()
