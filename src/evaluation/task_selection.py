@@ -522,9 +522,14 @@ def _field_mismatches(identifier, item, record, role, contract=None):
         else:
             got = sorted(str(ref) for ref in claimed)
             if mode == "supported":
-                # any non-empty subset of the record's own lines genuinely supports it,
-                # so an equivalent valid anchor set is accepted
-                if not set(got) <= set(expected_refs):
+                # A line that genuinely supports the record counts, even when the
+                # reference implementation picked a different line of the same row
+                # group: the abbreviation line carries the same analyte as the full
+                # name line, so requiring the record's own choice would reject a valid
+                # anchor.  Mechanical row-number equality is not what makes a source.
+                allowed = set(expected_refs) | {str(ref) for ref in
+                                                (record.get("alias_refs") or [])}
+                if not set(got) <= allowed:
                     out.append("%s:source" % identifier)
             elif got != expected_refs:
                 out.append("%s:source" % identifier)

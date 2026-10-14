@@ -701,6 +701,38 @@ class TaskContractTest(unittest.TestCase):
         self.assertIs(result["fields_match"], False)
         self.assertTrue(any("time_precision" in m for m in result["field_mismatches"]))
 
+    def _alias_case(self, claimed):
+        contract = {"required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "day", "source_mode": "supported"}
+        records = [{"record_id": "late", "case_token": "CASE-SYNTHETIC",
+                    "day_offset": 0, "clock": "17:16:14", "precision": "second",
+                    "value": 7.0, "unit": "g/L", "time_role": "collection",
+                    "project_ref": "L2158", "result_ref": "L2160", "unit_ref": "L2162",
+                    "collection_ref": "L2223", "report_ref": "L2226",
+                    "alias_refs": ["L2159"],
+                    "project_name": "HGB", "identity_status": "explicit"}]
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": claimed}]}
+        spec = {"window": {"from": None, "to": 0, "include_from": False,
+                           "include_to": True}, "selection": "latest",
+                "contract": contract}
+        task = {"task_id": "t", "time_role": "collection",
+                "case_token": "CASE-SYNTHETIC", "spec": spec}
+        reference = {"status": "ok", "selected": ["late"], "candidates": []}
+        return ts.score(task, answer, records, reference)
+
+    def test_an_alias_line_is_an_equivalent_valid_anchor(self):
+        """L2159 carries the same analyte as L2158, so it really does support the record."""
+        result = self._alias_case(["L2159", "L2160", "L2223"])
+        self.assertIs(result["fields_match"], True)
+        self.assertIs(result["task_success"], True)
+
+    def test_an_anchor_outside_the_row_group_still_fails(self):
+        result = self._alias_case(["L77"])
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("source" in m for m in result["field_mismatches"]))
+
 
 if __name__ == "__main__":
     unittest.main()
