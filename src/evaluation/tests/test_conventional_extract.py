@@ -68,6 +68,41 @@ class ConventionalExtractTest(unittest.TestCase):
                              "arm B must not borrow %s" % forbidden)
         self.assertNotIn("extract_hgb_candidates", source)
 
+    def test_absolute_dates_are_read_and_turned_into_offsets(self):
+        rows = [
+            line("L1", "HGB 血红蛋白量", 10, 100),
+            line("L2", "119", 120, 100),
+            line("L3", "g/L", 180, 100),
+            line("L4", "采集时间：2025-04-27 17:16:14", 240, 100),
+            line("L5", "报告时间：2025-05-02 08:00:00", 300, 100),
+        ]
+        records = ce.extract_rows(rows, ("HGB",))
+        self.assertEqual(records[0]["collection_date"], "2025-04-27")
+        self.assertEqual(records[0]["report_date"], "2025-05-02")
+        ce.to_day_offsets(records)
+        self.assertEqual(records[0]["collection_day_offset"], 0)
+        self.assertEqual(records[0]["report_day_offset"], 5)
+
+    def test_a_chinese_date_format_is_read_too(self):
+        rows = [
+            line("L1", "HGB 血红蛋白量", 10, 100),
+            line("L2", "119", 120, 100),
+            line("L3", "g/L", 180, 100),
+            line("L4", "记录时间：2025年4月27日", 240, 100),
+        ]
+        records = ce.extract_rows(rows, ("HGB",))
+        self.assertEqual(records[0]["collection_date"], "2025-04-27")
+
+    def test_an_impossible_date_is_ignored(self):
+        rows = [
+            line("L1", "HGB 血红蛋白量", 10, 100),
+            line("L2", "119", 120, 100),
+            line("L3", "g/L", 180, 100),
+            line("L4", "时间：2025-13-45", 240, 100),
+        ]
+        records = ce.extract_rows(rows, ("HGB",))
+        self.assertIsNone(records[0]["collection_date"])
+
 
 if __name__ == "__main__":
     unittest.main()
