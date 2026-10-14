@@ -1,0 +1,36 @@
+{
+  "schema": "baseline-v1-human-checklist-template-v1",
+  "location_on_controlled_host": "/tmp/baseline_v1_checklist/checklist.json and checklist.md",
+  "reason_not_published": "the per-task checklist carries patient values and page anchors, so it stays in the controlled environment; only this structure and count summary is published",
+  "reference_level": "rule/OCR derived, NOT human verified",
+  "counts": {
+    "tasks": 13,
+    "by_class": {
+      "latest_before_cutoff": 5,
+      "all_in_interval": 5,
+      "same_day_multiple": 3
+    },
+    "records_to_check": 50
+  },
+  "explicitly_not_a_human_check": true,
+  "per_task_questions": [
+    "list every candidate record in the task window: is the reference count complete?",
+    "does each record's value and unit match the original page?",
+    "are the collection and report time roles bound correctly?",
+    "do the source anchors really carry the field, including alias lines?",
+    "is any record missing, or wrongly included?",
+    "does the reference status (ok/empty/undetermined) match the original page?"
+  ],
+  "verdict_fields_per_task": [
+    "all_candidates_present",
+    "values_ok",
+    "units_ok",
+    "time_roles_ok",
+    "anchors_ok",
+    "no_missing_records",
+    "status_ok",
+    "disagreements"
+  ],
+  "reviewer_recorded": false,
+  "consequence": "until a human fills these in, every task_success figure in this round is an engineering reading only and must not be reported as accuracy"
+}
