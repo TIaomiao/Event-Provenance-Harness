@@ -1,0 +1,21 @@
+{
+  "schema": "baseline-v1-retrieval-selfcheck-v1",
+  "cost": 0,
+  "method": "run the engine's own retrieve_lines on arm A's context and test whether the retrieved text still carries the project, the value, the unit, the time anchors and the source lines of the records the reference selected",
+  "verdict": "INADEQUATE: the current lexical retrieval cannot support an answer",
+  "counts": {
+    "tasks": 13,
+    "project_kept": 13,
+    "unit_kept": 13,
+    "value_kept": 1,
+    "time_anchor_kept": 8,
+    "mean_retained_line_fraction": 0.031
+  },
+  "finding": "retention is about three percent of the lines, so nearly everything is discarded. The analyte name and the unit survive, but the result value is lost in twelve of thirteen tasks and the time anchors in five. This is the failure the order anticipated: the analyte line is found while the collection time above it is lost.",
+  "structural_reason": "on this material the analyte line, its value and the page-header times sit in different rows, so a line-level lexical match does not keep a record together. This is the same structure that made the naive per-row extractor fail earlier.",
+  "consequence": "enabling a_retrieval_tool as it stands would hand arm A a defective tool, so a future batch must either improve the retrieval first or run arm A without it. Neither choice is made here.",
+  "not_done": [
+    "anchor-driven expansion so the retrieved text holds a whole record",
+    "re-running the self-check after any change"
+  ]
+}
