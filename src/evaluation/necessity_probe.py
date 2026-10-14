@@ -35,23 +35,87 @@ INSTRUCTION = ("请只输出 JSON：{\"status\": \"ok\" | \"empty\" | \"undeterm
                "\"source_refs\": [\"<行号>\"]}], \"reason\": \"<可选>\"}")
 
 
-def retrieve_lines(context, question, top_k=40, window=1):
-    """A real, program-executed retrieval step for the raw arm.
+PAGE_MARK = "=== PAGE "
 
-    Arm A is allowed to search rather than swallow the whole file, so the engine runs a
-    lexical retrieval itself and passes the hits with their neighbours.  This is a tool
-    the program actually executes, not an instruction telling the model it may search.
-    Returns the retrieved text and the number of source lines it kept.
+
+def split_pages(context):
+    """Parse a page-indexed context into [(page_label, [lines])]."""
+    pages, current = [], None
+    for line in (context or "").splitlines():
+        if line.startswith(PAGE_MARK):
+            current = (line[len(PAGE_MARK):].rstrip(" ="), [])
+            pages.append(current)
+            continue
+        if current is None:
+            current = ("?", [])
+            pages.append(current)
+        current[1].append(line)
+    return pages
+
+
+def join_pages(pages):
+    out = []
+    for label, lines in pages:
+        out.append("%s%s ===" % (PAGE_MARK, label))
+        out.extend(lines)
+    return "\n".join(out)
+
+
+def _question_terms(question):
+    return {part for part in str(question).lower().split() if part} or set(question or "")
+
+
+def retrieve_pages(context, question, *, max_pages=None, include_adjacent=True,
+                   min_hits=1, allow_more=True, hard_page_cap=64):
+    """Find where the question lands, then return the whole page there.
+
+    Location uses only the page index, the line text and the question.  The reference and
+    the extracted table take no part in deciding what to expand.  Whole pages are returned
+    rather than a few neighbouring lines, because a record's value, its unit and the page
+    header times sit in different rows.
     """
+    pages = split_pages(context)
+    if not pages:
+        return context or "", {"pages": 0, "expanded": [], "hits": 0}
+    terms = _question_terms(question)
+    scored = []
+    for index, (label, lines) in enumerate(pages):
+        hits = sum(1 for line in lines if any(term in line.lower() for term in terms))
+        scored.append((hits, index, label))
+    hits_total = sum(item[0] for item in scored)
+    ranked = sorted([item for item in scored if item[0] >= min_hits],
+                    key=lambda item: (-item[0], item[1]))
+    if max_pages is None:
+        # no cap: every page the question lands on is read, so the answer is never cut off
+        chosen = [item[1] for item in ranked]
+    else:
+        chosen = [item[1] for item in ranked[:max_pages]]
+    if include_adjacent:
+        for index in list(chosen):
+            for neighbour in (index - 1, index + 1):
+                if 0 <= neighbour < len(pages) and neighbour not in chosen:
+                    chosen.append(neighbour)
+    chosen = sorted(set(chosen)) or list(range(min(1, len(pages))))
+    remaining = len(pages) - len(chosen)
+    if max_pages is not None:
+        chosen = chosen[:max_pages + (2 if include_adjacent else 0)]
+    else:
+        chosen = chosen[:hard_page_cap]
+    expanded = [pages[index][0] for index in chosen]
+    return join_pages([pages[index] for index in chosen]), {
+        "pages": len(pages), "expanded": expanded, "hits": hits_total,
+        "truncated": bool(max_pages is not None and remaining > 0),
+        "can_read_more": allow_more and (len(chosen) < len(pages))}
+
+
+def retrieve_lines(context, question, top_k=40, window=1):
+    """Deprecated line-level retrieval, kept only as a diagnostic contrast."""
     lines = [line for line in (context or "").splitlines() if line.strip()]
     terms = {ch for ch in question if ch.isalnum()}
     if not lines or not terms:
         return context or "", len(lines)
-    scored = []
-    for index, line in enumerate(lines):
-        hits = sum(1 for ch in set(line) if ch in terms)
-        scored.append((hits, index))
-    scored.sort(key=lambda item: (-item[0], item[1]))
+    scored = sorted(((sum(1 for ch in set(line) if ch in terms), index)
+                     for index, line in enumerate(lines)), key=lambda item: (-item[0], item[1]))
     keep = set()
     for hits, index in scored[:top_k]:
         if hits == 0:
@@ -61,12 +125,7 @@ def retrieve_lines(context, question, top_k=40, window=1):
                 keep.add(index + offset)
     if not keep:
         return context or "", len(lines)
-    picked = [lines[i] for i in sorted(keep)]
-    return "\n".join(picked), len(picked)
-
-
-class ProbeError(RuntimeError):
-    """A configuration or provenance failure that must stop the run."""
+    return "\n".join(lines[i] for i in sorted(keep)), len(keep)
 
 
 def scorer_fingerprint():
@@ -199,7 +258,8 @@ def run(bundle_path, responses, ledger, transport, *, model, price_per_million,
         context = task["context"][job["arm"]]
         retrieved = None
         if job["arm"].startswith("A") and bundle.get("a_retrieval_tool"):
-            context, retrieved = retrieve_lines(context, task["instruction"])
+            context, retrieved = retrieve_pages(context, task["instruction"] + " " + str(
+                (task.get("contract") or {}).get("project", "")))
         messages = [{"role": "system", "content": "你是严谨的临床数据取数助手，只依据材料作答。"},
                     {"role": "user", "content": "%s\n\n任务：%s\n\n%s" % (
                         context, task["instruction"], INSTRUCTION)}]
@@ -338,6 +398,10 @@ def rescore(bundle_path, responses, out, *, tasks_without_response_count_as_fail
         Path(out).write_text(json.dumps(summary, ensure_ascii=False, indent=2),
                              encoding="utf-8")
     return summary
+
+
+class ProbeError(RuntimeError):
+    """A configuration or provenance failure that must stop the run."""
 
 
 class RunIdentityMismatch(ProbeError):

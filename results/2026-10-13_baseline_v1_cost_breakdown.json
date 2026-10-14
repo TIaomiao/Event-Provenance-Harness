@@ -53,7 +53,7 @@
         }
       },
       "total_usd": 0.2106204,
-      "price_note": "PRICE NOT SUPPLIED FOR THIS ALIAS: cost is placeholder-priced with the first alias's rate and is not a real figure; tokens are exact",
+      "price_note": "REAL TOKENS, COST PENDING: the alias rate was never supplied; the money figure is a placeholder estimate kept for budgeting only and must not be reported as spend",
       "first_question_total_usd": 0.2106204,
       "amortised_note": "each task is a separate first question here, so the batch total is the first-question total; there is no shared per-query table cost to amortise because B table building is local and unpriced"
     }
@@ -63,5 +63,42 @@
     "shared OCR: pre-existing governance artifact, not measured in this round",
     "human preparation and verification: not performed, not measured",
     "reports / retries beyond the recorded attempt count: none occurred"
-  ]
+  ],
+  "withdrawn_claim": "the earlier statement that 0.75465 USD is the actual total spend is withdrawn: it mixed a verified rate with a placeholder",
+  "price_status": {
+    "gemini_3_flash": {
+      "rate": [
+        0.3,
+        1.5
+      ],
+      "unit": "USD per million tokens",
+      "status": "rate as supplied to the runner; awaiting the bill"
+    },
+    "deepseek_flash": {
+      "rate": null,
+      "status": "NOT SUPPLIED: the batch keeps its real token counts, its cost is pending verification, and the placeholder estimate is kept separately and is not a billable figure"
+    }
+  },
+  "spend_split": {
+    "verified_spend_usd": null,
+    "verified_note": "no figure is verified until the gateway bill is checked",
+    "estimated_spend_usd": 0.75465,
+    "estimated_note": "the DeepSeek part is placeholder priced, so this total is an estimate",
+    "unknown_cost_calls": 0,
+    "unknown_note": "every stored call has a saved response and a token count, so no call is in the unknown bucket; the DeepSeek rate is unknown, not the call",
+    "token_totals": {
+      "batch1": {
+        "A": null,
+        "B": null
+      },
+      "batch2_gemini": {
+        "A": 775916,
+        "B": 22031
+      },
+      "batch3_deepseek": {
+        "A": 592920,
+        "B": 21276
+      }
+    }
+  }
 }
