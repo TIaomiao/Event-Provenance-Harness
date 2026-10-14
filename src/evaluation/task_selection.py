@@ -411,13 +411,47 @@ def _finite(value):
     return number if math.isfinite(number) else None
 
 
-def _field_mismatches(identifier, item, record, role):
+CONTRACT_KEYS = ("required_fields", "display_precision", "source_mode")
+DISPLAY_PRECISIONS = ("day", "second")
+SOURCE_MODES = ("exact", "supported")
+
+
+def check_contract(spec):
+    """Validate a declared task contract, or return None for a legacy task.
+
+    Selecting a record may need the finest available precision while the answer is
+    only required to *show* a coarser one.  Those are different requirements and are
+    declared separately.  A task that declares a contract must declare all of it: a
+    partial contract is an error rather than a silent default.
+    """
+    contract = (spec or {}).get("contract")
+    if contract is None:
+        return None
+    if not isinstance(contract, dict):
+        raise SelectionError("CONTRACT_NOT_AN_OBJECT")
+    missing = [key for key in CONTRACT_KEYS if key not in contract]
+    if missing:
+        raise SelectionError("CONTRACT_MISSING_%s" % "_".join(missing).upper())
+    if contract["display_precision"] not in DISPLAY_PRECISIONS:
+        raise SelectionError("CONTRACT_BAD_DISPLAY_PRECISION")
+    if contract["source_mode"] not in SOURCE_MODES:
+        raise SelectionError("CONTRACT_BAD_SOURCE_MODE")
+    if not isinstance(contract["required_fields"], (list, tuple)):
+        raise SelectionError("CONTRACT_BAD_REQUIRED_FIELDS")
+    return contract
+
+
+def _field_mismatches(identifier, item, record, role, contract=None):
     """Compare the fields the model supplied against the frozen record.
 
     A required field the answer omits is a failure, not a neutral omission.  Values
-    must be finite numbers, the day offset must be an exact integer, and the clock
-    must match when the record carries one.  Unusable input is recorded as a mismatch
-    instead of raising, so a malformed answer becomes a scored failure.
+    must be finite numbers and the day offset must be an exact integer.  Time precision
+    is checked against what the contract requires the answer to *show*: with day
+    display a day offset is enough and a missing clock is not a fault, while with
+    second display the clock must be present and equal, and a record that carries only
+    a day cannot be answered with an invented clock.  When no contract is declared the
+    record's own precision governs, which keeps earlier tasks reproducible.  Unusable
+    input is recorded as a mismatch instead of raising.
     """
     if not isinstance(item, dict):
         return ["%s:missing_%s" % (identifier, field) for field in REQUIRED_ITEM_FIELDS]
@@ -460,15 +494,19 @@ def _field_mismatches(identifier, item, record, role):
             else:
                 day_ok = True
         if day_ok:
-            second_precision = str(expected_precision or "").lower() == "second"
-            if second_precision:
+            display = (contract or {}).get("display_precision")
+            if display is None:
+                # legacy: the record's own precision governs
+                display = "second" if str(expected_precision or "").lower() == "second" else "day"
+            if display == "second":
                 if supplied_clock is None:
                     out.append("%s:time_precision" % identifier)
                 elif not CLOCK_RE.match(str(supplied_clock).strip()):
                     out.append("%s:time" % identifier)
                 elif expected_clock and str(supplied_clock).strip() != str(expected_clock).strip():
                     out.append("%s:time" % identifier)
-            elif supplied_clock is not None:
+            elif supplied_clock is not None and str(expected_precision or "").lower() != "second":
+                # day display: the answer shows more precision than the record carries
                 out.append("%s:time_precision" % identifier)
 
     claimed = item.get("source_refs")
@@ -478,10 +516,18 @@ def _field_mismatches(identifier, item, record, role):
         expected_refs = sorted(str(record.get(field)) for field in
                                ("project_ref", "result_ref", "unit_ref",
                                 "collection_ref", "report_ref") if record.get(field))
-        if not isinstance(claimed, (list, tuple)):
+        mode = (contract or {}).get("source_mode", "exact")
+        if not isinstance(claimed, (list, tuple)) or not claimed:
             out.append("%s:source" % identifier)
-        elif sorted(str(ref) for ref in claimed) != expected_refs:
-            out.append("%s:source" % identifier)
+        else:
+            got = sorted(str(ref) for ref in claimed)
+            if mode == "supported":
+                # any non-empty subset of the record's own lines genuinely supports it,
+                # so an equivalent valid anchor set is accepted
+                if not set(got) <= set(expected_refs):
+                    out.append("%s:source" % identifier)
+            elif got != expected_refs:
+                out.append("%s:source" % identifier)
     return out
 
 
@@ -586,11 +632,12 @@ def score(task, answer, records, reference, *, plan=None, plan_ok=None,
     if selected_set and selected_set <= set(by_id):
         supplied = result["fields_supplied"]
         mismatches = []
+        contract = check_contract(task.get("spec"))
         for identifier, item in pairs:
             record = by_id.get(identifier)
             if record is None:
                 continue
-            mismatches.extend(_field_mismatches(identifier, item, record, role))
+            mismatches.extend(_field_mismatches(identifier, item, record, role, contract))
         result["field_mismatches"] = mismatches
         # Whoever produced the fields, the final answer is judged the same way: an
         # expanded field is verified against the record rather than trusted, and the

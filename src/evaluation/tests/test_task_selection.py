@@ -617,5 +617,90 @@ class FieldBindingRegressionTest(unittest.TestCase):
         self.assertTrue(any("missing_value" in m for m in result["field_mismatches"]))
 
 
+class TaskContractTest(unittest.TestCase):
+    """Selection precision and displayed precision are different requirements."""
+
+    def _records(self):
+        return [record("early", 0, clock="08:00:00", precision="second",
+                       value=5.0, unit="g/L"),
+                record("late", 0, clock="17:16:14", precision="second",
+                       value=7.0, unit="g/L")]
+
+    def _task(self, contract=None):
+        spec = {"window": {"from": None, "to": 0, "include_from": False,
+                           "include_to": True},
+                "selection": "latest"}
+        if contract is not None:
+            spec["contract"] = contract
+        return {"task_id": "t", "time_role": "collection",
+                "case_token": "CASE-SYNTHETIC", "spec": spec}
+
+    def _reference(self):
+        # the later record on the same day is the correct answer
+        return {"status": "ok", "selected": ["late"], "candidates": []}
+
+    def _score(self, answer, contract=None):
+        return ts.score(self._task(contract), answer, self._records(), self._reference())
+
+    def test_day_display_still_selects_the_later_same_day_record(self):
+        """Ordering keeps using the clock even when the answer only shows a day."""
+        contract = {"required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "day", "source_mode": "supported"}
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L1"]}]}
+        result = self._score(answer, contract)
+        self.assertTrue(result["set_exact_match"])
+        self.assertIs(result["fields_match"], True)
+        self.assertIs(result["task_success"], True)
+
+    def test_second_display_makes_a_missing_clock_fail(self):
+        contract = {"required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "second", "source_mode": "supported"}
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L1"]}]}
+        result = self._score(answer, contract)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time_precision" in m for m in result["field_mismatches"]))
+
+    def test_wrong_source_fails_under_supported_mode(self):
+        contract = {"required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "day", "source_mode": "supported"}
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L99"]}]}
+        result = self._score(answer, contract)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("source" in m for m in result["field_mismatches"]))
+
+    def test_equivalent_valid_anchor_is_accepted(self):
+        contract = {"required_fields": ["value", "unit", "time", "source"],
+                    "display_precision": "day", "source_mode": "supported"}
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L3"]}]}
+        result = self._score(answer, contract)
+        self.assertIs(result["fields_match"], True)
+
+    def test_partial_contract_is_rejected_before_scoring(self):
+        """A declared but incomplete contract must fail loudly, not default."""
+        contract = {"display_precision": "day"}
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L1"]}]}
+        with self.assertRaises(ts.SelectionError):
+            self._score(answer, contract)
+
+    def test_no_contract_keeps_the_legacy_precision_behaviour(self):
+        """Tasks without a contract stay reproducible."""
+        answer = {"status": "ok", "selected_records": [
+            {"record_id": "late", "value": 7.0, "unit": "g/L", "day_offset": 0,
+             "source_refs": ["L1"]}]}
+        result = self._score(answer, None)
+        self.assertIs(result["fields_match"], False)
+        self.assertTrue(any("time_precision" in m for m in result["field_mismatches"]))
+
+
 if __name__ == "__main__":
     unittest.main()
