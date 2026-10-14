@@ -90,5 +90,52 @@
         "tokens_out": 10269
       }
     }
+  },
+  "post_hoc_rescore_diagnostic": {
+    "label": "post-hoc: responses were produced under the earlier scorer",
+    "not_a_new_validation": true,
+    "scorer_before": "07525ca2e3d5d81e41f62cc9b22484eb0104cb2e3f3e2379f4bce738c15ef945",
+    "scorer_after": "2984685640614a31",
+    "gemini_flash": {
+      "A_raw_tools": {
+        "before": {
+          "task_success": 2,
+          "fields_match": 2
+        },
+        "after": {
+          "task_success": 3,
+          "fields_match": 3
+        }
+      },
+      "B_extracted_sql": {
+        "before": {
+          "task_success": 12,
+          "fields_match": 13
+        },
+        "after": {
+          "task_success": 12,
+          "fields_match": 13
+        }
+      }
+    },
+    "deepseek_flash": {
+      "A_raw_tools": {
+        "before": {
+          "task_success": 0
+        },
+        "after": {
+          "task_success": 0
+        }
+      },
+      "B_extracted_sql": {
+        "before": {
+          "task_success": 5
+        },
+        "after": {
+          "task_success": 5
+        }
+      }
+    },
+    "conclusion": "the too-strict source check caused one false failure in arm A, not the bulk"
   }
 }
